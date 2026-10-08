@@ -91,6 +91,14 @@ const roles = [
       <div class="s s-bridge"><ValueBridge delay={720} /></div>
       <div class="s s-die"><Dieline delay={840} /></div>
       <div class="s s-route"><Routing delay={960} /></div>
+      <div class="s s-note">
+        <p class="t-label">Studies</p>
+        <p class="note-text">
+          Eight disciplines, one drawing each, every one exact. The solid turns under your hand; the escapement keeps
+          time with this page.
+        </p>
+        <a class="note-link" href="/about#practice">How I work</a>
+      </div>
     </div>
     <p class="swipe t-note" aria-hidden="true">Eight drawings, one per discipline. Swipe for the rest.</p>
   </section>
@@ -119,7 +127,6 @@ const roles = [
     </header>
     <div class="ventures">
       <div class="venture">
-        <EntityPlate size="feature" />
         <div class="v-meta">
           <div>
             <h3 class="v-name"><a href="/work/the-entity">THE ENTITY</a></h3>
@@ -127,9 +134,9 @@ const roles = [
           </div>
           <span class="v-role t-label">Founder</span>
         </div>
+        <EntityPlate size="feature" />
       </div>
       <div class="venture">
-        <OrbesPlate size="feature" />
         <div class="v-meta">
           <div>
             <h3 class="v-name"><a href="/work/orbes">ORBES</a></h3>
@@ -137,6 +144,7 @@ const roles = [
           </div>
           <span class="v-role t-label">Founder</span>
         </div>
+        <OrbesPlate size="feature" />
       </div>
     </div>
     {
@@ -276,7 +284,7 @@ const roles = [
   .roles {
     list-style: none;
     margin-top: var(--s5);
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--border-2);
     max-width: 48rem;
   }
 
@@ -352,24 +360,45 @@ const roles = [
     margin-top: var(--s7);
   }
   .s-amm {
-    grid-column: 5 / span 3;
+    grid-column: 5 / span 4;
     grid-row: 3;
-    margin-top: var(--s8);
+    margin-top: calc(var(--s7) + var(--s3));
+    padding-inline: 4%;
   }
   .s-bridge {
-    grid-column: 9 / span 3;
+    grid-column: 9 / span 4;
     grid-row: 3;
-    margin-top: var(--s6);
+    margin-top: var(--s7);
   }
   .s-die {
-    grid-column: 2 / span 3;
+    grid-column: 1 / span 4;
     grid-row: 4;
-    margin-top: var(--s5);
+    margin-top: var(--s6);
   }
   .s-route {
-    grid-column: 8 / span 3;
+    grid-column: 5 / span 4;
     grid-row: 4;
-    margin-top: var(--s4);
+    margin-top: var(--s5);
+    padding-inline: 8%;
+  }
+  .s-note {
+    grid-column: 9 / span 4;
+    grid-row: 4;
+    align-self: end;
+    margin-bottom: var(--s5);
+    padding-left: var(--s3);
+    border-left: 1px solid var(--border-2);
+  }
+  .note-text {
+    margin-top: var(--s2);
+    color: var(--line-2);
+    max-width: 24em;
+  }
+  .note-link {
+    display: inline-block;
+    margin-top: var(--s2);
+    font-size: var(--step--1);
+    color: var(--line);
   }
 
   .swipe {
@@ -418,6 +447,15 @@ const roles = [
       grid-column: 7 / span 6;
       grid-row: 5;
       margin-top: var(--s5);
+      padding-inline: 0;
+    }
+    .s-amm {
+      padding-inline: 0;
+    }
+    .s-note {
+      grid-column: 1 / span 8;
+      grid-row: 6;
+      margin: var(--s6) 0 0;
     }
   }
 
@@ -466,6 +504,9 @@ const roles = [
     }
     .s :global(figcaption .t-note) {
       font-size: var(--step--1);
+    }
+    .s-note {
+      display: none;
     }
     .swipe {
       display: block;
@@ -528,11 +569,11 @@ const roles = [
     color: inherit;
   }
 
-  .venture > :global(*:first-child) {
+  .venture > :global(.plate) {
     transition: transform 400ms var(--ease-out);
   }
 
-  .venture:hover > :global(*:first-child) {
+  .venture:hover > :global(.plate) {
     transform: translateY(-4px);
   }
 
@@ -542,6 +583,7 @@ const roles = [
     align-items: flex-start;
     gap: var(--s3);
     padding: 0 4px;
+    min-height: 4.6em;
   }
 
   .v-name {
@@ -613,6 +655,12 @@ const roles = [
   .record-panel,
   .essays-panel {
     padding: clamp(18px, 3vw, 32px);
+  }
+
+  /* Inside a panel the panel edge is the rule: drop the list's own top line. */
+  .record-panel :global(.ledger-table),
+  .essays-panel :global(.essays) {
+    border-top: 0;
   }
 
   .tools {

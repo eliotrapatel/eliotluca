@@ -449,8 +449,10 @@ textarea {
   fill: var(--line);
 }
 .study .dim {
-  font-family: var(--font-mono);
-  font-weight: 400;
+  /* Dimension lettering: the condensed cut the drawings were measured for. */
+  font-family: var(--font-ui);
+  font-stretch: 82%;
+  font-weight: 450;
   font-variant-numeric: lining-nums tabular-nums;
   fill: var(--line-2);
 }

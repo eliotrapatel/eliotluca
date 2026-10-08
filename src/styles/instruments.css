@@ -302,7 +302,7 @@
 }
 
 .figure.is-key {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--border-2);
   grid-column: 1 / -1;
 }
 
@@ -343,7 +343,7 @@
   font-weight: 450;
   color: var(--line-2);
   padding: 0.5em 0.6em 0.5em 0;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border-2);
 }
 .ledger td {
   padding: 0.55em 0.6em 0.55em 0;
@@ -354,7 +354,7 @@
   text-align: right;
 }
 .ledger tr.is-total td {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--border-2);
   font-weight: 550;
 }
 
