@@ -1,4 +1,6 @@
 ---
+import { site } from '../data/site';
+
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
 
 const items = [
@@ -11,56 +13,71 @@ const items = [
 const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
 ---
 
-<header class="top wrap" lang="en">
-  <a class="mark t-title" href="/" aria-label="Eliot Luca, home" aria-current={path === '/' ? 'page' : undefined}>Eliot Luca</a>
-  <nav class="nav t-ui" aria-label="Main">
-    <ul>
-      {
-        items.map((item) => (
-          <li>
-            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-              {item.label}
-            </a>
-          </li>
-        ))
-      }
-      <li class="contact"><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
+<header class="top" lang="en">
+  <div class="wrap bar">
+    <a class="mark" href="/" aria-current={path === '/' ? 'page' : undefined}>Eliot Luca</a>
+    <nav class="nav" aria-label="Main">
+      <ul>
+        {
+          items.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a class="btn btn-primary cta" href={`mailto:${site.email}`}>Get in touch</a>
+  </div>
 </header>
 
 <style>
   .top {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    border-bottom: 1px solid var(--border);
+    background: rgb(5 5 6 / 0.72);
+    -webkit-backdrop-filter: saturate(140%) blur(16px);
+    backdrop-filter: saturate(140%) blur(16px);
+  }
+
+  .bar {
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: var(--s3);
-    padding-top: var(--s3);
-    padding-bottom: var(--s3);
-    border-bottom: 1px solid var(--rule);
+    align-items: center;
+    gap: var(--s4);
+    min-height: 64px;
   }
 
   .mark {
     font-size: 1.0625rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+    color: var(--line);
     text-decoration: none;
     white-space: nowrap;
-    background: none;
+  }
+
+  .nav {
+    margin-left: auto;
   }
 
   .nav ul {
     list-style: none;
     display: flex;
-    gap: clamp(14px, 2.4vw, 36px);
+    gap: clamp(16px, 2.4vw, 32px);
   }
 
   .nav a {
+    position: relative;
+    display: inline-block;
+    padding-block: 0.5rem;
     font-size: var(--step--1);
-    font-weight: 450;
     color: var(--line-2);
-    text-decoration-color: transparent;
-    padding-block: 0.35em;
+    text-decoration: none;
+    transition: color 160ms var(--ease-out);
   }
 
   .nav a:hover {
@@ -69,25 +86,40 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
 
   .nav a[aria-current='page'] {
     color: var(--line);
-    text-decoration-color: var(--gold);
   }
 
-  @media (max-width: 640px) {
-    .top {
+  .nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 1px;
+    background: var(--gold);
+  }
+
+  .cta {
+    min-height: 38px;
+    padding: 0.6em 1.05em;
+  }
+
+  @media (max-width: 760px) {
+    .bar {
       flex-wrap: wrap;
-      row-gap: var(--s1);
-      padding-top: var(--s2);
-      padding-bottom: var(--s2);
+      row-gap: 0;
+      min-height: 0;
+      padding-top: 10px;
     }
     .nav {
+      order: 3;
       width: 100%;
+      margin-left: 0;
     }
     .nav ul {
       justify-content: space-between;
-      gap: 0;
     }
-    .nav .contact {
-      display: none;
+    .cta {
+      margin-left: auto;
     }
   }
 </style>

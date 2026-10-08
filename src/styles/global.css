@@ -8,9 +8,9 @@
    one warm metal (18ct gold) for what matters.
 ------------------------------------------------------------------- */
 :root {
-  --black: #0b0a09;
-  --panel: #121110;
-  --panel-2: #181715;
+  --black: #050506;
+  --panel: #0b0b0d;
+  --panel-2: #111114;
   --bone: #f1efe9;
   --ash: #a3a19b;
   --smoke: #5d5c58;
@@ -18,7 +18,7 @@
 
   /* Semantic tokens (the drawings and components read these). */
   --ground: var(--black);
-  --ground-pale: #0e0d0c;
+  --ground-pale: #08080a;
   --ground-deep: #000;
   --line: var(--bone);
   --line-2: var(--ash);
@@ -36,7 +36,7 @@
   --plate-orbes: #000000;
   --orbes-text: #f2f2f0;
 
-  --font-title: 'EB Garamond Variable', 'EB Garamond', Garamond, 'Times New Roman', serif;
+  --font-title: 'Mona Sans Variable', 'Mona Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-ui: 'Mona Sans Variable', 'Mona Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-text: 'EB Garamond Variable', 'EB Garamond', Garamond, 'Times New Roman', serif;
   --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
@@ -100,8 +100,9 @@ body {
   color: var(--line);
   background-color: var(--ground);
   background-image:
+    radial-gradient(1100px 520px at 50% -160px, rgb(205 182 138 / 0.07), transparent 70%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
+  background-repeat: no-repeat, repeat;
   font-family: var(--font-ui);
   font-size: var(--step-0);
   line-height: 1.6;
@@ -210,9 +211,9 @@ textarea {
 
 .t-title {
   font-family: var(--font-title);
-  font-weight: 400;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  font-weight: 520;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
   font-variant-numeric: lining-nums;
 }
 
@@ -229,12 +230,13 @@ textarea {
   letter-spacing: 0.02em;
 }
 
-/* Small labels: plain sentence case, quiet. */
+/* Micro labels, the house grammar of THE ENTITY and ORBES. */
 .t-label {
-  font-family: var(--font-ui);
-  font-size: var(--step--1);
-  font-weight: 450;
-  letter-spacing: 0;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   color: var(--line-2);
 }
 
@@ -349,8 +351,8 @@ textarea {
 
 .prose h2 {
   font-family: var(--font-title);
-  font-weight: 400;
-  letter-spacing: -0.015em;
+  font-weight: 500;
+  letter-spacing: -0.025em;
   font-size: var(--step-3);
   line-height: 1.15;
   margin-top: 2.2em;

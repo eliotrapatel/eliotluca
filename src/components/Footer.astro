@@ -24,14 +24,20 @@ const year = new Date().getFullYear();
 
 <footer class="foot" id="contact" lang="en">
   <div class="wrap">
-    <div class="cta">
-      <p class="t-label">For a deal, a product or a piece</p>
-      <a class="mail t-title" href={`mailto:${site.email}`}>{site.email}</a>
+    <div class="cta panel">
+      <div class="cta-text">
+        <p class="t-label">Contact</p>
+        <h2 class="t-title cta-title">Let's talk. <span class="t-fade">A deal, a product or a piece.</span></h2>
+      </div>
+      <a class="btn btn-primary mail" href={`mailto:${site.email}`}>
+        {site.email}
+        <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+      </a>
     </div>
 
     <div class="cols">
       <div class="brand">
-        <p class="word t-title">Eliot Luca</p>
+        <p class="word">Eliot Luca</p>
         <p class="muted small">Capital, code and craft. Paris.</p>
       </div>
       <nav aria-label="On this site">
@@ -55,7 +61,7 @@ const year = new Date().getFullYear();
       </nav>
       <div class="time">
         <p class="t-label">Paris</p>
-        <p class="clock t-title"><span data-clock="Europe/Paris">--:--</span></p>
+        <p class="clock t-mono"><span data-clock="Europe/Paris">--:--</span></p>
       </div>
     </div>
 
@@ -72,22 +78,35 @@ const year = new Date().getFullYear();
     padding-bottom: var(--s4);
   }
 
-  .foot {
-    border-top: 1px solid var(--rule);
-    padding-top: var(--s6);
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--s4);
+    padding: clamp(28px, 5vw, 56px);
+    overflow: hidden;
+  }
+
+  .cta::before {
+    content: '';
+    position: absolute;
+    inset: auto -10% -60% 30%;
+    height: 120%;
+    background: radial-gradient(closest-side, rgb(205 182 138 / 0.16), transparent);
+    pointer-events: none;
+  }
+
+  .cta-title {
+    margin-top: var(--s2);
+    font-size: var(--step-5);
+    max-width: 14em;
   }
 
   .mail {
-    display: inline-block;
-    margin-top: var(--s2);
-    font-size: var(--step-5);
-    text-decoration-color: rgb(205 182 138 / 0.45);
-    text-underline-offset: 0.16em;
-    overflow-wrap: anywhere;
-  }
-
-  .mail:hover {
-    text-decoration-color: var(--gold);
+    position: relative;
+    font-size: var(--step-0);
+    padding: 0.95em 1.4em;
   }
 
   .cols {
@@ -99,9 +118,10 @@ const year = new Date().getFullYear();
   }
 
   .word {
-    letter-spacing: 0.2em;
+    font-stretch: 125%;
+    letter-spacing: 0.32em;
     text-transform: uppercase;
-    font-size: 1rem;
+    font-size: 0.8125rem;
   }
 
   .small {
