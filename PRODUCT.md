@@ -21,7 +21,7 @@ Delegated: Astro (static output) with Markdown content collections, deployed on 
 
 ## Product Purpose
 
-The personal home of Eliot Luca: who he is, what he builds, what he thinks. Success = a visitor understands within seconds that Eliot is a finance-trained builder who works across capital, software and physical objects, can open each venture, read his writing, and contact him.
+The personal home of Eliot Luca: who he is, what he builds, what he thinks. Success = a visitor understands within seconds that Eliot is a finance-trained builder whose mindset is building on what is tangible (physical value chains behind markets, objects made to last), can open each venture, read his writing, and contact him.
 
 ## Positioning
 

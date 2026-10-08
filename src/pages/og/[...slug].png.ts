@@ -16,7 +16,7 @@ const longDate = (d: Date) =>
 const pages: Record<string, OgCard> = {
   default: {
     title: site.name,
-    line: 'I work where capital, software and objects meet.',
+    line: 'I build on what is tangible.',
   },
   about: {
     title: 'About',

@@ -6,9 +6,9 @@ export const site = {
   domain: 'eliotluca.com',
   url: 'https://eliotluca.com',
   description:
-    'Eliot Luca works where capital, software and objects meet: a finance background in private equity, venture and M&A, the AI supply-chain map THE ENTITY, and the jewellery house ORBES.',
+    'Eliot Luca builds on what is tangible: a finance background in private equity, venture and M&A, THE ENTITY, which ties markets to the physical value chain of AI, and ORBES, a Paris jewellery house.',
   statement:
-    'I work where capital, software and objects meet. Trained in private equity, venture and M&A, I now build THE ENTITY and ORBES.',
+    'I build on what is tangible. Trained in private equity, venture and M&A, I now build THE ENTITY and ORBES.',
   email: 'hello@eliotluca.com',
   // Fill these in when ready. Empty values are hidden.
   social: {
