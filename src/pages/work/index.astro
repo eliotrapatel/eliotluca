@@ -1,0 +1,188 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import EntityPlate from '../../components/plates/EntityPlate.astro';
+import OrbesPlate from '../../components/plates/OrbesPlate.astro';
+import { getCollection } from 'astro:content';
+
+const all = (await getCollection('work', ({ data }) => data.visible)).sort((a, b) => a.data.order - b.data.order);
+const ventures = all.filter((w) => w.data.tier === 'venture');
+const lab = all.filter((w) => w.data.tier === 'lab');
+const plates: Record<string, any> = { 'the-entity': EntityPlate, orbes: OrbesPlate };
+---
+
+<Base title="Ventures" description="THE ENTITY, ORBES and the projects Eliot Luca has in progress." image="/og/work.png">
+  <PageHead title="Ventures" lede="Two companies I am building, and the experiments that sit beside them." />
+
+  <section class="wrap ventures" aria-label="Ventures">
+    {
+      ventures.map((w, i) => {
+        const Plate = plates[w.id];
+        return (
+          <article class:list={['venture', { flip: i % 2 === 1 }]}>
+            <div class="plate">{Plate && <Plate size="feature" />}</div>
+            <div class="text">
+              <h2 class="v-name">
+                <a href={`/work/${w.id}`}>{w.data.name}</a>
+              </h2>
+              <p class="v-line">{w.data.line}</p>
+              <dl class="v-meta t-ui">
+                <div><dt>Role</dt><dd>{w.data.role}</dd></div>
+                <div><dt>Status</dt><dd>{w.data.status}</dd></div>
+                <div><dt>Since</dt><dd>{w.data.since}</dd></div>
+              </dl>
+              <p class="v-links t-ui">
+                <a href={`/work/${w.id}`}>Read about {w.data.name}</a>
+                {w.data.url && <a href={w.data.url} rel="noopener">{w.data.urlLabel ?? w.data.url}</a>}
+              </p>
+            </div>
+          </article>
+        );
+      })
+    }
+  </section>
+
+  {
+    lab.length > 0 && (
+      <section class="wrap lab" aria-labelledby="lab-title">
+        <h2 id="lab-title" class="lab-title">Also in progress</h2>
+        <ul>
+          {lab.map((w) => (
+            <li>
+              <a class="lab-name" href={`/work/${w.id}`}>{w.data.name}</a>
+              <span class="lab-line">{w.data.line}</span>
+              <span class="lab-status t-ui">{w.data.status}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .ventures {
+    display: grid;
+    gap: var(--s8);
+  }
+  .venture {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
+    row-gap: var(--s4);
+    align-items: center;
+  }
+  .plate {
+    grid-column: 1 / span 7;
+  }
+  .text {
+    grid-column: 9 / span 4;
+  }
+  .flip .plate {
+    grid-column: 6 / span 7;
+    grid-row: 1;
+  }
+  .flip .text {
+    grid-column: 1 / span 4;
+    grid-row: 1;
+  }
+  .v-name {
+    font-family: var(--font-text);
+    font-size: var(--step-4);
+    line-height: 1.05;
+  }
+  .v-name a {
+    text-decoration-color: transparent;
+  }
+  .v-name a:hover {
+    text-decoration-color: var(--line);
+  }
+  .v-line {
+    margin-top: var(--s2);
+    font-size: var(--step-1);
+  }
+  .v-meta {
+    margin: var(--s4) 0 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+  }
+  .v-meta div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.55rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .v-meta dt {
+    color: var(--line-2);
+  }
+  .v-meta dd {
+    margin: 0;
+    text-align: right;
+  }
+  .v-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1) var(--s3);
+    margin-top: var(--s3);
+    font-size: var(--step--1);
+    font-weight: 500;
+  }
+  .v-links a {
+    padding-block: 0.5rem;
+  }
+  @media (max-width: 900px) {
+    .plate,
+    .text,
+    .flip .plate,
+    .flip .text {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+  }
+  .lab {
+    margin-top: var(--s8);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--s4);
+  }
+  .lab-title {
+    font-family: var(--font-text);
+    font-size: var(--step-3);
+  }
+  .lab ul {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .lab li {
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr) auto;
+    gap: var(--s3);
+    align-items: baseline;
+    padding-block: 1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .lab-name {
+    font-size: var(--step-1);
+  }
+  .lab-line {
+    color: var(--line-2);
+  }
+  .lab-status {
+    font-size: var(--step--2);
+    color: var(--line-2);
+  }
+  @media (max-width: 760px) {
+    .lab {
+      grid-template-columns: 1fr;
+    }
+    .lab li {
+      grid-template-columns: 1fr auto;
+      row-gap: 0.2rem;
+    }
+    .lab-line {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+  }
+</style>

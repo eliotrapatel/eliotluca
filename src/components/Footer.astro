@@ -1,0 +1,171 @@
+---
+import { site } from '../data/site';
+
+const elsewhere = [
+  { label: 'THE ENTITY', href: 'https://joinentity.com' },
+  { label: 'ORBES', href: 'https://theorbes.com' },
+  { label: 'LinkedIn', href: site.social.linkedin },
+  { label: 'X', href: site.social.x },
+  { label: 'GitHub', href: site.social.github },
+  { label: 'Instagram', href: site.social.instagram },
+].filter((l) => l.href);
+
+const sheet = [
+  { label: 'Ventures', href: '/work' },
+  { label: 'Writing', href: '/writing' },
+  { label: 'Instruments', href: '/instruments' },
+  { label: 'About', href: '/about' },
+  { label: 'Now', href: '/now' },
+  { label: 'Links', href: '/links' },
+];
+
+const year = new Date().getFullYear();
+---
+
+<footer class="foot" id="contact" lang="en">
+  <div class="wrap">
+    <div class="write">
+      <p class="invite">For deals, partnerships, press or a piece:</p>
+      <a class="mail" href={`mailto:${site.email}`}>{site.email}</a>
+    </div>
+
+    <div class="cols t-ui">
+      <nav aria-label="On this site">
+        <h2>On this site</h2>
+        <ul>{sheet.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+      </nav>
+      <nav aria-label="Elsewhere">
+        <h2>Elsewhere</h2>
+        <ul>
+          {
+            elsewhere.map((l) => (
+              <li>
+                <a href={l.href} rel="me noopener">
+                  {l.label}
+                </a>
+              </li>
+            ))
+          }
+          <li><a href="/rss.xml">RSS feed</a></li>
+        </ul>
+      </nav>
+      <div class="time">
+        <h2>Paris</h2>
+        <p class="clock"><span data-clock="Europe/Paris">--:--</span></p>
+        <div class="theme" role="group" aria-label="Colour scheme">
+          <button type="button" data-theme-set="light" aria-pressed="false">Day</button>
+          <button type="button" data-theme-set="auto" aria-pressed="true">Auto</button>
+          <button type="button" data-theme-set="dark" aria-pressed="false">Night</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="colophon t-ui muted">
+      <span>© {year} {site.name}</span>
+      <span>eliotluca.com</span>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--line);
+    margin-top: var(--s7);
+    padding-block: var(--s6) var(--s4);
+  }
+
+  .invite {
+    font-size: var(--step-1);
+    color: var(--line-2);
+  }
+
+  .mail {
+    display: inline-block;
+    margin-top: var(--s1);
+    font-family: var(--font-text);
+    font-size: var(--step-4);
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.14em;
+    overflow-wrap: anywhere;
+  }
+
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s4);
+    margin-top: var(--s6);
+    font-size: var(--step--1);
+  }
+
+  h2 {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    font-weight: 500;
+    color: var(--line-2);
+    margin-bottom: var(--s2);
+  }
+
+  ul {
+    list-style: none;
+    display: grid;
+    gap: 0.45em;
+  }
+
+  .clock {
+    font-family: var(--font-ui);
+    font-variant-numeric: tabular-nums;
+    font-size: var(--step-3);
+    line-height: 1;
+  }
+
+  .theme {
+    display: inline-flex;
+    margin-top: var(--s3);
+    border: 1px solid var(--line);
+  }
+
+  .theme button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    padding: 0.45em 0.85em;
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    cursor: pointer;
+  }
+
+  .theme button + button {
+    border-left: 1px solid var(--line);
+  }
+
+  .theme button:hover {
+    background: var(--wash);
+  }
+
+  .theme button[aria-pressed='true'] {
+    background: var(--line);
+    color: var(--ground);
+  }
+
+  .colophon {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--s1) var(--s4);
+    margin-top: var(--s6);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--rule);
+    font-size: var(--step--2);
+  }
+
+  @media (max-width: 720px) {
+    .cols {
+      grid-template-columns: 1fr 1fr;
+    }
+    .time {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

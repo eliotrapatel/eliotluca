@@ -1,0 +1,136 @@
+---
+// The link-in-bio page: one column, large targets, nothing else.
+import Base from '../layouts/Base.astro';
+import Polyhedron from '../components/studies/Polyhedron.astro';
+import { site } from '../data/site';
+import { getEssays } from '../lib/writing';
+
+const latest = (await getEssays())[0];
+
+const links = [
+  { label: 'THE ENTITY', note: 'The map of the AI supply chain', href: 'https://joinentity.com' },
+  { label: 'ORBES', note: 'Jewellery house, Paris', href: 'https://theorbes.com' },
+  { label: 'The Orchid ring', note: 'Current ORBES release, by draw', href: 'https://verify.theorbes.com' },
+  latest && { label: latest.data.title, note: `Latest writing, No. ${latest.number}`, href: `/writing/${latest.id}` },
+  { label: 'Instruments', note: 'Returns, dilution, copilot costs, ring sizes', href: '/instruments' },
+  site.social.linkedin && { label: 'LinkedIn', note: 'Career and contact', href: site.social.linkedin },
+  site.social.x && { label: 'X', note: 'Notes in public', href: site.social.x },
+  site.social.instagram && { label: 'Instagram', note: 'Pictures', href: site.social.instagram },
+  site.social.github && { label: 'GitHub', note: 'Code', href: site.social.github },
+  { label: 'Write to me', note: site.email, href: `mailto:${site.email}` },
+].filter(Boolean) as { label: string; note: string; href: string }[];
+---
+
+<Base title="Links" description="Every link to Eliot Luca's work in one place." image="/og/links.png" bare>
+  <div class="links-page">
+    <header class="top">
+      <div class="emblem"><Polyhedron href="/" /></div>
+      <h1 class="t-title name"><a href="/">Eliot Luca</a></h1>
+      <p class="line">Capital, software and objects. Building THE ENTITY and ORBES.</p>
+    </header>
+
+    <ul class="list">
+      {
+        links.map((l) => (
+          <li>
+            <a href={l.href} rel={l.href.startsWith('http') ? 'noopener me' : undefined}>
+              <span class="label">{l.label}</span>
+              <span class="note t-ui">{l.note}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="home t-ui"><a href="/">eliotluca.com</a></p>
+  </div>
+</Base>
+
+<style>
+  .links-page {
+    max-width: 30rem;
+    margin: 0 auto;
+    padding: var(--s5) var(--gutter) var(--s5);
+  }
+
+  .top {
+    text-align: center;
+    display: grid;
+    justify-items: center;
+  }
+
+  .emblem {
+    width: 132px;
+  }
+
+  /* On this page the drawing is an emblem: no caption, no hint. */
+  .emblem :global(figcaption),
+  .emblem :global(.hint),
+  .emblem :global(.metal) {
+    display: none;
+  }
+
+  .name {
+    margin-top: var(--s2);
+    font-size: var(--step-4);
+    letter-spacing: 0.04em;
+  }
+
+  .name a {
+    text-decoration: none;
+    background: none;
+  }
+
+  .line {
+    margin-top: var(--s1);
+    font-style: italic;
+    color: var(--line-2);
+    font-size: var(--step-1);
+    max-width: 22em;
+  }
+
+  .list {
+    list-style: none;
+    margin-top: var(--s5);
+    border-top: 1px solid var(--line);
+  }
+
+  .list li {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .list a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-height: 4.25rem;
+    justify-content: center;
+    padding: 0.85rem 0.25rem;
+    text-decoration: none;
+    background-image: linear-gradient(var(--wash), var(--wash));
+    background-position: 0 0;
+    background-size: 0% 100%;
+    transition: background-size 320ms var(--ease-out);
+  }
+
+  .list a:hover,
+  .list a:focus-visible {
+    background-size: 100% 100%;
+  }
+
+  .label {
+    font-size: var(--step-2);
+    line-height: 1.15;
+  }
+
+  .note {
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+
+  .home {
+    margin-top: var(--s5);
+    text-align: center;
+    font-size: var(--step--1);
+  }
+</style>

@@ -1,0 +1,466 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T09:21:11.519418+00:00",
+  "title": "Design System: Eliot Luca",
+  "extensions": {
+    "colorMeta": {
+      "carta": {
+        "role": "neutral",
+        "displayName": "Carta da Zucchero",
+        "canonical": "#a3b8ca",
+        "tonalRamp": [
+          "#1c2731",
+          "#304454",
+          "#456078",
+          "#597d9b",
+          "#7a99b3",
+          "#9eb4c7",
+          "#c5d2dd",
+          "#eff3f6"
+        ]
+      },
+      "carta-pale": {
+        "role": "neutral",
+        "displayName": "Pale Carta",
+        "canonical": "#c6d4e0",
+        "tonalRamp": [
+          "#1b2732",
+          "#2f4456",
+          "#42607a",
+          "#567d9f",
+          "#7899b5",
+          "#9cb4c9",
+          "#c4d2df",
+          "#eef3f6"
+        ]
+      },
+      "carta-deep": {
+        "role": "neutral",
+        "displayName": "Deep Carta",
+        "canonical": "#97adc0",
+        "tonalRamp": [
+          "#1d2730",
+          "#324353",
+          "#476076",
+          "#5c7d98",
+          "#7d98b0",
+          "#a0b4c5",
+          "#c6d2dc",
+          "#eff2f5"
+        ]
+      },
+      "iron-gall": {
+        "role": "primary",
+        "displayName": "Iron-Gall Ink",
+        "canonical": "#221a14",
+        "tonalRamp": [
+          "#30251c",
+          "#534031",
+          "#775b46",
+          "#9a765b",
+          "#b2937b",
+          "#c6b09f",
+          "#ddcfc5",
+          "#f6f2ef"
+        ]
+      },
+      "metalpoint": {
+        "role": "neutral",
+        "displayName": "Metalpoint",
+        "canonical": "#33404c",
+        "tonalRamp": [
+          "#1f272e",
+          "#35434f",
+          "#4c5f71",
+          "#627b92",
+          "#8297ab",
+          "#a3b3c2",
+          "#c8d1da",
+          "#f0f2f5"
+        ]
+      },
+      "silver": {
+        "role": "neutral",
+        "displayName": "Silver (non-text)",
+        "canonical": "#5d6c7a",
+        "tonalRamp": [
+          "#21262b",
+          "#39434b",
+          "#525f6b",
+          "#6a7b8b",
+          "#8897a5",
+          "#a8b3bd",
+          "#cbd1d7",
+          "#f1f2f4"
+        ]
+      },
+      "lead-white": {
+        "role": "secondary",
+        "displayName": "Lead-White Heightening",
+        "canonical": "#f4f1e8",
+        "tonalRamp": [
+          "#342d19",
+          "#5a4e2b",
+          "#806f3d",
+          "#a6904f",
+          "#bba972",
+          "#cec097",
+          "#e1d9c1",
+          "#f7f4ee"
+        ]
+      },
+      "night-carta": {
+        "role": "neutral",
+        "displayName": "Indigo Carta (night ground)",
+        "canonical": "#1b2139",
+        "tonalRamp": [
+          "#191e34",
+          "#2b345a",
+          "#3d4a80",
+          "#4f60a6",
+          "#7180bc",
+          "#97a2ce",
+          "#c1c7e1",
+          "#eef0f7"
+        ]
+      },
+      "night-line": {
+        "role": "primary",
+        "displayName": "Lead-White Line (night ink)",
+        "canonical": "#ece9e0",
+        "tonalRamp": [
+          "#2f2b1d",
+          "#524a32",
+          "#756a48",
+          "#98895d",
+          "#b0a37d",
+          "#c5bca0",
+          "#dcd7c6",
+          "#f5f4ef"
+        ]
+      },
+      "night-metalpoint": {
+        "role": "neutral",
+        "displayName": "Night Metalpoint",
+        "canonical": "#aebac5",
+        "tonalRamp": [
+          "#20272d",
+          "#37434d",
+          "#4f5f6e",
+          "#667b8f",
+          "#8597a8",
+          "#a6b3bf",
+          "#cad1d9",
+          "#f0f2f4"
+        ]
+      },
+      "night-heightening": {
+        "role": "secondary",
+        "displayName": "Pale Heightening (night)",
+        "canonical": "#c3d2de",
+        "tonalRamp": [
+          "#1b2731",
+          "#2f4456",
+          "#43617a",
+          "#577e9e",
+          "#789ab5",
+          "#9cb5c9",
+          "#c4d3de",
+          "#eff3f6"
+        ]
+      },
+      "plate-entity": {
+        "role": "tertiary",
+        "displayName": "Entity Black",
+        "canonical": "#020203",
+        "tonalRamp": [
+          "#1f1f2e",
+          "#353550",
+          "#4b4b71",
+          "#626293",
+          "#8282ab",
+          "#a3a3c2",
+          "#c8c8da",
+          "#f0f0f5"
+        ]
+      },
+      "entity-teal": {
+        "role": "tertiary",
+        "displayName": "Entity Teal",
+        "canonical": "#7abdb4",
+        "tonalRamp": [
+          "#193330",
+          "#2c5953",
+          "#3f7e76",
+          "#51a499",
+          "#73bab0",
+          "#99ccc5",
+          "#c2e1dc",
+          "#eef7f5"
+        ]
+      },
+      "entity-text": {
+        "role": "tertiary",
+        "displayName": "Entity Text",
+        "canonical": "#e9eeec",
+        "tonalRamp": [
+          "#212b27",
+          "#3a4b44",
+          "#526a61",
+          "#6b8a7e",
+          "#89a499",
+          "#a9bcb4",
+          "#cbd7d2",
+          "#f1f4f3"
+        ]
+      },
+      "plate-orbes": {
+        "role": "tertiary",
+        "displayName": "Orbes Black",
+        "canonical": "#000000",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5e5e5e",
+          "#7a7a7a",
+          "#969696",
+          "#b2b2b2",
+          "#d1d1d1",
+          "#f2f2f2"
+        ]
+      },
+      "orbes-text": {
+        "role": "tertiary",
+        "displayName": "Orbes Text",
+        "canonical": "#f2f2f0",
+        "tonalRamp": [
+          "#292924",
+          "#47473e",
+          "#656558",
+          "#838372",
+          "#9e9e8f",
+          "#b8b8ad",
+          "#d4d4ce",
+          "#f3f3f1"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "inscription": {
+        "displayName": "Inscription (Castoro Titling)",
+        "purpose": "Name, header wordmark, manifesto titles, drop caps, essay and point numerals, key readout figures. Never section titles."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "Inner page titles, Garamond sentence case."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section and band titles on a full ink rule."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Essay titles, hero claim, prose h2."
+      },
+      "lede": {
+        "displayName": "Lede",
+        "purpose": "One reading line under a page title."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default reading text with old-style figures."
+      },
+      "prose": {
+        "displayName": "Prose",
+        "purpose": "Long-form essay and page prose, 34em measure."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Navigation, actions, field labels, table heads, meta; lining tabular figures."
+      },
+      "dimension": {
+        "displayName": "Dimension",
+        "purpose": "Measurements inside drawings and scale ticks, condensed width."
+      }
+    },
+    "shadows": [
+      {
+        "name": "tipped-in-plate",
+        "value": "0 22px 40px -22px rgb(0 0 0 / 0.55), 0 3px 8px -4px rgb(0 0 0 / 0.28), inset 0 1px 0 color-mix(in srgb, <plate text> 12%, transparent)",
+        "purpose": "Venture plates only; paired with a 1px plate mark inset 6px."
+      },
+      {
+        "name": "heightening-halo",
+        "value": "0 0 0 10px var(--wash)",
+        "purpose": "Lit state of a study linked to the disciplines chart; not elevation."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "All transitions and the load draw."
+      },
+      {
+        "name": "draw",
+        "value": "1600ms",
+        "purpose": "Ink paths draw once per visit in reading order; heightening settles 700ms after a 900ms offset. Static under reduced motion and without JS."
+      },
+      {
+        "name": "link-wash",
+        "value": "260ms",
+        "purpose": "Heightening wash sweeping under a hovered link; underline colour 160ms."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile",
+        "value": "640px"
+      },
+      {
+        "name": "stack-tables",
+        "value": "760px"
+      },
+      {
+        "name": "stack-bands",
+        "value": "900px"
+      },
+      {
+        "name": "hero-stack",
+        "value": "1000px"
+      },
+      {
+        "name": "max-sheet",
+        "value": "1440px"
+      }
+    ],
+    "themes": {
+      "night": {
+        "ground": "#1b2139",
+        "ground-pale": "#20273f",
+        "ground-deep": "#161b30",
+        "line": "#ece9e0",
+        "line-2": "#aebac5",
+        "line-3": "#72838f",
+        "light": "#c3d2de",
+        "wash": "rgb(195 210 222 / 0.16)",
+        "rule": "rgb(236 233 224 / 0.22)"
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Action",
+      "kind": "button",
+      "refersTo": "action",
+      "description": "Square ink-bordered text action used in instruments.",
+      "html": "<button class=\"ds-action\" type=\"button\">Reset to defaults</button>",
+      "css": ".ds-action{appearance:none;border:1px solid var(--line,#221a14);background:transparent;color:var(--line,#221a14);padding:.6em 1em;font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:.9375rem;font-weight:450;border-radius:0;cursor:pointer;transition:background-color 160ms cubic-bezier(.16,1,.3,1)}.ds-action:hover{background:rgb(244 241 232 / .62)}.ds-action:focus-visible{outline:2px solid var(--line,#221a14);outline-offset:3px}"
+    },
+    {
+      "name": "Segmented choice",
+      "kind": "chip",
+      "refersTo": "choice-segment",
+      "description": "Ink box divided by rules; selected segment filled with ink. Presets, units, Day/Auto/Night.",
+      "html": "<div class=\"ds-choice\" role=\"group\" aria-label=\"Colour scheme\"><button type=\"button\" aria-pressed=\"false\">Day</button><button type=\"button\" aria-pressed=\"true\">Auto</button><button type=\"button\" aria-pressed=\"false\">Night</button></div>",
+      "css": ".ds-choice{display:inline-flex;border:1px solid var(--line,#221a14)}.ds-choice button{appearance:none;border:0;background:transparent;color:var(--line,#221a14);padding:.5em .9em;font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:.9375rem;cursor:pointer}.ds-choice button+button{border-left:1px solid var(--line,#221a14)}.ds-choice button:hover{background:rgb(244 241 232 / .62)}.ds-choice button[aria-pressed='true']{background:var(--line,#221a14);color:var(--ground,#a3b8ca)}.ds-choice button:focus-visible{outline:2px solid var(--line,#221a14);outline-offset:2px}"
+    },
+    {
+      "name": "Ruled field",
+      "kind": "input",
+      "refersTo": "field-ruled",
+      "description": "No box, a 1px ink baseline; thickens on focus, dashes on error.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Entry EBITDA</span><span class=\"ds-field-input\"><input type=\"number\" value=\"12.0\"><span class=\"ds-unit\">€m</span></span></label>",
+      "css": ".ds-field{display:grid;gap:.35rem;max-width:20rem}.ds-field-label{font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:.9375rem;font-weight:450;color:var(--line-2,#33404c)}.ds-field-input{display:flex;align-items:baseline;gap:.4em;border-bottom:1px solid var(--line,#221a14)}.ds-field-input:focus-within{border-bottom-width:2px;margin-bottom:-1px}.ds-field input{width:100%;border:0;background:transparent;padding:.15em 0 .2em;font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:1.5rem;font-variant-numeric:lining-nums tabular-nums;color:var(--line,#221a14);outline:none}.ds-unit{font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:.9375rem;color:var(--line-2,#33404c)}"
+    },
+    {
+      "name": "Header navigation",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Castoro wordmark left, Mona Sans links right; underline and heightening wash mark the current page.",
+      "html": "<header class=\"ds-top\"><a class=\"ds-mark\" href=\"#\">Eliot Luca</a><nav><ul class=\"ds-nav\"><li><a href=\"#\" aria-current=\"page\">Ventures</a></li><li><a href=\"#\">Writing</a></li><li><a href=\"#\">Instruments</a></li><li><a href=\"#\">About</a></li></ul></nav></header>",
+      "css": ".ds-top{display:flex;align-items:baseline;justify-content:space-between;gap:1.5rem;padding:1.5rem 0;color:var(--line,#221a14)}.ds-mark{font-family:var(--font-title,'Castoro Titling',serif);font-size:1.0625rem;letter-spacing:.14em;color:inherit;text-decoration:none}.ds-nav{list-style:none;display:flex;gap:clamp(14px,2.4vw,36px);margin:0;padding:0}.ds-nav a{font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:.9375rem;font-weight:450;color:inherit;text-decoration:underline 1px transparent;text-underline-offset:.22em;background:linear-gradient(rgb(244 241 232 / .62),rgb(244 241 232 / .62)) no-repeat 0 88%/0% .55em;transition:text-decoration-color 160ms,background-size 260ms cubic-bezier(.16,1,.3,1)}.ds-nav a:hover{text-decoration-color:var(--line,#221a14);background-size:100% .55em}.ds-nav a[aria-current='page']{text-decoration-color:var(--line,#221a14);background-size:100% .55em}.ds-nav a:focus-visible{outline:2px solid var(--line,#221a14);outline-offset:3px}"
+    },
+    {
+      "name": "Ledger",
+      "kind": "custom",
+      "refersTo": "ledger",
+      "description": "The house table: full ink rule on top, faint rules between rows.",
+      "html": "<table class=\"ds-ledger\"><thead><tr><th>Firm</th><th>Role</th><th class=\"n\">Length</th></tr></thead><tbody><tr><th>Amundi Technology</th><td>Corporate Development</td><td class=\"n\">6 months</td></tr><tr><th>Novastone Capital Advisors</th><td>Analyst, PE / Search Fund</td><td class=\"n\">6 months</td></tr></tbody></table>",
+      "css": ".ds-ledger{width:100%;border-collapse:collapse;border-top:1px solid var(--line,#221a14);color:var(--line,#221a14)}.ds-ledger thead th{text-align:left;font-family:var(--font-ui,'Mona Sans',sans-serif);font-weight:450;font-size:.8125rem;color:var(--line-2,#33404c);padding:.7rem 1rem .7rem 0;border-bottom:1px solid var(--line,#221a14)}.ds-ledger tbody th,.ds-ledger td{text-align:left;padding:.95rem 1rem .95rem 0;border-bottom:1px solid rgb(34 26 20 / .28)}.ds-ledger tbody th{font-family:var(--font-text,'EB Garamond',serif);font-weight:400;font-size:1.3125rem}.ds-ledger td{font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:.9375rem}.ds-ledger .n{text-align:right;color:var(--line-2,#33404c);padding-right:0}"
+    },
+    {
+      "name": "Ink link",
+      "kind": "custom",
+      "refersTo": "link",
+      "description": "Silver underline at rest; ink underline and lead-white wash on hover.",
+      "html": "<p class=\"ds-p\">Read <a class=\"ds-link\" href=\"#\">Da Vinci Mode</a> or write to Eliot.</p>",
+      "css": ".ds-p{font-family:var(--font-text,'EB Garamond',serif);font-size:1.125rem;color:var(--line,#221a14)}.ds-link{color:inherit;text-decoration:underline 1px var(--line-3,#5d6c7a);text-underline-offset:.22em;background:linear-gradient(rgb(244 241 232 / .62),rgb(244 241 232 / .62)) no-repeat 0 88%/0% .55em;transition:text-decoration-color 160ms,background-size 260ms cubic-bezier(.16,1,.3,1)}.ds-link:hover{text-decoration-color:var(--line,#221a14);background-size:100% .55em}.ds-link:focus-visible{outline:2px solid var(--line,#221a14);outline-offset:3px}"
+    },
+    {
+      "name": "Readout figure",
+      "kind": "custom",
+      "refersTo": "figure",
+      "description": "Key figure in Castoro under a full ink rule; secondary figures in Mona Sans under a faint rule.",
+      "html": "<dl class=\"ds-figs\"><div class=\"ds-fig ds-key\"><dt>MOIC</dt><dd>2.6×</dd></div><div class=\"ds-fig\"><dt>IRR</dt><dd>21.1%</dd></div><div class=\"ds-fig\"><dt>Exit equity</dt><dd>€148m</dd></div></dl>",
+      "css": ".ds-figs{margin:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(12.5rem,1fr));gap:1.5rem 2rem;color:var(--line,#221a14)}.ds-fig{display:grid;gap:.2rem;padding-top:.5rem;border-top:1px solid rgb(34 26 20 / .28)}.ds-fig dt{font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:.9375rem;color:var(--line-2,#33404c)}.ds-fig dd{margin:0;font-family:var(--font-ui,'Mona Sans',sans-serif);font-size:1.5rem;font-variant-numeric:lining-nums tabular-nums}.ds-key{grid-column:1/-1;border-top-color:var(--line,#221a14)}.ds-key dd{font-family:var(--font-title,'Castoro Titling',serif);font-size:clamp(2.5rem,1.2rem + 4.6vw,4.5rem)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Prepared Sheet",
+    "overview": "The site is one sheet of carta da zucchero, the dusty blue paper Renaissance draughtsmen prepared for silverpoint, written on in brown-black iron-gall ink and heightened with lead white. It reads as a finance-trained founder's record: ruled ledgers, dated tables, plain sentence-case headings, real figures. The drawing hand appears in a few measured places: the rotating skeletal polyhedron beside the name, a handful of dimensioned studies on About, and the disciplines timeline. Those are signatures, not decoration, and they stay scarce.\n\nDensity is calm and editorial. Everything sits on a 12-column sheet with generous vertical bands; structure comes from 1px ink rules and type hierarchy, never from boxes, tints or cards. The two ventures, THE ENTITY and ORBES, are tipped in as plates in their own identities: dark stock laid onto the blue paper, the only objects that lift off the sheet.\n\nThe world refuses both the headshot-and-card-grid template and the eccentric notebook. Credibility first, range proven by facts, Leonardo as restraint.",
+    "keyCharacteristics": [
+      "Drenched blue paper ground with fibre noise; brown-black ink for all type and line.",
+      "Square corners everywhere; 1px rules carry all structure.",
+      "Three faces with fixed jobs: inscriptional capitals, Garamond reading text, Mona Sans interface and numbers.",
+      "Ledgers and ruled lists instead of cards.",
+      "Drawings are ink line art with real dimension lettering, drawn in once on load.",
+      "Venture plates keep their own identity and are the sole lifted surfaces."
+    ],
+    "rules": [
+      {
+        "name": "The One Ink Rule",
+        "body": "Type and line on the sheet are iron-gall (or metalpoint for secondary text). No accent hue exists on the sheet; emphasis comes from weight, size, rule weight or the heightening wash.",
+        "section": "colors"
+      },
+      {
+        "name": "The Plate Quarantine Rule",
+        "body": "Venture colours (teal, plate blacks) never leak onto the sheet, and sheet tokens never style plate interiors beyond the shared type stacks.",
+        "section": "colors"
+      },
+      {
+        "name": "The Sentence-Case Rule",
+        "body": "Page, section and band titles are Garamond in sentence case. Capitals belong to Castoro alone, and Castoro never sets a section title.",
+        "section": "typography"
+      },
+      {
+        "name": "The Two Figures Rule",
+        "body": "Numbers in reading text are old-style; numbers in interface, ledgers and readouts are lining tabular Mona Sans.",
+        "section": "typography"
+      },
+      {
+        "name": "The Flat Sheet Rule",
+        "body": "Nothing on the sheet casts a shadow. Only a tipped-in plate lifts.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do set every surface on the drenched carta ground with iron-gall ink; use metalpoint for secondary text only.",
+      "Do build structure from 1px ink rules (boundaries) and 28% rules (rows), never from boxes or fills.",
+      "Do use Garamond sentence case for every page, section and band title.",
+      "Do set interface text, ledgers and figures in Mona Sans with lining tabular numerals.",
+      "Do keep drawings to the shared stroke grammar and give each one real dimension or annotation lettering.",
+      "Do keep at most one drawing per viewport on Home; drawings are signatures.",
+      "Do frame ventures as tipped-in plates in their own identity."
+    ],
+    "donts": [
+      "Don't round corners on controls, plates, fields or tables.",
+      "Don't cast shadows on the sheet; only venture plates lift.",
+      "Don't use Castoro capitals for section titles, labels or navigation.",
+      "Don't set text in silver; it fails contrast on carta and is reserved for underlines and construction lines.",
+      "Don't bring the ventures' teal or blacks onto the sheet.",
+      "Don't add card grids, headshot cards or tinted feature boxes.",
+      "Don't add small uppercase tracked labels above headings."
+    ]
+  }
+}

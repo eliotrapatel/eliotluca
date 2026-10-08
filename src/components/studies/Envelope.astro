@@ -1,0 +1,110 @@
+---
+import Study from '../Study.astro';
+
+interface Props {
+  delay?: number;
+  href?: string;
+}
+const { delay = 0, href = '/about#practice' } = Astro.props;
+
+// ADSR envelope on a normalised level (0 to 1). The waveform below it is a
+// plain sine whose amplitude is the envelope, so its crests touch the curve.
+const Y0 = 136; // time axis, level 0
+const A = 80; // px for level 1
+const ON = 52; // note on
+const TA = 84; // end of attack
+const TD = 120; // end of decay
+const OFF = 222; // note off
+const TR = 290; // end of release
+const SUS = 0.6; // sustain level (generic)
+const K = 3.6; // curvature of the exponential segments
+
+const fall = (u: number) => (Math.exp(-K * u) - Math.exp(-K)) / (1 - Math.exp(-K));
+const env = (x: number) => {
+  if (x <= ON) return 0;
+  if (x <= TA) return (x - ON) / (TA - ON);
+  if (x <= TD) return SUS + (1 - SUS) * fall((x - TA) / (TD - TA));
+  if (x <= OFF) return SUS;
+  if (x <= TR) return SUS * fall((x - OFF) / (TR - OFF));
+  return 0;
+};
+
+const f = (n: number) => +n.toFixed(2);
+const curve = (sign: number) => {
+  const pts: string[] = [`M${ON},${Y0}`, `L${TA},${Y0 - sign * A}`];
+  for (let x = TA + 1; x <= TD; x += 1) pts.push(`L${x},${f(Y0 - sign * A * env(x))}`);
+  pts.push(`L${OFF},${f(Y0 - sign * A * SUS)}`);
+  for (let x = OFF + 1; x <= TR; x += 1) pts.push(`L${x},${f(Y0 - sign * A * env(x))}`);
+  return pts.join('');
+};
+const upper = curve(1);
+const lower = curve(-1);
+
+const WAVE = 7.5; // px per cycle
+const wavePts: string[] = [];
+for (let x = ON; x <= TR + 0.001; x += 0.3) {
+  const y = Y0 - A * env(x) * Math.sin((2 * Math.PI * (x - ON)) / WAVE);
+  wavePts.push(`${wavePts.length ? 'L' : 'M'}${f(x)},${f(y)}`);
+}
+const wave = wavePts.join('');
+
+const ySus = Y0 - A * SUS;
+const yTop = Y0 - A;
+const segs = [
+  { name: 'attack', a: ON, b: TA },
+  { name: 'decay', a: TA, b: TD },
+  { name: 'sustain', a: TD, b: OFF },
+  { name: 'release', a: OFF, b: TR },
+];
+const CH = 30; // chain line for the segment names
+---
+
+<Study
+  id="envelope"
+  title="Amplitude envelope"
+  discipline="Music production"
+  year={2023}
+  href={href}
+  viewBox="0 0 320 254"
+  delay={delay}
+  label="An attack, decay, sustain, release envelope over time, with the sound wave inside it rising, falling, holding while the key is held and fading after the note is released. Note on and note off are marked."
+>
+  <!-- Construction: level references and projections to the segment chain. -->
+  <line class="metal" x1="36" y1={yTop} x2={TA} y2={yTop} />
+  <line class="metal" x1="36" y1={ySus} x2={TD} y2={ySus} />
+  <line class="metal" x1={TA} y1={CH + 4} x2={TA} y2={yTop - 3} />
+  <line class="metal" x1={TD} y1={CH + 4} x2={TD} y2={ySus - 3} />
+  <line class="metal" x1={TR} y1={CH + 4} x2={TR} y2={Y0 - 3} />
+
+  <!-- Note on, note off. -->
+  <line class="metal" x1={ON} y1={CH + 4} x2={ON} y2="228" />
+  <line class="metal" x1={OFF} y1={CH + 4} x2={OFF} y2="228" />
+  <text class="dim" font-size="10" x={ON} y="242" text-anchor="middle">note on</text>
+  <text class="dim" font-size="10" x={OFF} y="242" text-anchor="middle">note off</text>
+
+  <!-- Axes. -->
+  <line class="ink-fine" x1="36" y1="228" x2="36" y2="44" marker-end="url(#arrow)" pathLength="1" />
+  <line class="ink-fine" x1="36" y1={Y0} x2="308" y2={Y0} marker-end="url(#arrow)" pathLength="1" />
+  <line class="ink-fine" x1="32" y1={yTop} x2="36" y2={yTop} />
+  <text class="dim" font-size="10" x="29" y={yTop + 3.5} text-anchor="end">1</text>
+  <text class="dim" font-size="10" x="29" y={Y0 + 3.5} text-anchor="end">0</text>
+  <text class="dim" font-size="10" transform={`translate(22 ${(yTop + ySus) / 2 + 18}) rotate(-90)`} text-anchor="middle">level</text>
+  <text class="dim" font-size="10" x="308" y={Y0 + 15} text-anchor="end">time</text>
+
+  <!-- Segment chain. -->
+  <g style={`--d: ${delay + 500}`}>
+    <line class="ink-fine" x1={ON} y1={CH} x2={TR} y2={CH} pathLength="1" />
+    {[ON, TA, TD, OFF, TR].map((x) => <line class="ink-fine" x1={x} y1={CH - 4} x2={x} y2={CH + 4} />)}
+  </g>
+  {segs.map((s) => <text class="dim" font-size="10" x={(s.a + s.b) / 2} y={CH - 6} text-anchor="middle">{s.name}</text>)}
+
+  <!-- The wave, then the envelope over it and its mirror. -->
+  <path class="ink-fine" d={wave} pathLength="1" style={`--d: ${delay + 250}`} />
+  <path class="metal" d={lower} />
+  <path class="ink" d={upper} pathLength="1" />
+
+  <!-- Heightening along the held level. -->
+  <line class="lead" x1={TD + 4} y1={ySus - 3.2} x2={OFF - 3} y2={ySus - 3.2} />
+
+  <text class="note" font-size="12.5" x={(TD + OFF) / 2} y={ySus - 13} text-anchor="middle">the key is held</text>
+</Study>

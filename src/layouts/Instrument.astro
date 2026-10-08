@@ -1,0 +1,62 @@
+---
+// Shared frame for every working tool under /instruments.
+// Slots: default = the instrument itself (use .instrument-grid with
+// .controls and .readout children), "method" = prose explaining the maths.
+import Base from './Base.astro';
+import PageHead from '../components/PageHead.astro';
+import '../styles/instruments.css';
+
+interface Props {
+  title: string;
+  lede: string;
+  description: string;
+  family: 'Capital' | 'Code' | 'Craft';
+  slug: string;
+}
+const { title, lede, description, family, slug } = Astro.props;
+---
+
+<Base title={title} description={description} image={`/og/instruments/${slug}.png`}>
+  <PageHead title={title} lede={lede} size="medium">
+    <p class="crumb t-ui muted"><a href="/instruments">Instruments</a> <span aria-hidden="true">/</span> {family}</p>
+  </PageHead>
+  <section class="wrap instrument" aria-label={title}>
+    <slot />
+  </section>
+  {
+    Astro.slots.has('method') && (
+      <section class="wrap method" aria-labelledby="method-title">
+        <h2 id="method-title" class="method-title">
+          Method
+        </h2>
+        <div class="prose">
+          <slot name="method" />
+        </div>
+      </section>
+    )
+  }
+</Base>
+
+<style>
+  .crumb {
+    margin-top: var(--s3);
+    font-size: var(--step--1);
+  }
+  .method {
+    margin-top: var(--s7);
+    padding-top: var(--s5);
+    border-top: 1px solid var(--rule);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--s4);
+  }
+  .method-title {
+    font-family: var(--font-text);
+    font-size: var(--step-3);
+  }
+  @media (max-width: 860px) {
+    .method {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

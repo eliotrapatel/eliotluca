@@ -1,0 +1,288 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import Strata from '../components/Strata.astro';
+import Record from '../components/Record.astro';
+import Escapement from '../components/studies/Escapement.astro';
+import Envelope from '../components/studies/Envelope.astro';
+import LetterE from '../components/studies/LetterE.astro';
+import ValueBridge from '../components/studies/ValueBridge.astro';
+import { site } from '../data/site';
+import { essayHref } from '../lib/writing';
+
+// What I can do, kept to things that can be shown.
+const letterRaw = [
+  {
+    text: 'I can prepare an information memorandum and the Q&A that follows it, as on an €80M M&A transaction.',
+    href: '/about#record',
+    label: 'The record',
+  },
+  {
+    text: "I can support a young company's fundraising: the data room and the answers to investors' questions.",
+    href: '/about#record',
+    label: 'The record',
+  },
+  {
+    text: 'I can work on a merger after signing: post-merger integration, from the corporate development side.',
+    href: '/writing/signing-proves-nothing',
+    label: 'On integration',
+  },
+  {
+    text: 'I can map an industry as a graph: THE ENTITY places 835 companies of the AI supply chain and records every call it makes.',
+    href: '/work/the-entity',
+    label: 'THE ENTITY',
+  },
+  {
+    text: 'I can ship software with AI at its core: a Copilot, a public API and a graph re-scored every night.',
+    href: '/work/the-entity',
+    label: 'THE ENTITY',
+  },
+  {
+    text: 'I can keep software cheap to run: cost per user and cost per request are set before the features.',
+    href: '/instruments/copilot-economics',
+    label: 'Copilot economics',
+  },
+  {
+    text: 'I can design a brand: branding and graphic design since 2016, and now a house of my own, ORBES.',
+    href: '/work/orbes',
+    label: 'ORBES',
+  },
+  {
+    text: 'I can model objects in three dimensions, a discipline I took up in 2026.',
+    href: '/work/orbes',
+    label: 'ORBES',
+  },
+  {
+    text: 'I can build proof into an object: every ORBES piece carries a code that its authentication app verifies.',
+    href: '/work/orbes',
+    label: 'ORBES',
+  },
+  {
+    text: 'I can analyse decentralised finance: crypto since 2017, and a thesis on whether it can compete with traditional finance.',
+    href: '/writing/defi-competes-on-mechanics',
+    label: 'On DeFi',
+  },
+];
+const letter = await Promise.all(letterRaw.map(async (p) => ({ ...p, href: await essayHref(p.href) })));
+const manifesto = await essayHref('/writing/da-vinci-mode');
+---
+
+<Base title="About" description="Eliot Luca's finance record, education and disciplines, with the work behind each." image="/og/about.png">
+  <PageHead title="About" lede="Finance by training, builder by habit. I learn a discipline by making something real in it, and I keep several going at once." />
+
+  <section class="wrap rec" id="record" aria-labelledby="record-title">
+    <h2 id="record-title" class="sec-title">Record</h2>
+    <div class="rec-body">
+      <Record full />
+      <p class="langs t-ui">Languages: {site.languages.join(', ').replace(/, ([^,]*)$/, ' and $1')}.</p>
+    </div>
+  </section>
+
+  <section class="wrap letter" aria-labelledby="letter-title">
+    <div class="letter-head">
+      <h2 id="letter-title" class="sec-title">What I can do</h2>
+      <p class="context">Ten things, each with the work that shows it.</p>
+    </div>
+    <ol class="points">
+      {
+        letter.map((p) => (
+          <li>
+            <p>{p.text}</p>
+            <a class="t-ui see" href={p.href}>{p.label}</a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="wrap practice" id="practice" aria-labelledby="practice-title">
+    <h2 id="practice-title" class="sec-title">How I work</h2>
+    <div class="practice-body">
+      <p class="t-lede">
+        Several disciplines at once, each started on a known date and held to one rule: it counts once it has produced something
+        real. Music I keep for pleasure; watchmaking is in its first year.
+      </p>
+      <p class="more t-ui"><a href={manifesto}>{manifesto === '/writing' ? 'Read the writing' : 'Read Da Vinci Mode'}</a></p>
+    </div>
+    <div class="practice-chart">
+      <Strata linkStudies={false} />
+    </div>
+    <div class="studies-grid">
+      <ValueBridge href="/instruments/returns" />
+      <LetterE href="/work/orbes" />
+      <Escapement href="/about#practice" />
+      <Envelope href="/about#practice" />
+    </div>
+  </section>
+</Base>
+
+<style>
+  .sec-title {
+    font-family: var(--font-text);
+    font-size: var(--step-4);
+    line-height: 1;
+    letter-spacing: -0.015em;
+  }
+
+  .langs {
+    margin-top: var(--s4);
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+
+  .studies-grid {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--s5);
+    align-items: end;
+    margin-top: var(--s4);
+  }
+
+  @media (max-width: 1000px) {
+    .studies-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  section + section {
+    margin-top: var(--s8);
+  }
+
+  .letter {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
+    row-gap: var(--s4);
+  }
+
+  .letter-head {
+    grid-column: 1 / span 4;
+    align-self: start;
+    position: sticky;
+    top: var(--s4);
+  }
+
+  .context {
+    margin-top: var(--s2);
+    font-size: var(--step-0);
+    color: var(--line-2);
+    max-width: 22em;
+  }
+
+  .points {
+    grid-column: 6 / span 7;
+    list-style: none;
+    counter-reset: point;
+    border-top: 1px solid var(--line);
+  }
+
+  .points li {
+    counter-increment: point;
+    display: grid;
+    grid-template-columns: 3rem minmax(0, 1fr);
+    column-gap: var(--s2);
+    padding-block: var(--s3);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .points li::before {
+    content: counter(point);
+    grid-row: 1 / span 2;
+    font-family: var(--font-title);
+    font-size: var(--step-3);
+    line-height: 1;
+    color: var(--line-2);
+  }
+
+  .points p {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    max-width: 32em;
+  }
+
+  .see {
+    justify-self: start;
+    margin-top: 0.4rem;
+    font-size: var(--step--2);
+    color: var(--line-2);
+    padding-block: 0.35rem;
+  }
+
+  .coda {
+    grid-column: 6 / span 7;
+    font-size: var(--step-1);
+    font-style: italic;
+    max-width: 32em;
+  }
+
+  @media (max-width: 900px) {
+    .letter-head,
+    .points,
+    .coda {
+      grid-column: 1 / -1;
+      position: static;
+    }
+  }
+
+  .practice {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
+    row-gap: var(--s5);
+  }
+
+  .practice .sec-title {
+    grid-column: 1 / span 4;
+  }
+
+  .practice-body {
+    grid-column: 6 / span 7;
+  }
+
+  .more {
+    margin-top: var(--s3);
+    font-size: var(--step--1);
+  }
+
+  .practice-chart {
+    grid-column: 1 / -1;
+  }
+
+  .pair {
+    grid-column: 3 / span 8;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s6);
+    align-items: end;
+  }
+
+  @media (max-width: 900px) {
+    .practice .sec-title,
+    .practice-body,
+    .pair {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .pair {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .rec {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
+    row-gap: var(--s4);
+  }
+
+  .rec .sec-title {
+    grid-column: 1 / span 4;
+  }
+
+  .rec-body {
+    grid-column: 1 / -1;
+  }
+</style>

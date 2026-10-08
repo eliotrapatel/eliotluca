@@ -1,0 +1,118 @@
+---
+import Study from '../Study.astro';
+
+interface Props {
+  delay?: number;
+  href?: string;
+}
+const { delay = 0, href = '/work/orbes' } = Astro.props;
+
+// The flat net of a small tuck-lid ring box, drawn in millimetres and placed
+// on the sheet at S px per mm. Base 60 x 60, walls 35 high, lid 60 x 60 with a
+// 15 mm tuck and two 30 mm dust flaps, four corner glue tabs 12 mm deep.
+// Left to right: front wall | base | back wall | lid | tuck. The two side
+// walls sit above and below the base.
+const S = 1.25;
+const X0 = 36;
+const Y0 = 30;
+const X = (mm: number) => +(X0 + mm * S).toFixed(2);
+const Y = (mm: number) => +(Y0 + mm * S).toFixed(2);
+const P = (x: number, y: number) => `${X(x)},${Y(y)}`;
+
+// Cut line: the whole outline in one stroke.
+const cut = [
+  `M${P(0, 35)}`,
+  `L${P(4, 23)}L${P(31, 23)}L${P(35, 35)}`, // front wall tab, top
+  `L${P(35, 0)}L${P(95, 0)}L${P(95, 35)}`, // side wall, top
+  `L${P(99, 23)}L${P(126, 23)}L${P(130, 35)}`, // back wall tab, top
+  `L${P(135, 5)}L${P(185, 5)}L${P(190, 35)}`, // dust flap, top
+  `L${P(197, 36)}Q${P(205, 37.5)} ${P(205, 45)}L${P(205, 85)}Q${P(205, 92.5)} ${P(197, 94)}L${P(190, 95)}`, // tuck
+  `L${P(185, 125)}L${P(135, 125)}L${P(130, 95)}`, // dust flap, bottom
+  `L${P(126, 107)}L${P(99, 107)}L${P(95, 95)}`, // back wall tab, bottom
+  `L${P(95, 130)}L${P(35, 130)}L${P(35, 95)}`, // side wall, bottom
+  `L${P(31, 107)}L${P(4, 107)}L${P(0, 95)}`, // front wall tab, bottom
+  'Z',
+].join('');
+
+// Fold lines (scored, dashed).
+const folds = [
+  [0, 35, 190, 35],
+  [0, 95, 190, 95],
+  [35, 35, 35, 95],
+  [95, 35, 95, 95],
+  [130, 35, 130, 95],
+  [190, 35, 190, 95],
+];
+
+// Glue tabs, hatched.
+const tabs = [
+  `M${P(0, 35)}L${P(4, 23)}L${P(31, 23)}L${P(35, 35)}Z`,
+  `M${P(95, 35)}L${P(99, 23)}L${P(126, 23)}L${P(130, 35)}Z`,
+  `M${P(95, 95)}L${P(99, 107)}L${P(126, 107)}L${P(130, 95)}Z`,
+  `M${P(0, 95)}L${P(4, 107)}L${P(31, 107)}L${P(35, 95)}Z`,
+];
+
+// Dimension geometry.
+const dimY = Y(141);
+const dimX = X(-11);
+---
+
+<Study
+  id="dieline"
+  title="Ring box, dieline"
+  discipline="E-commerce"
+  year={2018}
+  href={href}
+  viewBox="0 0 320 236"
+  delay={delay}
+  label="The flat net of a small folding ring box: a 60 by 60 millimetre base, four walls 35 millimetres high, a tuck lid with two dust flaps and four hatched glue tabs. Cut lines are solid, fold lines dashed. Generic dimensions."
+>
+  <!-- Heightening on the base panel, where the ring sits. -->
+  <rect class="hatch" x={X(35)} y={Y(35)} width={60 * S} height={60 * S} opacity="0.55" style={`--d: ${delay + 300}`} />
+
+  <!-- Glue tabs. -->
+  <g class="settle" style={`--d: ${delay + 200}`}>
+    {tabs.map((d) => <path d={d} fill="url(#hatch-ink)" />)}
+  </g>
+
+  <!-- Folds. -->
+  {folds.map(([x1, y1, x2, y2]) => <line class="metal" x1={X(x1)} y1={Y(y1)} x2={X(x2)} y2={Y(y2)} />)}
+
+  <!-- Cut. -->
+  <path class="ink" d={cut} pathLength="1" />
+
+  <!-- Heightening along the tuck edge. -->
+  <path
+    class="lead"
+    d={`M${P(202.2, 46)}L${P(202.2, 84)}`}
+    style={`--d: ${delay + 200}`}
+  />
+
+  <!-- Panel names. -->
+  <text class="dim" font-size="9" x={X(65)} y={Y(65) + 3} text-anchor="middle">base</text>
+  <text class="dim" font-size="9" x={X(160)} y={Y(65) + 3} text-anchor="middle">lid</text>
+  <text class="dim" font-size="9" x={X(17.5)} y={Y(65) + 3} text-anchor="middle">front</text>
+  <text class="dim" font-size="9" x={X(112.5)} y={Y(65) + 3} text-anchor="middle">back</text>
+  <text class="dim" font-size="9" x={X(65)} y={Y(17.5) + 3} text-anchor="middle">side</text>
+  <text class="dim" font-size="9" x={X(65)} y={Y(112.5) + 3} text-anchor="middle">side</text>
+  <text class="dim" font-size="9" transform={`translate(${X(196.5) + 3} ${Y(65)}) rotate(-90)`} text-anchor="middle">tuck</text>
+
+  <!-- Dimensions, horizontal: wall height and base width. -->
+  <g style={`--d: ${delay + 500}`}>
+    <line class="ink-fine" x1={X(0)} y1={Y(109)} x2={X(0)} y2={dimY + 3} opacity="0.6" />
+    <line class="ink-fine" x1={X(35)} y1={Y(132)} x2={X(35)} y2={dimY + 3} opacity="0.6" />
+    <line class="ink-fine" x1={X(95)} y1={Y(132)} x2={X(95)} y2={dimY + 3} opacity="0.6" />
+    <line class="ink-fine" x1={X(0) + 1} y1={dimY} x2={X(35) - 1} y2={dimY} marker-start="url(#arrow)" marker-end="url(#arrow)" pathLength="1" />
+    <line class="ink-fine" x1={X(35) + 1} y1={dimY} x2={X(95) - 1} y2={dimY} marker-start="url(#arrow)" marker-end="url(#arrow)" pathLength="1" />
+    <text class="dim" font-size="10" x={X(17.5)} y={dimY + 13} text-anchor="middle">35 mm</text>
+    <text class="dim" font-size="10" x={X(65)} y={dimY + 13} text-anchor="middle">60 mm</text>
+
+    <!-- Vertical: front wall length equals the base edge it folds from. -->
+    <line class="ink-fine" x1={X(-2)} y1={Y(35)} x2={dimX - 3} y2={Y(35)} opacity="0.6" />
+    <line class="ink-fine" x1={X(-2)} y1={Y(95)} x2={dimX - 3} y2={Y(95)} opacity="0.6" />
+    <line class="ink-fine" x1={dimX} y1={Y(35) + 1} x2={dimX} y2={Y(95) - 1} marker-start="url(#arrow)" marker-end="url(#arrow)" pathLength="1" />
+    <text class="dim" font-size="10" transform={`translate(${dimX - 4} ${Y(65)}) rotate(-90)`} text-anchor="middle">60 mm</text>
+  </g>
+
+  <text class="note" font-size="12.5" x={X(205)} y={dimY + 13} text-anchor="end">cut, fold, glue</text>
+</Study>

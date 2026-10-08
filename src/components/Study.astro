@@ -1,0 +1,122 @@
+---
+// A single drawing on the sheet. The SVG body comes from the slot and uses the
+// shared stroke classes from global.css (.ink, .ink-fine, .ink-bold, .metal,
+// .lead, .lead-fill, .ink-fill, .dim, .note). Paths that should draw on load
+// carry pathLength="1".
+interface Props {
+  id: string;
+  title: string; // what is drawn, e.g. "Swiss lever escapement"
+  discipline?: string; // e.g. "Watchmaking"
+  year?: number | string;
+  href?: string;
+  viewBox: string;
+  delay?: number; // ms, for the load sequence
+  class?: string;
+  interactive?: boolean;
+  label?: string; // accessible description of the drawing
+}
+
+const { id, title, discipline, year, href, viewBox, delay = 0, class: className, interactive = false, label } = Astro.props;
+// Unique per instance: the same drawing can appear twice on one page.
+const titleId = `${id}-title-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<figure class:list={['study', className]} data-study={id} style={`--d: ${delay}`}>
+  <svg
+    viewBox={viewBox}
+    role="img"
+    aria-labelledby={titleId}
+    tabindex={interactive ? 0 : undefined}
+    data-interactive={interactive ? 'true' : undefined}
+  >
+    <title id={titleId}>{label ?? title}</title>
+    <slot />
+  </svg>
+  <figcaption>
+    {
+      href ? (
+        <a href={href} class="cap">
+          <span class="t-note">{title}</span>
+          {discipline && (
+            <span class="t-dim meta">
+              {discipline}
+              {year && <>, since {year}</>}
+            </span>
+          )}
+        </a>
+      ) : (
+        <span class="cap">
+          <span class="t-note">{title}</span>
+          {discipline && (
+            <span class="t-dim meta">
+              {discipline}
+              {year && <>, since {year}</>}
+            </span>
+          )}
+        </span>
+      )
+    }
+  </figcaption>
+</figure>
+
+<style>
+  .study {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  svg[data-interactive] {
+    cursor: grab;
+    touch-action: pan-y;
+  }
+
+  svg[data-interactive]:active {
+    cursor: grabbing;
+  }
+
+  .cap {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    text-decoration: none;
+    background: none;
+  }
+
+  .cap .t-note {
+    font-size: var(--step-0);
+    line-height: 1.2;
+  }
+
+  a.cap:hover .t-note {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+
+  .meta {
+    font-size: var(--step--2);
+    color: var(--line-2);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.can-draw body[data-draw]) .study figcaption {
+      opacity: 0;
+      animation: cap-in 600ms var(--ease-out) forwards;
+      animation-delay: calc(var(--d, 0) * 1ms + 700ms);
+    }
+  }
+
+  @keyframes cap-in {
+    to {
+      opacity: 1;
+    }
+  }
+</style>

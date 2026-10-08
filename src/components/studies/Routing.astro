@@ -1,0 +1,155 @@
+---
+import Study from '../Study.astro';
+
+interface Props {
+  delay?: number;
+  href?: string;
+}
+const { delay = 0, href = '/instruments/copilot-economics' } = Astro.props;
+
+// A request drawn as water through masonry conduits, in section, after the
+// hydraulic studies of the Codex Atlanticus. Every conduit and vessel is drawn
+// in four passes over the same geometry so that junctions merge cleanly:
+// outer ink edge, hatched wall, inner ink edge, water.
+const W = 2.5; // half the water width of a conduit
+const T = 3; // wall thickness
+const E = 1.25; // ink edge
+
+const V = { x: 140, y: 74 }; // router valve centre
+const R = 12; // valve cavity radius
+const IN = 36; // inlet level
+
+// Model chambers in section: squares whose areas run 1 : 5 : 25.
+const s1 = 20;
+const s2 = +(s1 * Math.sqrt(5)).toFixed(2);
+const s3 = s1 * 5;
+const FLOOR = 264;
+const COL = FLOOR + 19; // collector centre line, a short drain below the floors
+const chamber = (cx: number, s: number) => ({ x: +(cx - s / 2).toFixed(2), y: +(FLOOR - s).toFixed(2), w: s, h: s });
+const small = chamber(64, s1);
+const medium = chamber(140, s2);
+const large = chamber(248, s3);
+// The cache: a cistern on the inlet line.
+const cache = { x: 50, y: IN - 14, w: 30, h: 28 };
+const vessels = [cache, small, medium, large];
+
+const f = (n: number) => +n.toFixed(2);
+const toward = (deg: number, toX: number) => {
+  const a = (deg * Math.PI) / 180;
+  const len = (toX - V.x) / Math.cos(a);
+  return { x: f(V.x + Math.cos(a) * len), y: f(V.y + Math.sin(a) * len) };
+};
+const toSmall = toward(150, 64);
+const toLarge = toward(30, 248);
+const HIT = 78; // level of the hit return
+const HX = 65; // where the hit leaves the cache floor
+
+const conduits = [
+  `M22,${IN}H${V.x}V${V.y}`, // request in, down into the router
+  `M${HX},${cache.y + cache.h - 3}V${HIT}H22`, // cache hit, straight back out
+  `M${V.x},${V.y}L${toSmall.x},${toSmall.y}L64,${small.y + 3}`,
+  `M${V.x},${V.y}V${medium.y + 3}`,
+  `M${V.x},${V.y}L${toLarge.x},${toLarge.y}L248,${large.y + 3}`,
+  `M64,${FLOOR - 3}V${COL}H306`, // collector, out to the right
+  `M${V.x},${FLOOR - 3}V${COL}`,
+  `M248,${FLOOR - 3}V${COL}`,
+];
+
+const band = 2 * (W + T);
+const pipe = (paint: string, width: number) =>
+  `fill:none;stroke:${paint};stroke-width:${width};stroke-linejoin:miter;stroke-linecap:butt`;
+const ring = (paint: string, width: number) => `fill:none;stroke:${paint};stroke-width:${width}`;
+const mid = (v: { x: number; y: number; w: number; h: number }) => ({
+  x: v.x - T / 2,
+  y: v.y - T / 2,
+  width: v.w + T,
+  height: v.h + T,
+});
+
+// Turning arrow beside the plug.
+const arc = (() => {
+  const r = R + T + 9;
+  const p = (deg: number) => {
+    const a = (deg * Math.PI) / 180;
+    return `${f(V.x + Math.cos(a) * r)},${f(V.y + Math.sin(a) * r)}`;
+  };
+  return `M${p(-62)}A${r},${r} 0 0 1 ${p(-8)}`;
+})();
+---
+
+<Study
+  id="routing"
+  title="Routing a request"
+  discipline="AI infrastructure"
+  year={2025}
+  href={href}
+  viewBox="0 0 320 332"
+  delay={delay}
+  label="A request drawn as water in a sectioned conduit. It first meets a cache: a hit returns at once by a short channel. A miss runs on to a router valve that sends it to one of three chambers for small, medium and large models, sized by illustrative cost ratios of 1, 5 and 25. The answer leaves by the collector."
+>
+  <!-- 1. outer ink edge -->
+  <g style={`--d: ${delay}`}>
+    {conduits.map((d) => <path d={d} style={pipe('var(--line)', band + 2 * E)} pathLength="1" />)}
+    {vessels.map((v) => <rect {...mid(v)} style={ring('var(--line)', T + 2 * E)} pathLength="1" />)}
+    <circle cx={V.x} cy={V.y} r={R + T / 2} style={ring('var(--line)', T + 2 * E)} pathLength="1" />
+  </g>
+  <!-- 2. wall body, then its section hatching -->
+  {conduits.map((d) => <path d={d} style={pipe('var(--ground)', band)} />)}
+  {vessels.map((v) => <rect {...mid(v)} style={ring('var(--ground)', T)} />)}
+  <circle cx={V.x} cy={V.y} r={R + T / 2} style={ring('var(--ground)', T)} />
+  <g class="settle" style={`--d: ${delay + 100}`}>
+    {conduits.map((d) => <path d={d} style={pipe('url(#hatch-ink)', band)} />)}
+    {vessels.map((v) => <rect {...mid(v)} style={ring('url(#hatch-ink)', T)} />)}
+    <circle cx={V.x} cy={V.y} r={R + T / 2} style={ring('url(#hatch-ink)', T)} />
+  </g>
+  <!-- 3. inner ink edge -->
+  <g style={`--d: ${delay + 150}`}>
+    {conduits.map((d) => <path d={d} style={pipe('var(--line)', 2 * W + 2 * E)} pathLength="1" />)}
+    {vessels.map((v) => <rect x={v.x} y={v.y} width={v.w} height={v.h} style={ring('var(--line)', 2 * E)} pathLength="1" />)}
+    <circle cx={V.x} cy={V.y} r={R} style={ring('var(--line)', 2 * E)} pathLength="1" />
+  </g>
+  <!-- 4. water -->
+  {conduits.map((d) => <path d={d} style={pipe('var(--ground)', 2 * W)} />)}
+  {vessels.map((v) => <rect x={v.x} y={v.y} width={v.w} height={v.h} style="fill:var(--ground);stroke:none" />)}
+  <circle cx={V.x} cy={V.y} r={R} style="fill:var(--ground);stroke:none" />
+
+  <!-- Router: a turning plug with one straight bore, set to the middle chamber. -->
+  <g style={`--d: ${delay + 300}`}>
+    <circle cx={V.x} cy={V.y} r={R - 1.8} fill="url(#hatch-ink)" class="ink-fine" pathLength="1" />
+    <rect x={V.x - W} y={V.y - R + 2.4} width={2 * W} height={2 * (R - 2.4)} style="fill:var(--ground);stroke:none" />
+    <line class="ink-fine" x1={V.x - W} y1={f(V.y - Math.sqrt((R - 1.8) ** 2 - W * W))} x2={V.x - W} y2={f(V.y + Math.sqrt((R - 1.8) ** 2 - W * W))} pathLength="1" />
+    <line class="ink-fine" x1={V.x + W} y1={f(V.y - Math.sqrt((R - 1.8) ** 2 - W * W))} x2={V.x + W} y2={f(V.y + Math.sqrt((R - 1.8) ** 2 - W * W))} pathLength="1" />
+  </g>
+  <path class="metal" d={arc} marker-start="url(#arrow)" marker-end="url(#arrow)" />
+
+  <!-- Cache: earlier answers kept on the floor of the cistern. -->
+  <g class="settle" style={`--d: ${delay + 200}`}>
+    {[2.5, 7.5, 20, 25].map((dx) => (
+      <rect x={cache.x + dx} y={cache.y + cache.h - 6} width="4.5" height="6" fill="url(#hatch-ink)" class="ink-fine" />
+    ))}
+  </g>
+
+  <!-- The main stream, heightened. -->
+  <path class="lead" d={`M26,${IN}H${V.x}V${COL}H302`} />
+
+  <!-- Flow in and out. -->
+  <g style={`--d: ${delay + 600}`}>
+    <line class="ink-fine" x1="4" y1={IN} x2="18" y2={IN} marker-end="url(#arrow)" pathLength="1" />
+    <line class="ink-fine" x1="4" y1={HIT} x2="18" y2={HIT} marker-start="url(#arrow)" pathLength="1" />
+    <line class="ink-fine" x1="309" y1={COL} x2="319" y2={COL} marker-end="url(#arrow)" pathLength="1" />
+  </g>
+
+  <!-- Names. -->
+  <text class="dim" font-size="10" x="4" y="24">request</text>
+  <text class="dim" font-size="10" x="4" y={HIT + 18}>hit</text>
+  <text class="dim" font-size="10" x={cache.x + cache.w / 2} y={cache.y - 9} text-anchor="middle">cache</text>
+  <text class="dim" font-size="10" x="104" y="24" text-anchor="middle">miss</text>
+  <text class="dim" font-size="10" x={V.x + 30} y={V.y + 4}>router</text>
+
+  <text class="dim" font-size="10" x="64" y={COL + 24} text-anchor="middle">small ×1</text>
+  <text class="dim" font-size="10" x="140" y={COL + 24} text-anchor="middle">medium ×5</text>
+  <text class="dim" font-size="10" x="248" y={COL + 24} text-anchor="middle">large ×25</text>
+  <text class="dim" font-size="10" x="318" y={COL + 24} text-anchor="end">answer</text>
+
+  <text class="note" font-size="12.5" x="160" y={COL + 42} text-anchor="middle">illustrative cost ratios</text>
+</Study>

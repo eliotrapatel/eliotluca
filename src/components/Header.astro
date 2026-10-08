@@ -1,0 +1,91 @@
+---
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+
+const items = [
+  { href: '/work', label: 'Ventures' },
+  { href: '/writing', label: 'Writing' },
+  { href: '/instruments', label: 'Instruments' },
+  { href: '/about', label: 'About' },
+];
+
+const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
+---
+
+<header class="top wrap" lang="en">
+  <a class="mark t-title" href="/" aria-label="Eliot Luca, home" aria-current={path === '/' ? 'page' : undefined}>Eliot Luca</a>
+  <nav class="nav t-ui" aria-label="Main">
+    <ul>
+      {
+        items.map((item) => (
+          <li>
+            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li class="contact"><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .top {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--s3);
+    padding-top: var(--s3);
+    padding-bottom: var(--s3);
+  }
+
+  .mark {
+    font-size: 1.0625rem;
+    letter-spacing: 0.14em;
+    text-decoration: none;
+    white-space: nowrap;
+    background: none;
+  }
+
+  .nav ul {
+    list-style: none;
+    display: flex;
+    gap: clamp(14px, 2.4vw, 36px);
+  }
+
+  .nav a {
+    font-size: var(--step--1);
+    font-weight: 450;
+    text-decoration-color: transparent;
+    padding-block: 0.35em;
+  }
+
+  .nav a:hover {
+    text-decoration-color: var(--line);
+  }
+
+  .nav a[aria-current='page'] {
+    text-decoration-color: var(--line);
+    text-decoration-thickness: 1px;
+    background-size: 100% 0.55em;
+  }
+
+  @media (max-width: 640px) {
+    .top {
+      flex-wrap: wrap;
+      row-gap: var(--s1);
+      padding-top: var(--s2);
+      padding-bottom: var(--s2);
+    }
+    .nav {
+      width: 100%;
+    }
+    .nav ul {
+      justify-content: space-between;
+      gap: 0;
+    }
+    .nav .contact {
+      display: none;
+    }
+  }
+</style>

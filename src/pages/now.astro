@@ -1,0 +1,67 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+import { now } from '../data/site';
+import { formatDate } from '../lib/writing';
+
+const updated = new Date(now.updated + 'T00:00:00Z');
+---
+
+<Base title="Now" description="What Eliot Luca is working on at the moment." image="/og/now.png">
+  <PageHead title="Now" lede="What has my attention at the moment. When it changes, this page changes.">
+    <p class="stamp t-ui">
+      Updated <time datetime={now.updated}>{formatDate(updated)}</time>. A now page, after an idea by
+      <a href="https://nownownow.com/about" rel="noopener">Derek Sivers</a>.
+    </p>
+  </PageHead>
+
+  <section class="wrap" aria-label="Current work">
+    <ol class="items">
+      {
+        now.items.map((item) => (
+          <li>
+            <h2 class="i-title">
+              <a href={item.href} rel={item.href.startsWith('http') ? 'noopener' : undefined}>
+                {item.title}
+              </a>
+            </h2>
+            <p class="i-body">{item.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .stamp {
+    margin-top: var(--s3);
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+  .items {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+  .items li {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--s2) var(--s5);
+    padding-block: var(--s4);
+    border-bottom: 1px solid var(--rule);
+  }
+  .i-title {
+    font-family: var(--font-text);
+    font-size: var(--step-3);
+    line-height: 1.1;
+  }
+  .i-body {
+    font-size: var(--step-1);
+    max-width: 30em;
+  }
+  @media (max-width: 760px) {
+    .items li {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

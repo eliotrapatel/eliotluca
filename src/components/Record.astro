@@ -1,0 +1,184 @@
+---
+// The finance record, kept as a ledger: one ruled line per entry.
+import { record, education, thesis } from '../data/site';
+
+interface Props {
+  full?: boolean;
+}
+const { full = false } = Astro.props;
+---
+
+<div class="record">
+  <table class="ledger-table">
+    <caption class="visually-hidden">Finance record</caption>
+    <thead class="t-ui">
+      <tr>
+        <th scope="col">Firm</th>
+        <th scope="col">Role</th>
+        <th scope="col">Scope</th>
+        <th scope="col" class="dur">Length</th>
+      </tr>
+    </thead>
+    <tbody>
+      {
+        record.map((r) => (
+          <tr>
+            <th scope="row" class="firm">
+              {r.firm}
+            </th>
+            <td class="role t-ui">{r.role}</td>
+            <td class="scope">{r.scope}</td>
+            <td class="dur t-ui">{r.duration ?? ''}</td>
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+
+  {
+    full && (
+      <div class="schools">
+        <ul class="edu">
+          {education.map((e) => (
+            <li>
+              <span class="school">{e.school}</span>
+              <span class="prog t-ui">{e.programme}</span>
+            </li>
+          ))}
+        </ul>
+        <p class="thesis">
+          <span class="t-note">Thesis.</span> {thesis.question} <span class="muted">{thesis.method}</span>
+        </p>
+      </div>
+    )
+  }
+</div>
+
+<style>
+  .ledger-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-top: 1px solid var(--line);
+  }
+
+  thead th {
+    text-align: left;
+    font-weight: 450;
+    font-size: var(--step--2);
+    color: var(--line-2);
+    padding: 0.7rem 1rem 0.7rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  tbody th,
+  tbody td {
+    text-align: left;
+    vertical-align: baseline;
+    padding: 0.95rem 1rem 0.95rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .firm {
+    font-weight: 400;
+    font-size: var(--step-1);
+    width: 30%;
+  }
+
+  .role {
+    font-size: var(--step--1);
+    width: 18%;
+  }
+
+  .scope {
+    color: var(--line);
+  }
+
+  .dur {
+    text-align: right;
+    white-space: nowrap;
+    font-size: var(--step--1);
+    color: var(--line-2);
+    padding-right: 0;
+  }
+
+  .schools {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s4);
+    margin-top: var(--s5);
+  }
+
+  .edu {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .edu li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .school {
+    font-size: var(--step-1);
+  }
+
+  .prog {
+    font-size: var(--step--1);
+    color: var(--line-2);
+    text-align: right;
+  }
+
+  .thesis {
+    border-top: 1px solid var(--line);
+    padding-top: 0.8rem;
+    font-size: var(--step-1);
+    line-height: 1.45;
+  }
+
+  .thesis .muted {
+    display: block;
+    margin-top: 0.6rem;
+    font-size: var(--step-0);
+  }
+
+  @media (max-width: 760px) {
+    thead {
+      display: none;
+    }
+    tbody tr {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      padding-block: 0.9rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    tbody th,
+    tbody td {
+      padding: 0;
+      border: 0;
+      width: auto;
+    }
+    .firm {
+      grid-column: 1;
+    }
+    .dur {
+      grid-column: 2;
+      grid-row: 1;
+    }
+    .role {
+      grid-column: 1 / -1;
+      margin-top: 0.2rem;
+      color: var(--line-2);
+    }
+    .scope {
+      grid-column: 1 / -1;
+      margin-top: 0.3rem;
+    }
+    .schools {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

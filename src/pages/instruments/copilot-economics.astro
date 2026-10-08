@@ -1,0 +1,434 @@
+---
+import Instrument from '../../layouts/Instrument.astro';
+import {
+  COPILOT_DEFAULTS,
+  COPILOT_FIELDS,
+  TIERS,
+  compute,
+  describe,
+  drawing,
+  figures,
+  tierFor,
+  VIEW,
+  type CopilotKey,
+  type TierId,
+} from '../../lib/instruments/copilot-economics';
+
+const d = COPILOT_DEFAULTS;
+const result = compute(d);
+const figs = figures(result);
+const activeTier = tierFor(d.priceIn, d.priceOut);
+
+type Field = { key: CopilotKey; label: string; unit: string; mode: 'numeric' | 'decimal' };
+const groups: { legend: string; fields: Field[] }[] = [
+  {
+    legend: 'Subscription',
+    fields: [
+      { key: 'users', label: 'Paying users', unit: 'users', mode: 'numeric' },
+      { key: 'price', label: 'Price per user per month', unit: 'US$', mode: 'decimal' },
+    ],
+  },
+  {
+    legend: 'Usage',
+    fields: [
+      { key: 'requests', label: 'Requests per user per day', unit: 'requests', mode: 'decimal' },
+      { key: 'days', label: 'Days of use per month', unit: 'days', mode: 'decimal' },
+      { key: 'inputTokens', label: 'Input tokens per request', unit: 'tokens', mode: 'numeric' },
+      { key: 'outputTokens', label: 'Output tokens per request', unit: 'tokens', mode: 'numeric' },
+    ],
+  },
+];
+const priceFields: Field[] = [
+  { key: 'priceIn', label: 'Input price', unit: 'US$ per million tokens', mode: 'decimal' },
+  { key: 'priceOut', label: 'Output price', unit: 'US$ per million tokens', mode: 'decimal' },
+  { key: 'cachedRate', label: 'Cached input billed at', unit: '% of the input price', mode: 'decimal' },
+];
+const infraField: Field = { key: 'infra', label: 'Fixed infrastructure per month', unit: 'US$', mode: 'decimal' };
+const tierIds = Object.keys(TIERS) as TierId[];
+---
+
+<Instrument
+  title="Copilot economics"
+  lede="What an AI copilot costs per user, and the margin left on the subscription."
+  description="Work out the model cost per user, the cost per request and the gross margin of an AI copilot sold as a monthly subscription."
+  family="Code"
+  slug="copilot-economics"
+>
+  <div class="instrument-grid" data-copilot>
+    <form class="controls" novalidate aria-label="Copilot assumptions">
+      {
+        groups.map((g) => (
+          <fieldset class="group">
+            <legend>{g.legend}</legend>
+            {g.fields.map((f) => (
+              <label class="field">
+                <span class="field-label">{f.label}</span>
+                <span class="field-input">
+                  <input
+                    type="text"
+                    inputmode={f.mode}
+                    autocomplete="off"
+                    spellcheck="false"
+                    name={f.key}
+                    id={`ce-${f.key}`}
+                    value={String(d[f.key])}
+                    aria-describedby={`ce-${f.key}-err`}
+                  />
+                  <span class="unit">{f.unit}</span>
+                </span>
+                <span class="field-error" id={`ce-${f.key}-err`} hidden />
+              </label>
+            ))}
+            {g.legend === 'Usage' && (
+              <label class="scale">
+                <span class="field-label">
+                  Share of input tokens read from the prompt cache
+                  <output class="scale-value" for="ce-cacheShare" id="ce-cacheShare-out">
+                    {d.cacheShare}%
+                  </output>
+                </span>
+                <input
+                  type="range"
+                  name="cacheShare"
+                  id="ce-cacheShare"
+                  min="0"
+                  max="95"
+                  step="1"
+                  value={d.cacheShare}
+                  aria-valuetext={`${d.cacheShare}%`}
+                />
+                <span class="scale-ticks" aria-hidden="true">
+                  <span>0%</span>
+                  <span>95%</span>
+                </span>
+              </label>
+            )}
+          </fieldset>
+        ))
+      }
+
+      <fieldset class="group">
+        <legend>Model prices</legend>
+        <div class="tiers">
+          <span class="field-label" id="ce-tier-label">Illustrative tiers</span>
+          <div class="choice" role="radiogroup" aria-labelledby="ce-tier-label" aria-describedby="ce-tier-note">
+            {
+              tierIds.map((id) => (
+                <label>
+                  <input type="radio" name="tier" value={id} checked={activeTier === id} />
+                  {TIERS[id].label}
+                </label>
+              ))
+            }
+          </div>
+          <p class="tier-note t-note" id="ce-tier-note">
+            Each tier sets only the two prices per million tokens: Large, US$15 input and US$75 output; Medium, US$3 and
+            US$15; Small, US$1 and US$5. Replace them with your provider's current price list.
+          </p>
+        </div>
+        {
+          priceFields.map((f) => (
+            <label class="field">
+              <span class="field-label">{f.label}</span>
+              <span class="field-input">
+                <input
+                  type="text"
+                  inputmode={f.mode}
+                  autocomplete="off"
+                  spellcheck="false"
+                  name={f.key}
+                  id={`ce-${f.key}`}
+                  value={String(d[f.key])}
+                  aria-describedby={`ce-${f.key}-err`}
+                />
+                <span class="unit">{f.unit}</span>
+              </span>
+              <span class="field-error" id={`ce-${f.key}-err`} hidden />
+            </label>
+          ))
+        }
+      </fieldset>
+
+      <fieldset class="group">
+        <legend>Infrastructure</legend>
+        <label class="field">
+          <span class="field-label">{infraField.label}</span>
+          <span class="field-input">
+            <input
+              type="text"
+              inputmode={infraField.mode}
+              autocomplete="off"
+              spellcheck="false"
+              name={infraField.key}
+              id={`ce-${infraField.key}`}
+              value={String(d[infraField.key])}
+              aria-describedby={`ce-${infraField.key}-err`}
+            />
+            <span class="unit">{infraField.unit}</span>
+          </span>
+          <span class="field-error" id={`ce-${infraField.key}-err`} hidden />
+        </label>
+      </fieldset>
+
+      <div class="form-foot">
+        <button type="button" class="action" data-reset>Reset</button>
+        <p class="t-note muted status" data-status aria-live="polite"></p>
+      </div>
+    </form>
+
+    <div class="readout" aria-live="polite">
+      <dl class="figures">
+        {
+          figs.map((f) => (
+            <div class:list={['figure', { 'is-key': f.key }]} data-fig={f.id}>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+              <small>{f.small}</small>
+            </div>
+          ))
+        }
+      </dl>
+      <figure class="study readout-drawing">
+        <svg viewBox={`0 0 ${VIEW.w} ${VIEW.h}`} role="img" aria-labelledby="ce-svg-title ce-svg-desc">
+          <title id="ce-svg-title">Cost and margin of one paying user's month</title>
+          <desc id="ce-svg-desc">{describe(result)}</desc>
+          <defs>
+            <pattern id="ce-hatch-in" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="5" style="stroke: var(--line); stroke-width: 0.8"></line>
+            </pattern>
+            <pattern id="ce-cross" width="4.5" height="4.5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+              <line x1="0" y1="0" x2="0" y2="4.5" style="stroke: var(--line); stroke-width: 0.8"></line>
+              <line x1="0" y1="0" x2="4.5" y2="0" style="stroke: var(--line); stroke-width: 0.8"></line>
+            </pattern>
+            <pattern id="ce-stipple" width="5" height="5" patternUnits="userSpaceOnUse">
+              <circle cx="1.25" cy="1.25" r="0.65" style="fill: var(--line)"></circle>
+              <circle cx="3.75" cy="3.75" r="0.65" style="fill: var(--line)"></circle>
+            </pattern>
+            <pattern id="ce-rule" width="6" height="3" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="1.5" x2="6" y2="1.5" style="stroke: var(--line-2); stroke-width: 0.6"></line>
+            </pattern>
+          </defs>
+          <g data-plot set:html={drawing(result)} />
+        </svg>
+        <figcaption class="t-note">
+          The price of one seat, cut into what the model and the servers take. Heightening marks what is left.
+        </figcaption>
+      </figure>
+      <p class="note">
+        Every default on this page is illustrative, the three price tiers included. Put in your own usage and a provider's
+        current prices.
+      </p>
+    </div>
+  </div>
+
+  <Fragment slot="method">
+    <p>
+      For one request, input cost is input tokens × (1 − cached share) × input price; cached input cost is input tokens ×
+      cached share × input price × the cached rate; output cost is output tokens × output price. Prices are per million
+      tokens, so each product is divided by 1,000,000.
+    </p>
+    <p>
+      A user makes requests per day × days of use in a month, so the model cost per user is that count × the cost of one
+      request. Fixed infrastructure is shared equally across paying users. Cost per user is the model cost plus that
+      share, and it is also the break-even price. Gross margin is revenue (users × price) minus model cost and
+      infrastructure, divided by revenue.
+    </p>
+    <p>
+      The model assumes every paying user behaves like the average one. It ignores what a real bill adds or removes: cache
+      write surcharges, retries and failed calls, tool calls, free users, volume discounts, payment fees, taxes, support
+      and the people who build the product. Heavy users skew the average, so check the distribution before setting a
+      price.
+    </p>
+  </Fragment>
+</Instrument>
+
+<style>
+  .readout-drawing {
+    margin: 0;
+  }
+  .tiers {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .tier-note {
+    font-size: var(--step-0);
+    color: var(--line-2);
+    max-width: 30em;
+  }
+  .choice label {
+    min-height: 44px;
+    min-width: 5.5em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .scale input[type='range'] {
+    height: 44px;
+  }
+  .action {
+    min-height: 44px;
+  }
+  .field-input input {
+    min-height: 44px;
+  }
+  .form-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .status {
+    font-size: var(--step-0);
+  }
+  .readout.is-stale .figures,
+  .readout.is-stale .readout-drawing {
+    opacity: 0.45;
+  }
+  .figure small {
+    line-height: 1.35;
+  }
+  .readout-drawing figcaption {
+    max-width: 34em;
+  }
+</style>
+
+<script>
+  import {
+    COPILOT_DEFAULTS,
+    COPILOT_FIELDS,
+    COPILOT_KEYS,
+    TIERS,
+    compute,
+    describe,
+    drawing,
+    figures,
+    parseNumber,
+    tierFor,
+    validateField,
+    type CopilotInputs,
+    type CopilotKey,
+    type TierId,
+  } from '../../lib/instruments/copilot-economics';
+
+  const root = document.querySelector<HTMLElement>('[data-copilot]');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    const readout = root.querySelector<HTMLElement>('.readout')!;
+    const plot = root.querySelector<SVGGElement>('[data-plot]')!;
+    const desc = root.querySelector<SVGDescElement>('#ce-svg-desc')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const cacheOut = root.querySelector<HTMLOutputElement>('#ce-cacheShare-out')!;
+    const tierRadios = [...root.querySelectorAll<HTMLInputElement>('input[name="tier"]')];
+
+    const input = (k: CopilotKey) => root.querySelector<HTMLInputElement>(`#ce-${k}`)!;
+
+    const setError = (k: CopilotKey, msg: string | null) => {
+      const el = input(k);
+      const err = root.querySelector<HTMLElement>(`#ce-${k}-err`);
+      const wrap = el.closest('.field-input');
+      if (msg) {
+        el.setAttribute('aria-invalid', 'true');
+        wrap?.setAttribute('aria-invalid', 'true');
+        if (err) {
+          err.textContent = msg;
+          err.hidden = false;
+        }
+      } else {
+        el.removeAttribute('aria-invalid');
+        wrap?.removeAttribute('aria-invalid');
+        if (err) {
+          err.textContent = '';
+          err.hidden = true;
+        }
+      }
+    };
+
+    const syncTier = () => {
+      // Parse as the fields do, so "3,0" or "US$15" still lights the matching tier.
+      const pi = parseNumber(input('priceIn').value) ?? NaN;
+      const po = parseNumber(input('priceOut').value) ?? NaN;
+      const t = tierFor(pi, po);
+      tierRadios.forEach((r) => (r.checked = r.value === t));
+    };
+
+    const writeUrl = (vals: CopilotInputs) => {
+      const params = new URLSearchParams();
+      for (const k of COPILOT_KEYS) {
+        if (vals[k] !== COPILOT_DEFAULTS[k]) params.set(COPILOT_FIELDS[k].q, String(vals[k]));
+      }
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
+    };
+
+    let everValid = false;
+    const update = (persist = true) => {
+      const vals = {} as CopilotInputs;
+      let bad = 0;
+      for (const k of COPILOT_KEYS) {
+        const res = validateField(k, input(k).value);
+        if ('error' in res) {
+          setError(k, res.error);
+          bad++;
+        } else {
+          setError(k, null);
+          vals[k] = res.value;
+        }
+      }
+      const cs = Number(input('cacheShare').value);
+      cacheOut.value = `${cs}%`;
+      input('cacheShare').setAttribute('aria-valuetext', `${cs}%`);
+      syncTier();
+
+      if (bad) {
+        readout.classList.add('is-stale');
+        // A shared link with a bad value never had a valid set of its own: say the readout is the defaults.
+        const shown = everValid ? 'the last valid set' : 'the illustrative defaults';
+        status.textContent = bad === 1 ? `One field needs a fix. The readout shows ${shown}.` : `${bad} fields need a fix. The readout shows ${shown}.`;
+        return;
+      }
+      everValid = true;
+      readout.classList.remove('is-stale');
+      status.textContent = '';
+
+      const r = compute(vals);
+      for (const f of figures(r)) {
+        const el = readout.querySelector<HTMLElement>(`[data-fig="${f.id}"]`);
+        if (!el) continue;
+        el.querySelector('dd')!.textContent = f.value;
+        el.querySelector('small')!.textContent = f.small;
+      }
+      plot.innerHTML = drawing(r);
+      desc.textContent = describe(r);
+      if (persist) writeUrl(vals);
+    };
+
+    // Read a shared configuration from the query string.
+    const params = new URLSearchParams(location.search);
+    for (const k of COPILOT_KEYS) {
+      const v = params.get(COPILOT_FIELDS[k].q);
+      if (v !== null) input(k).value = v;
+    }
+
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.name === 'tier') {
+        const tier = TIERS[t.value as TierId];
+        if (tier) {
+          input('priceIn').value = String(tier.priceIn);
+          input('priceOut').value = String(tier.priceOut);
+        }
+      }
+      update();
+    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+
+    root.querySelector('[data-reset]')!.addEventListener('click', () => {
+      for (const k of COPILOT_KEYS) input(k).value = String(COPILOT_DEFAULTS[k]);
+      update(false);
+      history.replaceState(null, '', location.pathname);
+      status.textContent = 'Back to the illustrative defaults.';
+    });
+
+    update(false);
+  }
+</script>

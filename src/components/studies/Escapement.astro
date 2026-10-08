@@ -1,0 +1,347 @@
+---
+import Study from '../Study.astro';
+
+interface Props {
+  delay?: number;
+  href?: string;
+}
+const { delay = 0, href = '/about#practice' } = Astro.props;
+
+// Geometry of a Swiss lever escapement in plan, laid out on one line of
+// centres: escape wheel (W), pallet staff (P), balance staff (B). The drawing
+// is baked in one rest position: fork against the lower banking pin, a tooth
+// locked on the exit pallet. The script then beats it from there.
+
+type Pt = [number, number];
+const rad = (d: number) => (d * Math.PI) / 180;
+const f = (n: number) => Math.round(n * 100) / 100;
+const pol = (c: Pt, r: number, deg: number): Pt => [c[0] + r * Math.cos(rad(deg)), c[1] + r * Math.sin(rad(deg))];
+const rot = (p: Pt, c: Pt, deg: number): Pt => {
+  const a = rad(deg);
+  const x = p[0] - c[0];
+  const y = p[1] - c[1];
+  return [c[0] + x * Math.cos(a) - y * Math.sin(a), c[1] + x * Math.sin(a) + y * Math.cos(a)];
+};
+// Paths are written without spaces (commas only) so they survive the dev rasteriser.
+const P2 = (p: Pt) => `${f(p[0])},${f(p[1])}`;
+const poly = (pts: Pt[]) => 'M' + pts.map(P2).join('L') + 'Z';
+const cross = (c: Pt, s: number) => `M${f(c[0] - s)},${f(c[1])}H${f(c[0] + s)}M${f(c[0])},${f(c[1] - s)}V${f(c[1] + s)}`;
+
+const K = 1.15; // drawing scale: the geometry below is set out at K = 1
+const CY = 92;
+const W: Pt = [86, CY];
+const R = 60 * K; // tip circle
+const RR = 48.5 * K; // root circle
+const RIM = 42.5 * K; // inside of the rim
+const HUB = 10.5 * K;
+const TEETH = 15;
+const PITCH = 360 / TEETH; // 24 degrees
+const LOCK_X = 27.6; // exit lock face, from the line of centres
+const LOCK_E = LOCK_X - 2.5 * PITCH; // entry lock face, 2.5 teeth away
+const P: Pt = [W[0] + R / Math.cos(rad(30)), CY]; // tangential layout
+const LIFT = 7; // fork angle each side of the line of centres
+// Drawing proportions, close to a common Swiss lever: staff to staff 1.5 R,
+// impulse pin at 0.36 R, table 0.44 R, safety roller 0.22 R.
+const RP = 0.36 * R; // impulse pin radius on the roller
+const LF = 1.5 * R - RP; // pallet staff to notch
+const B: Pt = [P[0] + LF + RP, CY];
+const TABLE = 0.44 * R;
+const SAFE = 0.22 * R;
+
+// Escape wheel outline: 15 club-foot teeth leaning into the direction of
+// rotation (clockwise), each club carrying its own impulse face.
+let wheel = '';
+for (let k = 0; k < TEETH; k++) {
+  const a = LOCK_X + k * PITCH;
+  const backRoot = pol(W, RR, a - 13);
+  const ctrl = pol(W, R - 5 * K, a - 12.6);
+  const heel = pol(W, R - 3.3 * K, a - 8.6);
+  const tip = pol(W, R, a);
+  const frontRoot = pol(W, RR, a - 3.2);
+  const nextBack = pol(W, RR, a + PITCH - 13);
+  wheel += `${k === 0 ? 'M' : 'L'}${P2(backRoot)}Q${P2(ctrl)},${P2(heel)}L${P2(tip)}L${P2(frontRoot)}A${f(RR)},${f(RR)},0,0,1,${P2(nextBack)}`;
+}
+wheel += 'Z';
+
+// Four crossings: the windows between the arms.
+let windows = '';
+const halfArm = 2.6 * K;
+for (let k = 0; k < 4; k++) {
+  const a0 = 45 + k * 90;
+  const a1 = a0 + 90;
+  const oo = (Math.asin(halfArm / RIM) * 180) / Math.PI;
+  const oi = (Math.asin(halfArm / HUB) * 180) / Math.PI;
+  windows += `M${P2(pol(W, RIM, a0 + oo))}A${f(RIM)},${f(RIM)},0,0,1,${P2(pol(W, RIM, a1 - oo))}L${P2(pol(W, HUB, a1 - oi))}A${f(HUB)},${f(HUB)},0,0,0,${P2(pol(W, HUB, a0 + oi))}Z`;
+}
+
+// Pallet stones, set out in the wheel's frame at the moment each one locks:
+// lock face on the radial line, impulse face sloping across the end.
+const SW = 5.4; // stone width, degrees of the wheel
+const stone = (lock: number): Pt[] => [
+  pol(W, R - 1.8 * K, lock),
+  pol(W, R + 11 * K, lock),
+  pol(W, R + 11 * K, lock + SW),
+  pol(W, R - 5.4 * K, lock + SW),
+];
+
+// Each arm clamps the outer part of its stone and runs to the collet.
+const hull = (pts: Pt[]): Pt[] => {
+  const p = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  const x = (o: Pt, a: Pt, b: Pt) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo: Pt[] = [];
+  const up: Pt[] = [];
+  for (const q of p) {
+    while (lo.length > 1 && x(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop();
+    lo.push(q);
+  }
+  for (const q of p.reverse()) {
+    while (up.length > 1 && x(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop();
+    up.push(q);
+  }
+  return [...lo.slice(0, -1), ...up.slice(0, -1)];
+};
+const arm = (lock: number): Pt[] => {
+  const box: Pt[] = [
+    pol(W, R + 4.2 * K, lock - 1.7),
+    pol(W, R + 11.6 * K, lock - 1.7),
+    pol(W, R + 11.6 * K, lock + SW + 1.7),
+    pol(W, R + 4.2 * K, lock + SW + 1.7),
+  ];
+  const c = pol(W, R + 8 * K, lock + SW / 2);
+  const dx = c[0] - P[0];
+  const dy = c[1] - P[1];
+  const l = Math.hypot(dx, dy);
+  const n: Pt = [(-dy / l) * 4.6 * K, (dx / l) * 4.6 * K];
+  return hull([...box, [P[0] + n[0], P[1] + n[1]], [P[0] - n[0], P[1] - n[1]]]);
+};
+// Exit locks in the baked position (fork at +7 degrees). Entry locks at -7,
+// so its arm and stone are carried 14 degrees about the staff into the fork.
+const exitStone = stone(LOCK_X);
+const exitArm = arm(LOCK_X);
+const entryStone = stone(LOCK_E).map((p) => rot(p, P, 2 * LIFT));
+const entryArm = arm(LOCK_E).map((p) => rot(p, P, 2 * LIFT));
+
+// Lever, fork horns and guard pin, drawn along +x from the staff and turned
+// to the baked banking position.
+const local = (x: number, y: number): Pt => rot([P[0] + x * K, P[1] + y * K], P, LIFT);
+const L0 = LF / K;
+const NOTCH = 3.6; // half width of the notch
+const PIN = 3.1 * K; // impulse pin radius
+const lever =
+  `M${P2(local(3, -4.4))}` +
+  `L${P2(local(L0 - 22, -2.6))}` +
+  `Q${P2(local(L0 - 15, -2.6))},${P2(local(L0 - 11, -8.6))}` +
+  `L${P2(local(L0 + 3.5, -10.4))}` +
+  `Q${P2(local(L0 + 8, -10.4))},${P2(local(L0 + 7.2, -NOTCH - 1.4))}` +
+  `L${P2(local(L0 - 4.4, -NOTCH))}` +
+  `L${P2(local(L0 - 4.4, NOTCH))}` +
+  `L${P2(local(L0 + 7.2, NOTCH + 1.4))}` +
+  `Q${P2(local(L0 + 8, 10.4))},${P2(local(L0 + 3.5, 10.4))}` +
+  `L${P2(local(L0 - 11, 8.6))}` +
+  `Q${P2(local(L0 - 15, 2.6))},${P2(local(L0 - 22, 2.6))}` +
+  `L${P2(local(3, 4.4))}Z`;
+const guardFrom = local(L0 - 4.4, 0);
+const guardTo = local((LF + RP - SAFE) / K - 1.6, 0);
+
+// Banking pins, fixed in the plate, touching the lever at +7 and -7 degrees.
+const BANK_AT = 36;
+const halfLever = 2.6 + ((4.4 - 2.6) * (L0 - 22 - BANK_AT)) / (L0 - 22 - 3);
+const PIN_R = 2.2;
+const bankLow = rot([P[0] + BANK_AT * K, P[1] + halfLever * K + PIN_R], P, LIFT);
+const bankHigh = rot([P[0] + BANK_AT * K, P[1] - halfLever * K - PIN_R], P, -LIFT);
+
+// Where the impulse pin sits in the baked position: on the fork's centre line
+// at radius RP from the balance staff, just leaving the notch.
+const D = LF + RP;
+const c7 = Math.cos(rad(LIFT));
+const sAt = D * c7 - Math.sqrt(D * D * c7 * c7 - D * D + RP * RP);
+const pinAt = rot([P[0] + sAt, P[1]], P, LIFT);
+const PSI = (Math.atan2(pinAt[1] - B[1], pinAt[0] - B[0]) * 180) / Math.PI; // the pin's angle on the roller, about 156 degrees
+const ROLLER_SWING = 360 - 2 * PSI;
+
+// Double roller: impulse table with its D-shaped pin, safety roller with the
+// crescent that lets the guard pin pass.
+const pinShape = (() => {
+  const c = pol(B, RP, PSI);
+  const r = PIN;
+  const a = PSI + 180; // flat face toward the staff
+  return `M${P2(pol(c, r, a + 60))}A${f(r)},${f(r)},0,1,1,${P2(pol(c, r, a - 60))}Z`;
+})();
+const crescent = (() => {
+  const d = SAFE + 1.4 * K;
+  const r = 4.6 * K;
+  const half = (Math.acos((SAFE * SAFE + d * d - r * r) / (2 * SAFE * d)) * 180) / Math.PI;
+  const e1 = pol(B, SAFE, PSI - half);
+  const e2 = pol(B, SAFE, PSI + half);
+  return `M${P2(e2)}A${f(SAFE)},${f(SAFE)},0,1,1,${P2(e1)}A${f(r)},${f(r)},0,0,0,${P2(e2)}Z`;
+})();
+
+// Construction and dimensions (static).
+const lockE = pol(W, R, LOCK_E);
+const lockX = pol(W, R, LOCK_X);
+const rimLead = (() => {
+  const r = RR - 3.2 * K;
+  return `M${P2(pol(W, r, 194))}A${f(r)},${f(r)},0,0,1,${P2(pol(W, r, 248))}`;
+})();
+const DIM_Y = CY + R + 15;
+const RAD_A = 148;
+const radiusEnd = pol(W, R, RAD_A);
+const radiusOut = pol(W, R + 9, RAD_A);
+const radiusLabel = pol(W, R + 16, RAD_A);
+
+const T = (n: number) => `--d: ${delay + n}`;
+const ground = 'fill: var(--ground)';
+---
+
+<Study
+  id="escapement"
+  title="Swiss lever escapement"
+  discipline="Watchmaking"
+  year={2026}
+  href={href}
+  viewBox="0 0 320 194"
+  delay={delay}
+  class="escapement"
+  label="Plan of a Swiss lever escapement: a fifteen-tooth club-foot escape wheel, the pallet fork with its entry and exit stones spanning two and a half teeth, the banking pins, and the double roller with its impulse pin on the balance staff. The wheel escapes half a tooth with each passing second."
+>
+  <g class="construction" aria-hidden="true">
+    <line class="metal" x1="8" y1={CY} x2="312" y2={CY} />
+    <line class="metal" x1={W[0]} y1={CY - R - 8} x2={W[0]} y2={DIM_Y + 4} />
+    <line class="metal" x1={f(P[0])} y1={CY - 44} x2={f(P[0])} y2={DIM_Y + 4} />
+    <line class="metal" x1={f(B[0])} y1={f(CY - TABLE - 8)} x2={f(B[0])} y2={f(CY + TABLE + 8)} />
+    <circle class="metal" cx={W[0]} cy={CY} r={f(R)} />
+    <circle class="metal" cx={f(B[0])} cy={CY} r={f(RP)} />
+    <path class="metal" d={`M${P2(P)}L${P2(lockE)}L${P2(W)}L${P2(lockX)}Z`} />
+  </g>
+
+  <!-- Escape wheel, turning clockwise on its arbor. -->
+  <g class="esc-wheel" style={`--ox: ${W[0]}px; --oy: ${CY}px; ${T(0)}`}>
+    <path class="ink" d={wheel} pathLength="1" />
+    <circle class="ink-fine" cx={W[0]} cy={CY} r={f(RIM)} pathLength="1" />
+    <path class="ink-fine" d={windows} pathLength="1" />
+    <circle class="ink-fine" cx={W[0]} cy={CY} r={f(6 * K)} pathLength="1" />
+    <circle class="ink-fine" cx={W[0]} cy={CY} r={f(2.2 * K)} pathLength="1" />
+  </g>
+  <path class="lead" d={rimLead} />
+
+  <!-- Impulse table on the balance staff (below the fork). -->
+  <g class="esc-roller" style={`--ox: ${f(B[0])}px; --oy: ${CY}px; ${T(220)}`}>
+    <circle class="ink-fine" cx={f(B[0])} cy={CY} r={f(TABLE)} pathLength="1" />
+  </g>
+
+  <!-- Banking pins, in the plate. -->
+  <circle class="ink-fine" cx={f(bankLow[0])} cy={f(bankLow[1])} r={PIN_R} pathLength="1" />
+  <circle class="ink-fine" cx={f(bankHigh[0])} cy={f(bankHigh[1])} r={PIN_R} pathLength="1" />
+
+  <!-- Pallet fork: arms, stones in section, lever, horns and guard pin. -->
+  <g class="esc-fork" data-swing={f(ROLLER_SWING)} style={`--ox: ${f(P[0])}px; --oy: ${CY}px; ${T(120)}`}>
+    <path class="ink" style={ground} d={poly(entryArm)} pathLength="1" />
+    <path class="ink" style={ground} d={poly(exitArm)} pathLength="1" />
+    <path class="ink" style={ground} d={lever} pathLength="1" />
+    <circle class="ink" style={ground} cx={f(P[0])} cy={CY} r={f(6.4 * K)} pathLength="1" />
+    <path style={ground} d={poly(entryStone)} />
+    <path class="settle" fill="url(#hatch-ink)" d={poly(entryStone)} />
+    <path class="ink-fine" d={poly(entryStone)} pathLength="1" />
+    <path style={ground} d={poly(exitStone)} />
+    <path class="settle" fill="url(#hatch-ink)" d={poly(exitStone)} />
+    <path class="ink-fine" d={poly(exitStone)} pathLength="1" />
+    <line class="ink-fine" x1={f(guardFrom[0])} y1={f(guardFrom[1])} x2={f(guardTo[0])} y2={f(guardTo[1])} pathLength="1" />
+  </g>
+  <g aria-hidden="true">
+    <circle class="ink-fine" cx={f(P[0])} cy={CY} r={f(2.2 * K)} />
+    <path class="ink-fine" d={cross(P, 4.4 * K)} />
+    <path class="ink-fine" d={cross(W, 4.4 * K)} />
+  </g>
+
+  <!-- Safety roller with its crescent, impulse pin, balance staff. -->
+  <g class="esc-roller" style={`--ox: ${f(B[0])}px; --oy: ${CY}px; ${T(240)}`}>
+    <path class="ink-fine" style={ground} d={crescent} pathLength="1" />
+    <path class="ink-fine settle" style="fill: var(--light)" d={pinShape} />
+    <circle class="ink-fine" cx={f(B[0])} cy={CY} r={f(2.2 * K)} />
+  </g>
+  <path class="ink-fine" d={cross(B, 4.4 * K)} aria-hidden="true" />
+
+  <!-- Dimensions. -->
+  <g class="settle" aria-hidden="true">
+    <line class="ink-fine" style="stroke: var(--line-2)" x1={W[0]} y1={DIM_Y} x2={f(P[0])} y2={DIM_Y} marker-start="url(#arrow)" marker-end="url(#arrow)" />
+    <text class="dim" font-size="10" x={f((W[0] + P[0]) / 2)} y={DIM_Y - 4} text-anchor="middle">R sec 30°</text>
+    <line class="ink-fine" style="stroke: var(--line-2)" x1={W[0]} y1={CY} x2={f(radiusEnd[0])} y2={f(radiusEnd[1])} marker-end="url(#arrow)" />
+    <line class="ink-fine" style="stroke: var(--line-2)" x1={f(radiusEnd[0])} y1={f(radiusEnd[1])} x2={f(radiusOut[0])} y2={f(radiusOut[1])} />
+    <text class="dim" font-size="10" x={f(radiusLabel[0])} y={f(radiusLabel[1] + 4)} text-anchor="middle">R</text>
+    <text class="dim" font-size="10" x="312" y={DIM_Y + 3} text-anchor="end">15 teeth, 24° pitch</text>
+  </g>
+  <text class="note settle" font-size="12.5" x="312" y="26" text-anchor="end">Half a tooth with every second</text>
+</Study>
+
+<style>
+  :global(.escapement .construction) {
+    opacity: 0.75;
+  }
+  :global(.escapement .esc-wheel),
+  :global(.escapement .esc-fork),
+  :global(.escapement .esc-roller) {
+    transform-box: view-box;
+    transform-origin: var(--ox) var(--oy);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.escapement .esc-fork),
+    :global(.escapement .esc-roller) {
+      transition: transform 150ms var(--ease-out);
+    }
+    :global(.escapement .esc-wheel) {
+      transition: transform 170ms var(--ease-out) 30ms;
+    }
+  }
+</style>
+
+<script>
+  // The sheet's clock (src/lib/clock.ts) beats once a second. Each beat the
+  // fork crosses to the other banking pin, the roller swings with it and the
+  // wheel escapes half a tooth (12 degrees).
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const PITCH_HALF = 12;
+  const FORK = -14;
+
+  type Movement = {
+    wheel: SVGGElement;
+    fork: SVGGElement;
+    rollers: SVGGElement[];
+    swing: number;
+    beats: number;
+    visible: boolean;
+    active: boolean;
+  };
+
+  const movements: Movement[] = [];
+  document.querySelectorAll<SVGSVGElement>('.escapement svg').forEach((svg) => {
+    const wheel = svg.querySelector<SVGGElement>('.esc-wheel');
+    const fork = svg.querySelector<SVGGElement>('.esc-fork');
+    const rollers = Array.from(svg.querySelectorAll<SVGGElement>('.esc-roller'));
+    if (!wheel || !fork || !rollers.length) return;
+    const m: Movement = { wheel, fork, rollers, swing: Number(fork.dataset.swing) || 47, beats: 0, visible: false, active: false };
+    movements.push(m);
+    // It beats only while someone is looking closely: hover or keyboard focus.
+    const fig = svg.closest('figure') ?? svg;
+    fig.addEventListener('pointerenter', () => (m.active = true));
+    fig.addEventListener('pointerleave', () => (m.active = false));
+    fig.addEventListener('focusin', () => (m.active = true));
+    fig.addEventListener('focusout', () => (m.active = false));
+    new IntersectionObserver((entries) => {
+      m.visible = entries.some((e) => e.isIntersecting);
+    }).observe(svg);
+  });
+
+  if (movements.length) {
+    document.addEventListener('sheet:tick', () => {
+      if (reduce.matches || document.hidden) return;
+      for (const m of movements) {
+        if (!m.visible || !m.active) continue;
+        m.beats += 1;
+        const odd = m.beats % 2 === 1;
+        m.wheel.style.transform = `rotate(${m.beats * PITCH_HALF}deg)`;
+        m.fork.style.transform = odd ? `rotate(${FORK}deg)` : '';
+        for (const r of m.rollers) r.style.transform = odd ? `rotate(${m.swing}deg)` : '';
+      }
+    });
+  }
+</script>

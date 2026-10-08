@@ -1,0 +1,210 @@
+---
+import Base from '../../layouts/Base.astro';
+import EntityPlate from '../../components/plates/EntityPlate.astro';
+import OrbesPlate from '../../components/plates/OrbesPlate.astro';
+import Routing from '../../components/studies/Routing.astro';
+import AmmCurve from '../../components/studies/AmmCurve.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('work', ({ data }) => data.visible)).sort((a, b) => a.data.order - b.data.order);
+  return all.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: all[(i + 1) % all.length] },
+  }));
+}
+
+const { entry, next } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const plates: Record<string, any> = { 'the-entity': EntityPlate, orbes: OrbesPlate };
+const studies: Record<string, any> = { keplum: Routing, desk: AmmCurve };
+const Plate = plates[entry.id];
+const Drawing = studies[entry.id];
+---
+
+<Base title={d.name} description={d.line} image={`/og/work/${entry.id}.png`}>
+  <article class="work">
+    <header class="wrap head">
+      <p class="crumb t-ui"><a href="/work">Ventures</a> <span aria-hidden="true">/</span> {d.tier === 'lab' ? 'In progress' : 'Venture'}</p>
+      <h1 class="title">{d.name}</h1>
+      <p class="t-lede line">{d.line}</p>
+      <dl class="meta t-ui">
+        <div><dt>Role</dt><dd>{d.role}</dd></div>
+        <div><dt>Status</dt><dd>{d.status}</dd></div>
+        <div><dt>Since</dt><dd>{d.since}</dd></div>
+        {
+          d.url && (
+            <div>
+              <dt>Site</dt>
+              <dd>
+                <a href={d.url} rel="noopener">
+                  {d.urlLabel ?? d.url}
+                </a>
+              </dd>
+            </div>
+          )
+        }
+      </dl>
+    </header>
+
+    {
+      Plate && (
+        <div class="wrap plate">
+          <Plate size="feature" />
+        </div>
+      )
+    }
+
+    {
+      d.facts.length > 0 && (
+        <div class="wrap">
+          <dl class="facts">
+            {d.facts.map((f) => (
+              <div class="fact">
+                <dt class="t-ui">{f.label}</dt>
+                <dd class="t-title">{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      )
+    }
+
+    <div class="wrap body">
+      <div class="prose">
+        <Content />
+      </div>
+      {
+        Drawing && (
+          <aside class="aside" aria-label="Related drawing">
+            <Drawing />
+          </aside>
+        )
+      }
+    </div>
+
+    <nav class="wrap next t-ui" aria-label="Next project">
+      <span class="muted">Next</span>
+      <a href={`/work/${next.id}`} class="next-link">{next.data.name}</a>
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .head {
+    padding-top: var(--s6);
+    padding-bottom: var(--s5);
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
+  }
+  .crumb {
+    grid-column: 1 / -1;
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+  .title {
+    grid-column: 1 / span 8;
+    margin-top: var(--s3);
+    font-family: var(--font-text);
+    font-size: var(--step-6);
+    line-height: 0.98;
+    letter-spacing: -0.015em;
+  }
+  .line {
+    grid-column: 1 / span 7;
+    margin-top: var(--s3);
+  }
+  .meta {
+    grid-column: 9 / span 4;
+    grid-row: 2 / span 2;
+    align-self: end;
+    margin: 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--step--1);
+  }
+  .meta div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.55rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .meta dt {
+    color: var(--line-2);
+  }
+  .meta dd {
+    margin: 0;
+    text-align: right;
+  }
+  @media (max-width: 900px) {
+    .title,
+    .line,
+    .meta {
+      grid-column: 1 / -1;
+      grid-row: auto;
+    }
+    .meta {
+      margin-top: var(--s4);
+    }
+  }
+  .plate {
+    margin-bottom: var(--s6);
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: var(--s3) var(--s4);
+    margin: 0 0 var(--s6);
+    border-top: 1px solid var(--line);
+    padding-top: var(--s3);
+  }
+  .fact {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 0.35rem;
+  }
+  .fact dd {
+    margin: 0;
+    font-size: var(--step-4);
+    line-height: 1;
+  }
+  .fact dt {
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    gap: var(--s6);
+    align-items: start;
+  }
+  .aside {
+    position: sticky;
+    top: var(--s4);
+    max-width: 340px;
+  }
+  @media (max-width: 900px) {
+    .body {
+      grid-template-columns: 1fr;
+    }
+    .aside {
+      position: static;
+    }
+  }
+  .next {
+    margin-top: var(--s7);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line);
+    display: flex;
+    align-items: baseline;
+    gap: var(--s3);
+    font-size: var(--step--1);
+  }
+  .next-link {
+    font-family: var(--font-text);
+    font-size: var(--step-3);
+  }
+</style>

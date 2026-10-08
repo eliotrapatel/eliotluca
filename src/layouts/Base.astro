@@ -1,0 +1,166 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../data/site';
+
+interface Props {
+  title?: string;
+  description?: string;
+  image?: string;
+  type?: 'website' | 'article';
+  published?: Date;
+  lang?: string;
+  draw?: boolean;
+  bare?: boolean;
+  pale?: boolean;
+}
+
+const {
+  title,
+  description = site.description,
+  image = '/og/default.png',
+  type = 'website',
+  published,
+  lang = 'en',
+  draw = false,
+  bare = false,
+  pale = false,
+} = Astro.props;
+
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name}`;
+// build.format 'file' gives /index.html and /about.html; Vercel serves them as / and /about.
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/(^|\/)index$/, '').replace(/\/$/, '') || '/';
+const canonical = new URL(path, site.url).href;
+const ogImage = new URL(image, site.url).href;
+// The 404 page is served at any missing address: keep it out of the index.
+const notFound = path === '/404';
+const ogLocale = lang === 'fr' ? 'fr_FR' : 'en_GB';
+
+const sameAs = [
+  site.social.linkedin,
+  site.social.x,
+  site.social.github,
+  site.social.instagram,
+  'https://joinentity.com',
+  'https://theorbes.com',
+].filter(Boolean);
+
+const person = {
+  '@type': 'Person',
+  '@id': `${site.url}/#person`,
+  name: site.name,
+  url: site.url,
+  description: site.description,
+  knowsLanguage: site.languages,
+  sameAs,
+};
+
+const jsonLd =
+  type === 'article'
+    ? {
+        '@context': 'https://schema.org',
+        '@graph': [
+          person,
+          {
+            '@type': 'BlogPosting',
+            headline: title,
+            description,
+            url: canonical,
+            mainEntityOfPage: canonical,
+            image: ogImage,
+            inLanguage: lang,
+            ...(published && { datePublished: published.toISOString() }),
+            author: { '@id': `${site.url}/#person` },
+          },
+        ],
+      }
+    : { '@context': 'https://schema.org', ...person };
+---
+
+<!doctype html>
+<html lang={lang} data-page={Astro.url.pathname}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <meta name="theme-color" content="#a3b8ca" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1b2139" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="alternate" type="application/rss+xml" title={`${site.name}, writing`} href="/rss.xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title ?? site.name} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title ?? site.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {published && <meta property="article:published_time" content={published.toISOString()} />}
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <script is:inline>
+      (function () {
+        var d = document.documentElement;
+        try {
+          var t = localStorage.getItem('theme');
+          if (t === 'light' || t === 'dark') d.setAttribute('data-theme', t);
+        } catch (e) {}
+        var drawn = false;
+        try {
+          drawn = sessionStorage.getItem('sheet-drawn') === '1';
+        } catch (e) {}
+        if (!drawn && window.matchMedia && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+          d.classList.add('can-draw');
+        }
+      })();
+    </script>
+    <slot name="head" />
+  </head>
+  <body class:list={[{ 'is-pale': pale, 'is-bare': bare }]} data-draw={draw ? 'true' : undefined}>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <svg class="defs" aria-hidden="true" focusable="false" width="0" height="0">
+      <defs>
+        <pattern id="hatch" width="4" height="4" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
+          <line x1="0" y1="0" x2="0" y2="4" style="stroke: var(--light); stroke-width: 1.6" />
+        </pattern>
+        <pattern id="hatch-ink" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(-38)">
+          <line x1="0" y1="0" x2="0" y2="5" style="stroke: var(--line); stroke-width: 0.6" />
+        </pattern>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M1 1.5 L9 5 L1 8.5" style="fill: none; stroke: var(--line-2); stroke-width: 1.2" />
+        </marker>
+      </defs>
+    </svg>
+    {!bare && <Header />}
+    <main id="main">
+      <slot />
+    </main>
+    {!bare && <Footer />}
+    <script>
+      import '../lib/clock';
+      import '../lib/theme';
+      import '../lib/draw';
+    </script>
+  </body>
+</html>
+
+<style>
+  .defs {
+    position: absolute;
+    width: 0;
+    height: 0;
+    overflow: hidden;
+  }
+  body.is-pale {
+    --ground: var(--ground-pale);
+  }
+</style>

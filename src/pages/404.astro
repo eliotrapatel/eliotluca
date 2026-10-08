@@ -1,0 +1,26 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHead from '../components/PageHead.astro';
+---
+
+<Base title="Page not found" description="This page does not exist.">
+  <PageHead title="Page not found" lede="This address does not exist, or the page has moved." />
+  <section class="wrap">
+    <ul class="ways t-ui">
+      <li><a href="/">Home</a></li>
+      <li><a href="/writing">Writing</a></li>
+      <li><a href="/work">Ventures</a></li>
+      <li><a href="/instruments">Instruments</a></li>
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .ways {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2) var(--s4);
+    font-size: var(--step-0);
+  }
+</style>

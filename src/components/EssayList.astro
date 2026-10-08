@@ -1,0 +1,117 @@
+---
+import type { Essay } from '../lib/writing';
+import { formatDate, kindLabel } from '../lib/writing';
+
+interface Props {
+  essays: Essay[];
+  headingLevel?: 'h2' | 'h3';
+}
+const { essays, headingLevel = 'h3' } = Astro.props;
+const H = headingLevel;
+---
+
+<ol class="essays" reversed>
+  {
+    essays.map((e) => (
+      <li class="essay" lang={e.data.lang}>
+        <span class="num t-title" aria-hidden="true">
+          {e.number}
+        </span>
+        <div class="body">
+          <H class="title">
+            <a href={`/writing/${e.id}`}>{e.data.title}</a>
+          </H>
+          <p class="desc">{e.data.description}</p>
+        </div>
+        <p class="meta t-ui">
+          {e.data.draft && <span class="draft" lang="en">Draft, not published</span>}
+          <span>{kindLabel(e.data.kind, e.data.lang)}</span>
+          <span>
+            <time datetime={e.data.date.toISOString().slice(0, 10)}>{formatDate(e.data.date, e.data.lang)}</time>
+          </span>
+          <span>{e.data.lang === 'fr' ? `${e.minutes} min de lecture` : `${e.minutes} min read`}</span>
+        </p>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .essays {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .essay {
+    display: grid;
+    grid-template-columns: 3.5rem minmax(0, 1fr) 11rem;
+    gap: var(--s1) var(--s4);
+    align-items: baseline;
+    padding-block: var(--s3) var(--s3);
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .num {
+    font-size: var(--step-3);
+    line-height: 1;
+    color: var(--line-2);
+  }
+
+  .title {
+    font-family: var(--font-text);
+    font-size: var(--step-3);
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+
+  .title a {
+    text-decoration-color: transparent;
+  }
+
+  .title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .essay:hover .title a {
+    text-decoration-color: var(--line);
+    background-size: 100% 0.55em;
+  }
+
+  .desc {
+    margin-top: 0.45rem;
+    color: var(--line-2);
+    max-width: 38em;
+  }
+
+  .meta {
+    display: grid;
+    gap: 0.2rem;
+    font-size: var(--step--2);
+    color: var(--line-2);
+    text-align: right;
+  }
+
+  .draft {
+    color: var(--line);
+    font-weight: 600;
+  }
+
+  @media (max-width: 760px) {
+    .essay {
+      grid-template-columns: 2.5rem minmax(0, 1fr);
+    }
+    .meta {
+      grid-column: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.2rem 1rem;
+      text-align: left;
+    }
+    .title {
+      font-size: var(--step-2);
+    }
+  }
+</style>

@@ -1,0 +1,99 @@
+---
+import { instruments } from '../data/instruments';
+
+interface Props {
+  headingLevel?: 'h2' | 'h3';
+}
+const { headingLevel = 'h3' } = Astro.props;
+const H = headingLevel;
+---
+
+<ul class="instruments">
+  {
+    instruments.map((i) => (
+      <li class="item">
+        <span class="family t-ui">{i.family}</span>
+        <H class="name">
+          <a href={`/instruments/${i.slug}`}>{i.name}</a>
+        </H>
+        <p class="line">{i.line}</p>
+      </li>
+    ))
+  }
+</ul>
+
+<style>
+  .instruments {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+  }
+
+  .item {
+    position: relative;
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    column-gap: var(--s3);
+    row-gap: 0.35rem;
+    padding: var(--s3) var(--s3) var(--s4) 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .item:nth-child(odd) {
+    border-right: 1px solid var(--rule);
+  }
+
+  .item:nth-child(even) {
+    padding-left: var(--s3);
+  }
+
+  .family {
+    grid-row: 1 / span 2;
+    font-size: var(--step--2);
+    color: var(--line-2);
+    padding-top: 0.55rem;
+  }
+
+  .name {
+    font-family: var(--font-text);
+    font-size: var(--step-3);
+    line-height: 1.1;
+  }
+
+  .name a {
+    text-decoration-color: transparent;
+  }
+
+  .name a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .item:hover .name a {
+    text-decoration-color: var(--line);
+    background-size: 100% 0.55em;
+  }
+
+  .line {
+    color: var(--line-2);
+    max-width: 30em;
+  }
+
+  @media (max-width: 760px) {
+    .instruments {
+      grid-template-columns: 1fr;
+    }
+    .item:nth-child(odd) {
+      border-right: 0;
+    }
+    .item:nth-child(even) {
+      padding-left: 0;
+    }
+    .item {
+      grid-template-columns: 4.5rem minmax(0, 1fr);
+    }
+  }
+</style>

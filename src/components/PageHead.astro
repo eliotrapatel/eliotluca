@@ -1,0 +1,43 @@
+---
+// The title block every inner page opens with: an inscriptional title and one
+// reading-face line beneath it.
+interface Props {
+  title: string;
+  lede?: string;
+  size?: 'large' | 'medium';
+}
+const { title, lede, size = 'large' } = Astro.props;
+---
+
+<header class:list={['page-head', 'wrap', size]}>
+  <h1>{title}</h1>
+  {lede && <p class="t-lede lede">{lede}</p>}
+  <slot />
+</header>
+
+<style>
+  .page-head {
+    padding-top: var(--s6);
+    padding-bottom: var(--s5);
+  }
+  h1 {
+    font-family: var(--font-text);
+    font-size: var(--step-5);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+  }
+  .medium h1 {
+    font-size: var(--step-5);
+  }
+  .lede {
+    margin-top: var(--s3);
+    max-width: 30em;
+    color: var(--line);
+  }
+  @media (max-width: 640px) {
+    .page-head {
+      padding-top: var(--s5);
+      padding-bottom: var(--s4);
+    }
+  }
+</style>

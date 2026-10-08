@@ -1,0 +1,230 @@
+---
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { getEssays, formatDate, kindLabel } from '../../lib/writing';
+import { site } from '../../data/site';
+
+export async function getStaticPaths() {
+  const essays = await getEssays();
+  return essays.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, newer: essays[i - 1] ?? null, older: essays[i + 1] ?? null },
+  }));
+}
+
+const { entry, newer, older } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const fr = d.lang === 'fr';
+const manifesto = d.kind === 'manifesto';
+const t = fr
+  ? { no: 'No.', read: 'min de lecture', by: 'Écrit par', newer: 'Plus récent', older: 'Plus ancien', all: 'Tous les textes', reply: 'Répondre par e-mail', copy: 'Copier le lien', copied: 'Lien copié' }
+  : { no: 'No.', read: 'min read', by: 'Written by', newer: 'Newer', older: 'Older', all: 'All writing', reply: 'Reply by email', copy: 'Copy link', copied: 'Link copied' };
+const url = new URL(`/writing/${entry.id}`, site.url).href;
+---
+
+<Base title={d.title} description={d.description} image={`/og/writing/${entry.id}.png`} type="article" published={d.date} lang={d.lang} pale>
+  <article class:list={['piece', { manifesto }]}>
+    <header class="wrap head">
+      <h1 class:list={['title', manifesto ? 't-title' : '']}>{d.title}</h1>
+      <p class="standfirst">{d.description}</p>
+      <p class="meta t-ui">
+        {d.draft && <span class="draft">{fr ? 'Brouillon, non publié' : 'Draft, not published'}</span>}
+        <span>{t.no} {entry.number}, {kindLabel(d.kind, d.lang).toLowerCase()}</span>
+        <time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date, d.lang)}</time>
+        <span>{entry.minutes} {t.read}</span>
+      </p>
+    </header>
+
+    <div class="wrap">
+      <div class="prose body">
+        <Content />
+      </div>
+
+      <footer class="sign">
+        <p class="by"><span class="t-note">{t.by}</span> <a href="/about">{site.name}</a></p>
+        <p class="tools t-ui">
+          <a href={`mailto:${site.email}?subject=${encodeURIComponent(d.title)}`}>{t.reply}</a>
+          <a href="/writing">{t.all}</a>
+          <button type="button" class="copy" data-url={url} data-done={t.copied} aria-live="polite">{t.copy}</button>
+        </p>
+      </footer>
+
+      <nav class="pager" aria-label={fr ? 'Autres textes' : 'More writing'}>
+        {
+          older && (
+            <a class="older" href={`/writing/${older.id}`} rel="prev">
+              <span class="t-ui muted">{t.older}</span>
+              <span class="p-title" lang={older.data.lang}>{older.data.title}</span>
+            </a>
+          )
+        }
+        {
+          newer && (
+            <a class="newer" href={`/writing/${newer.id}`} rel="next">
+              <span class="t-ui muted">{t.newer}</span>
+              <span class="p-title" lang={newer.data.lang}>{newer.data.title}</span>
+            </a>
+          )
+        }
+      </nav>
+    </div>
+  </article>
+</Base>
+
+<style>
+  .head {
+    padding-top: var(--s6);
+    padding-bottom: var(--s5);
+  }
+  .meta {
+    margin-top: var(--s4);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 1.4rem;
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+  .draft {
+    color: var(--line);
+    font-weight: 600;
+  }
+  .title {
+    max-width: 15em;
+    font-family: var(--font-text);
+    font-size: var(--step-6);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  /* Manifestos get the inscription: the whole title cut in capitals. */
+  .manifesto .title {
+    max-width: none;
+    font-family: var(--font-title);
+    font-size: clamp(2.75rem, 1rem + 6.5vw, 6rem);
+    line-height: 0.9;
+    letter-spacing: 0;
+  }
+  .standfirst {
+    margin-top: var(--s4);
+    max-width: 30em;
+    font-size: var(--step-2);
+    line-height: 1.35;
+    font-style: italic;
+    color: var(--line);
+  }
+  .body {
+    margin-left: clamp(0px, 16vw, 15rem);
+    font-size: clamp(1.1875rem, 1.05rem + 0.4vw, 1.375rem);
+  }
+  .body :global(> p:first-of-type::first-letter) {
+    float: left;
+    font-family: var(--font-title);
+    font-size: 4.6em;
+    line-height: 0.82;
+    padding: 0.06em 0.09em 0 0;
+    color: var(--line);
+  }
+  @media (max-width: 760px) {
+    .body {
+      margin-left: 0;
+    }
+  }
+  .sign {
+    margin-left: clamp(0px, 16vw, 15rem);
+    margin-top: var(--s6);
+    padding-top: var(--s3);
+    border-top: 1px solid var(--line);
+    max-width: var(--measure);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--s2);
+  }
+  .by {
+    font-size: var(--step-1);
+  }
+  .tools {
+    display: flex;
+    gap: var(--s3);
+    font-size: var(--step--1);
+  }
+  .copy {
+    appearance: none;
+    border: 0;
+    padding: 0;
+    background: none;
+    text-decoration: underline;
+    text-decoration-color: var(--line-3);
+    text-underline-offset: 0.22em;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-size: var(--step--1);
+  }
+  .copy:hover {
+    text-decoration-color: var(--line);
+  }
+  @media (max-width: 760px) {
+    .sign {
+      margin-left: 0;
+    }
+  }
+  .pager {
+    margin-top: var(--s7);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-top: 1px solid var(--line);
+  }
+  .pager a {
+    display: grid;
+    gap: 0.4rem;
+    padding: var(--s3) var(--s3) var(--s3) 0;
+    text-decoration: none;
+    background: none;
+  }
+  .pager .newer {
+    grid-column: 2;
+    text-align: right;
+    padding: var(--s3) 0 var(--s3) var(--s3);
+    border-left: 1px solid var(--rule);
+  }
+  .pager .t-ui {
+    font-size: var(--step--1);
+  }
+  .p-title {
+    font-size: var(--step-2);
+    line-height: 1.2;
+  }
+  .pager a:hover .p-title {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+  }
+  @media (max-width: 640px) {
+    .pager {
+      grid-template-columns: 1fr;
+    }
+    .pager .newer {
+      grid-column: 1;
+      text-align: left;
+      border-left: 0;
+      border-top: 1px solid var(--rule);
+      padding-left: 0;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('button.copy').forEach((b) => {
+    const label = b.textContent;
+    b.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(b.dataset.url || location.href);
+        b.textContent = b.dataset.done || 'Copied';
+        window.setTimeout(() => (b.textContent = label), 1800);
+      } catch {
+        window.prompt('Copy this link', b.dataset.url || location.href);
+      }
+    });
+  });
+</script>

@@ -1,0 +1,366 @@
+/* ------------------------------------------------------------------
+   Instruments: controls engraved on the sheet.
+   Markup contract (used by every page in src/pages/instruments/):
+
+   <div class="instrument-grid">
+     <form class="controls" data-...>
+       <fieldset class="group"><legend>Entry</legend>
+         <label class="field">
+           <span class="field-label">Entry EBITDA</span>
+           <span class="field-input"><input type="number" ... /><span class="unit">€m</span></span>
+         </label>
+         <label class="scale">
+           <span class="field-label">Exit multiple <output class="scale-value">10.0×</output></span>
+           <input type="range" ... />
+           <span class="scale-ticks" aria-hidden="true"><span>6×</span><span>14×</span></span>
+         </label>
+       </fieldset>
+     </form>
+     <div class="readout" aria-live="polite">
+       <dl class="figures"><div class="figure is-key"><dt>MOIC</dt><dd>2.6×</dd></div>...</dl>
+       <figure class="study readout-drawing"><svg>...</svg><figcaption class="t-note">...</figcaption></figure>
+     </div>
+   </div>
+------------------------------------------------------------------- */
+
+.instrument-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: var(--s5) clamp(24px, 4vw, 72px);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .instrument-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.controls {
+  display: grid;
+  gap: var(--s4);
+}
+
+.group {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--s3);
+}
+
+.group legend {
+  padding: 0;
+  margin-bottom: var(--s2);
+  font-family: var(--font-text);
+  font-style: italic;
+  font-size: var(--step-1);
+  color: var(--line);
+  width: 100%;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.3em;
+}
+
+.field,
+.scale {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1em;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-weight: 450;
+  color: var(--line-2);
+}
+
+.field-input {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4em;
+  border-bottom: 1px solid var(--line);
+}
+
+.field-input:focus-within {
+  border-bottom-width: 2px;
+  margin-bottom: -1px;
+}
+
+.field input,
+.field select {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.15em 0 0.2em;
+  font-family: var(--font-ui);
+  font-size: var(--step-2);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--line);
+  outline: none;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.field select {
+  appearance: none;
+  cursor: pointer;
+  font-size: var(--step-1);
+}
+
+.field input::-webkit-outer-spin-button,
+.field input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.field input::placeholder {
+  color: var(--line-2);
+}
+
+.field .unit {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--line-2);
+  white-space: nowrap;
+}
+
+.field-input[aria-invalid='true'],
+.field input[aria-invalid='true'] {
+  border-bottom-style: dashed;
+}
+
+.field-error {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  color: var(--line);
+}
+
+.scale-value {
+  font-family: var(--font-ui);
+  font-size: var(--step-0);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--line);
+  font-weight: 500;
+}
+
+/* The engraved scale: a ruled line with tick marks and an ink index. */
+.scale input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 34px;
+  margin: 0;
+  background:
+    linear-gradient(var(--line), var(--line)) 0 50% / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--line-2) 0 1px, transparent 1px 10%) 0 calc(50% + 6px) / 100% 9px no-repeat,
+    repeating-linear-gradient(90deg, var(--line-3) 0 1px, transparent 1px 2.5%) 0 calc(50% + 4px) / 100% 5px no-repeat;
+  cursor: pointer;
+}
+
+.scale input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 26px;
+  border: 0;
+  background: var(--line);
+  clip-path: polygon(50% 100%, 0 30%, 0 0, 100% 0, 100% 30%);
+  cursor: grab;
+}
+
+.scale input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 26px;
+  border: 0;
+  border-radius: 0;
+  background: var(--line);
+  clip-path: polygon(50% 100%, 0 30%, 0 0, 100% 0, 100% 30%);
+  cursor: grab;
+}
+
+.scale input[type='range']:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+
+.scale input[type='range']:focus-visible {
+  outline: 2px solid var(--line);
+  outline-offset: 4px;
+}
+
+.scale-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-ui);
+  font-stretch: 82%;
+  font-size: var(--step--2);
+  color: var(--line-2);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Segmented choice, e.g. presets or units. */
+.choice {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+}
+.choice button,
+.choice label {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0.5em 0.9em;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  cursor: pointer;
+  position: relative;
+}
+.choice > * + * {
+  border-left: 1px solid var(--line);
+}
+.choice button:hover,
+.choice label:hover {
+  background: var(--wash);
+}
+.choice button[aria-pressed='true'],
+.choice label:has(input:checked) {
+  background: var(--line);
+  color: var(--ground);
+}
+.choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.choice label:has(input:focus-visible) {
+  outline: 2px solid var(--line);
+  outline-offset: 2px;
+}
+
+/* Text action */
+.action {
+  appearance: none;
+  border: 1px solid var(--line);
+  background: transparent;
+  padding: 0.6em 1em;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  cursor: pointer;
+}
+.action:hover {
+  background: var(--wash);
+}
+
+/* Readout */
+.readout {
+  display: grid;
+  gap: var(--s4);
+  position: sticky;
+  top: var(--s3);
+}
+
+@media (max-width: 900px) {
+  .readout {
+    position: static;
+  }
+}
+
+.figures {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+  gap: var(--s3) var(--s4);
+}
+
+.figure {
+  margin: 0;
+  display: grid;
+  gap: 0.2rem;
+  padding-top: var(--s1);
+  border-top: 1px solid var(--rule);
+}
+
+.figure dt {
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  color: var(--line-2);
+}
+
+.figure dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-ui);
+  font-size: var(--step-2);
+  line-height: 1.05;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.figure.is-key {
+  border-top: 1px solid var(--line);
+  grid-column: 1 / -1;
+}
+
+.figure.is-key dd {
+  font-family: var(--font-title);
+  font-size: var(--step-5);
+  letter-spacing: 0;
+}
+
+.figure small {
+  font-family: var(--font-ui);
+  font-size: var(--step--2);
+  color: var(--line-2);
+}
+
+.readout-drawing svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.readout-drawing figcaption {
+  margin-top: var(--s1);
+  font-size: var(--step-0);
+  color: var(--line-2);
+}
+
+/* Tables inside instruments */
+.ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-ui);
+  font-size: var(--step--1);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.ledger th {
+  text-align: left;
+  font-weight: 450;
+  color: var(--line-2);
+  padding: 0.5em 0.6em 0.5em 0;
+  border-bottom: 1px solid var(--line);
+}
+.ledger td {
+  padding: 0.55em 0.6em 0.55em 0;
+  border-bottom: 1px solid var(--rule);
+}
+.ledger td.num,
+.ledger th.num {
+  text-align: right;
+}
+.ledger tr.is-total td {
+  border-bottom: 1px solid var(--line);
+  font-weight: 550;
+}
+
+.instrument .note {
+  font-family: var(--font-text);
+  font-style: italic;
+  font-size: var(--step-0);
+  color: var(--line-2);
+  max-width: 34em;
+}

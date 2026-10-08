@@ -1,0 +1,447 @@
+---
+import Instrument from '../../layouts/Instrument.astro';
+import {
+  computeReturns,
+  RETURNS_DEFAULTS,
+  RETURNS_LIMITS,
+  bridgeSvg,
+  bridgeSentence,
+  BRIDGE_H,
+  money,
+  times,
+  times1,
+  pct,
+  scaleText,
+  scaleSpoken,
+  type ReturnsKey,
+} from '../../lib/instruments/returns';
+
+const r = computeReturns(RETURNS_DEFAULTS);
+if (!r.ok) throw new Error('The default returns case must be valid.');
+
+const D = RETURNS_DEFAULTS;
+const L = RETURNS_LIMITS;
+
+interface ScaleDef {
+  key: ReturnsKey;
+  label: string;
+  ticks: [string, string];
+}
+
+const groups: { legend: string; scales: ScaleDef[] }[] = [
+  {
+    legend: 'Entry',
+    scales: [
+      { key: 'entryMultiple', label: 'Entry multiple, EV / EBITDA', ticks: ['4×', '16×'] },
+      { key: 'leverage', label: 'Leverage, net debt / EBITDA', ticks: ['0×', '7×'] },
+    ],
+  },
+  {
+    legend: 'Hold',
+    scales: [
+      { key: 'growth', label: 'EBITDA growth per year', ticks: ['−10%', '+30%'] },
+      { key: 'cash', label: 'Cash conversion, share of EBITDA repaying debt', ticks: ['0%', '80%'] },
+      { key: 'years', label: 'Holding period', ticks: ['1 year', '10 years'] },
+    ],
+  },
+  {
+    legend: 'Exit',
+    scales: [{ key: 'exitMultiple', label: 'Exit multiple, EV / EBITDA', ticks: ['4×', '16×'] }],
+  },
+];
+---
+
+<Instrument
+  title="Returns"
+  lede="What a leveraged buyout returns, and where the return comes from."
+  description="A leveraged buyout calculator that splits the equity return into EBITDA growth, multiple expansion and debt paydown, with money multiple and IRR."
+  family="Capital"
+  slug="returns"
+>
+  <div class="instrument-grid">
+    <form class="controls" data-instrument="returns" novalidate>
+      {
+        groups.map((g, gi) => (
+          <fieldset class="group">
+            <legend>{g.legend}</legend>
+            {gi === 0 && (
+              <label class="field">
+                <span class="field-label">Entry EBITDA</span>
+                <span class="field-input">
+                  <input
+                    type="number"
+                    name="ebitda"
+                    inputmode="decimal"
+                    min={L.ebitda.min}
+                    max={L.ebitda.max}
+                    step="any"
+                    value={D.ebitda}
+                    aria-describedby="err-ebitda"
+                  />
+                  <span class="unit">€m</span>
+                </span>
+                <span class="field-error" id="err-ebitda" data-error-for="ebitda" hidden />
+              </label>
+            )}
+            {g.scales.map((s) => (
+              <label class="scale">
+                <span class="field-label">
+                  {s.label}
+                  <output class="scale-value" data-out={s.key}>
+                    {scaleText(s.key, D[s.key])}
+                  </output>
+                </span>
+                <input
+                  type="range"
+                  name={s.key}
+                  min={L[s.key].min}
+                  max={L[s.key].max}
+                  step={L[s.key].step}
+                  value={D[s.key]}
+                  aria-valuetext={scaleSpoken(s.key, D[s.key])}
+                  aria-describedby={`err-${s.key}`}
+                />
+                <span class="scale-ticks" aria-hidden="true">
+                  <span>{s.ticks[0]}</span>
+                  <span>{s.ticks[1]}</span>
+                </span>
+                <span class="field-error" id={`err-${s.key}`} data-error-for={s.key} hidden />
+              </label>
+            ))}
+          </fieldset>
+        ))
+      }
+      <div class="form-actions">
+        <button type="button" class="action" data-reset>Reset to the defaults</button>
+      </div>
+    </form>
+
+    <div class="readout" aria-live="polite">
+      <p class="readout-error" data-void-message hidden></p>
+
+      <div class="readout-body" data-body>
+        <dl class="figures">
+          <div class="figure is-key">
+            <dt>Money multiple (MOIC)</dt>
+            <dd data-fig="moic">{times(r.moic)}</dd>
+          </div>
+          <div class="figure">
+            <dt>IRR</dt>
+            <dd data-fig="irr">{pct(r.irr)}</dd>
+            <small data-fig="irrNote">Over {scaleText('years', D.years)}, no interim flows</small>
+          </div>
+          <div class="figure">
+            <dt>Exit equity</dt>
+            <dd data-fig="exitEquity">{money(r.exitEquity)}</dd>
+            <small data-fig="equityNote">From {money(r.entryEquity)} invested</small>
+          </div>
+        </dl>
+
+        <div class="ledger-wrap">
+          <table class="ledger">
+            <caption class="visually-hidden">Entry and exit, in € millions</caption>
+            <thead>
+              <tr>
+                <th scope="col"><span class="visually-hidden">Line</span></th>
+                <th scope="col" class="num">Entry</th>
+                <th scope="col" class="num">Exit</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">EBITDA</th>
+                <td class="num" data-fig="entryEbitda">{money(D.ebitda)}</td>
+                <td class="num" data-fig="exitEbitda">{money(r.exitEbitda)}</td>
+              </tr>
+              <tr>
+                <th scope="row">Multiple</th>
+                <td class="num" data-fig="entryMultiple">{times1(D.entryMultiple)}</td>
+                <td class="num" data-fig="exitMultiple">{times1(D.exitMultiple)}</td>
+              </tr>
+              <tr>
+                <th scope="row">Enterprise value</th>
+                <td class="num" data-fig="entryEV">{money(r.entryEV)}</td>
+                <td class="num" data-fig="exitEV">{money(r.exitEV)}</td>
+              </tr>
+              <tr>
+                <th scope="row" data-fig="netDebtLabel">Net debt</th>
+                <td class="num" data-fig="entryNetDebt">{money(r.entryNetDebt)}</td>
+                <td class="num" data-fig="exitNetDebt">{money(r.exitNetDebt)}</td>
+              </tr>
+              <tr class="is-total">
+                <th scope="row">Equity</th>
+                <td class="num" data-fig="entryEquity">{money(r.entryEquity)}</td>
+                <td class="num" data-fig="exitEquityRow">{money(r.exitEquity)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="study readout-drawing" aria-live="off">
+          <svg viewBox={`0 0 640 ${BRIDGE_H}`} role="img" aria-labelledby="bridge-title bridge-desc" data-bridge-svg>
+            <title id="bridge-title">Equity value bridge, from entry equity to exit equity</title>
+            <desc id="bridge-desc" data-bridge-desc>{bridgeSentence(r)}</desc>
+            <g data-bridge set:html={bridgeSvg(r, 640)} />
+          </svg>
+          <figcaption class="t-note" data-bridge-caption>{bridgeSentence(r)}</figcaption>
+        </figure>
+      </div>
+
+      <p class="note">The starting figures are illustrative, not taken from a real transaction.</p>
+    </div>
+  </div>
+
+  <Fragment slot="method">
+    <p>
+      The buyer pays the entry multiple on entry EBITDA, so enterprise value is EBITDA × multiple. Leverage sets net debt
+      as a multiple of entry EBITDA, and the equity cheque is enterprise value less net debt. If leverage meets the
+      price, there is no equity to measure a return on, and the tool says so instead of printing a number.
+    </p>
+    <p>
+      EBITDA compounds at the growth rate each year. In each year, the chosen share of that year's EBITDA repays debt;
+      once the debt is gone, the surplus is held as cash, so net debt can turn negative. At exit, equity is exit EBITDA
+      × exit multiple less net debt. The money multiple is exit equity over entry equity, and the IRR is that multiple
+      raised to one over the holding period, less one, because there are no interim flows.
+    </p>
+    <p>
+      The bridge splits the gain three ways: EBITDA growth at the entry multiple, (exit EBITDA − entry EBITDA) × entry
+      multiple; the change in multiple applied to exit EBITDA; and the fall in net debt. The three add up exactly to
+      exit equity less entry equity, and the drawing prints that check.
+    </p>
+    <p>
+      It deliberately ignores fees, interest, taxes, capital expenditure, working capital, dividends and management
+      equity. Real deals rarely look this clean; the point is to see which lever does the work.
+    </p>
+  </Fragment>
+</Instrument>
+
+<style>
+  .scale input[type='range'] {
+    height: 44px;
+  }
+  .scale input[type='range'][aria-invalid='true'] {
+    outline: 1px dashed var(--line);
+    outline-offset: 2px;
+  }
+  .form-actions {
+    padding-top: var(--s1);
+  }
+  .action {
+    min-height: 44px;
+    color: var(--line);
+  }
+  .action:focus-visible {
+    outline: 2px solid var(--line);
+    outline-offset: 3px;
+  }
+  .field-input input {
+    min-height: 44px;
+  }
+  .field-error:not([hidden]) {
+    display: block;
+    padding-left: 0.6em;
+    border-left: 1px solid var(--line);
+    line-height: 1.4;
+  }
+  .readout-drawing {
+    margin: 0;
+  }
+  .readout-body {
+    display: grid;
+    gap: var(--s4);
+  }
+  .readout-body[hidden] {
+    display: none;
+  }
+  .readout-error {
+    font-family: var(--font-text);
+    font-size: var(--step-1);
+    line-height: 1.4;
+    padding: var(--s2) 0 var(--s2) var(--s2);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--rule);
+    max-width: 30em;
+  }
+  .ledger-wrap {
+    overflow-x: auto;
+  }
+  .ledger th[scope='row'] {
+    font-weight: 450;
+    color: var(--line);
+    border-bottom: 1px solid var(--rule);
+  }
+  .ledger tr.is-total th {
+    border-bottom: 1px solid var(--line);
+    font-weight: 550;
+  }
+  .figure small {
+    margin-top: 0.15rem;
+  }
+</style>
+
+<script>
+  import {
+    computeReturns,
+    returnsFromQuery,
+    returnsToQuery,
+    RETURNS_DEFAULTS,
+    RETURNS_LIMITS,
+    bridgeSvg,
+    bridgeSentence,
+    BRIDGE_H,
+    money,
+    times,
+    times1,
+    pct,
+    scaleText,
+    scaleSpoken,
+    type ReturnsInputs,
+    type ReturnsKey,
+  } from '../../lib/instruments/returns';
+
+  const form = document.querySelector<HTMLFormElement>('form[data-instrument="returns"]');
+  if (form) {
+    const keys = Object.keys(RETURNS_LIMITS) as ReturnsKey[];
+    const input = (k: ReturnsKey) => form.querySelector<HTMLInputElement>(`[name="${k}"]`)!;
+    const readout = form.parentElement!.querySelector<HTMLElement>('.readout')!;
+    const body = readout.querySelector<HTMLElement>('[data-body]')!;
+    const voidMsg = readout.querySelector<HTMLElement>('[data-void-message]')!;
+    const svg = readout.querySelector<SVGSVGElement>('[data-bridge-svg]')!;
+    const g = svg.querySelector<SVGGElement>('[data-bridge]')!;
+    const desc = svg.querySelector('[data-bridge-desc]')!;
+    const caption = readout.querySelector<HTMLElement>('[data-bridge-caption]')!;
+    const figure = svg.closest('figure')!;
+
+    const set = (sel: string, text: string) => {
+      const el = readout.querySelector<HTMLElement>(`[data-fig="${sel}"]`);
+      if (el && el.textContent !== text) el.textContent = text;
+    };
+
+    const read = (): ReturnsInputs => {
+      const out = { ...RETURNS_DEFAULTS };
+      for (const k of keys) {
+        const raw = input(k).value.trim();
+        out[k] = raw === '' ? NaN : Number(raw);
+      }
+      return out;
+    };
+
+    const write = (i: ReturnsInputs) => {
+      for (const k of keys) input(k).value = String(i[k]);
+    };
+
+    let last: ReturnType<typeof computeReturns> | null = null;
+
+    const drawingWidth = () => {
+      const w = Math.round(figure.getBoundingClientRect().width);
+      return Math.max(300, Math.min(760, w || 640));
+    };
+
+    const draw = () => {
+      if (!last || !last.ok) return;
+      const w = drawingWidth();
+      svg.setAttribute('viewBox', `0 0 ${w} ${BRIDGE_H}`);
+      g.innerHTML = bridgeSvg(last, w);
+    };
+
+    const update = (persist = true) => {
+      const i = read();
+
+      // Scale lettering.
+      for (const k of keys) {
+        const el = input(k);
+        if (el.type !== 'range') continue;
+        const v = Number(el.value);
+        const out = form.querySelector<HTMLOutputElement>(`[data-out="${k}"]`);
+        if (out) out.textContent = scaleText(k, v);
+        el.setAttribute('aria-valuetext', scaleSpoken(k, v));
+      }
+
+      const res = computeReturns(i);
+      last = res;
+
+      // Field errors.
+      for (const k of keys) {
+        const err = res.ok ? undefined : res.errors.find((e) => e.field === k);
+        const el = input(k);
+        const box = form.querySelector<HTMLElement>(`[data-error-for="${k}"]`)!;
+        if (err) {
+          el.setAttribute('aria-invalid', 'true');
+          el.closest('.field-input')?.setAttribute('aria-invalid', 'true');
+          box.textContent = err.message;
+          box.hidden = false;
+        } else {
+          el.removeAttribute('aria-invalid');
+          el.closest('.field-input')?.removeAttribute('aria-invalid');
+          box.textContent = '';
+          box.hidden = true;
+        }
+      }
+
+      if (!res.ok) {
+        const lev = res.errors.find((e) => e.field === 'leverage' && i.leverage >= i.entryMultiple);
+        voidMsg.textContent = lev
+          ? `No return to show. At ${times1(i.leverage)} net debt on a ${times1(i.entryMultiple)} price, the equity cheque is zero or negative, so a money multiple has no meaning. Bring leverage below ${times1(i.entryMultiple)} or raise the entry multiple.`
+          : 'No return to show until the marked inputs are corrected.';
+        voidMsg.hidden = false;
+        body.hidden = true;
+      } else {
+        voidMsg.hidden = true;
+        body.hidden = false;
+        set('moic', times(res.moic));
+        set('irr', res.wipedOut ? pct(-1) : pct(res.irr));
+        set('irrNote', res.wipedOut ? 'Exit value does not cover net debt' : `Over ${scaleText('years', res.inputs.years)}, no interim flows`);
+        // Equity cannot be worth less than nothing: a shortfall is the lenders' loss.
+        set('exitEquity', money(Math.max(0, res.exitEquity)));
+        set(
+          'equityNote',
+          res.wipedOut
+            ? `Net debt exceeds exit value by ${money(-res.exitEquity)}`
+            : `From ${money(res.entryEquity)} invested`,
+        );
+        set('entryEbitda', money(res.inputs.ebitda));
+        set('exitEbitda', money(res.exitEbitda));
+        set('entryMultiple', times1(res.inputs.entryMultiple));
+        set('exitMultiple', times1(res.inputs.exitMultiple));
+        set('entryEV', money(res.entryEV));
+        set('exitEV', money(res.exitEV));
+        set('entryNetDebt', money(res.entryNetDebt));
+        set('exitNetDebt', money(res.exitNetDebt));
+        set('netDebtLabel', res.exitNetDebt < 0 ? 'Net debt (negative is net cash)' : 'Net debt');
+        set('entryEquity', money(res.entryEquity));
+        set('exitEquityRow', money(res.exitEquity));
+        const sentence = bridgeSentence(res);
+        desc.textContent = sentence;
+        if (caption.textContent !== sentence) caption.textContent = sentence;
+        draw();
+      }
+
+      if (persist) {
+        const q = returnsToQuery(i);
+        history.replaceState(history.state, '', location.pathname + q + location.hash);
+      }
+    };
+
+    form.addEventListener('input', () => update());
+    form.addEventListener('submit', (e) => e.preventDefault());
+    form.querySelector('[data-reset]')?.addEventListener('click', () => {
+      write(RETURNS_DEFAULTS);
+      update();
+    });
+
+    // A shared link restores its configuration.
+    if (location.search) write(returnsFromQuery(location.search));
+    update(false);
+
+    if ('ResizeObserver' in window) {
+      let lastW = 0;
+      new ResizeObserver(() => {
+        const w = drawingWidth();
+        if (w !== lastW) {
+          lastW = w;
+          draw();
+        }
+      }).observe(figure);
+    }
+  }
+</script>

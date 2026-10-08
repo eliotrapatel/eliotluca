@@ -1,0 +1,37 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHead from '../../components/PageHead.astro';
+import EssayList from '../../components/EssayList.astro';
+import { getEssays } from '../../lib/writing';
+
+const essays = await getEssays();
+const fr = essays.filter((e) => e.data.lang === 'fr').length;
+---
+
+<Base title="Writing" description="Essays and manifestos by Eliot Luca on capital, software, objects and the practice of doing several things well." image="/og/writing.png">
+  <PageHead
+    title="Writing"
+    lede="Essays and manifestos, numbered in the order they were written. Mostly in English, sometimes in French."
+  >
+    <p class="feed t-ui">
+      <a href="/rss.xml">Follow by RSS</a>
+      <span class="muted">{essays.length} pieces{fr > 0 && <>, {fr} in French</>}</span>
+    </p>
+  </PageHead>
+  <section class="wrap" aria-label="All writing">
+    {essays.length > 0 ? <EssayList essays={essays} headingLevel="h2" /> : <p class="empty t-note">The first piece is being written.</p>}
+  </section>
+</Base>
+
+<style>
+  .feed {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s1) var(--s4);
+    margin-top: var(--s3);
+    font-size: var(--step--1);
+  }
+  .empty {
+    font-size: var(--step-2);
+  }
+</style>

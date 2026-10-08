@@ -1,0 +1,211 @@
+---
+import Study from '../Study.astro';
+
+interface Props {
+  delay?: number;
+  href?: string;
+}
+const { delay = 0, href = '/work/orbes' } = Astro.props;
+
+// The capital E set out as in Luca Pacioli's De divina proportione (1509):
+// a square, its diagonals and inscribed circle, the thick stroke one ninth of
+// the height, and every curve a compass arc whose centre is marked.
+
+type Pt = [number, number];
+const f = (n: number) => Math.round(n * 100) / 100;
+// Paths are written without spaces (commas only) so they survive the dev rasteriser.
+const P2 = (p: Pt) => `${f(p[0])},${f(p[1])}`;
+const cross = (c: Pt, s: number) => `M${f(c[0] - s)},${f(c[1])}H${f(c[0] + s)}M${f(c[0])},${f(c[1] - s)}V${f(c[1] + s)}`;
+
+const X0 = 64;
+const Y0 = 40;
+const S = 192; // side of the square, the height of the letter
+const u = S / 9; // the thick stroke
+const X = (n: number) => X0 + n * u; // in ninths
+const Y = (n: number) => Y0 + n * u;
+const YB = Y0 + S;
+
+// Strokes, in ninths of the height.
+const STEM_L = 2.5;
+const STEM_R = STEM_L + 1;
+const SERIF_L = 1.86; // end of the left serifs
+const TT = 0.46; // top arm
+const TM = 0.42; // middle arm
+const TB = 0.52; // bottom arm
+const MID = 4.42; // centre of the middle arm, a touch above the middle
+const FOOT = 0.2; // the flat end of the left serifs
+
+// Compass arcs: centre, radius, and the two points they join.
+type Arc = { c: Pt; r: number; a: Pt; b: Pt; mark: boolean };
+const arcs: Record<string, Arc> = {};
+
+// Left serifs: a long bracket, the circle tangent to the stem and passing
+// through the serif's end.
+const rS = 1.6; // bracket radius
+const ext = STEM_L - SERIF_L;
+const lift = Math.sqrt(rS * rS - (rS - ext) ** 2); // from the foot down to the tangent point
+arcs.topLeft = {
+  c: [X(STEM_L - rS), Y(FOOT + lift)],
+  r: rS * u,
+  a: [X(STEM_L), Y(FOOT + lift)],
+  b: [X(SERIF_L), Y(FOOT)],
+  mark: true,
+};
+arcs.botLeft = {
+  c: [X(STEM_L - rS), Y(9 - FOOT - lift)],
+  r: rS * u,
+  a: [X(SERIF_L), Y(9 - FOOT)],
+  b: [X(STEM_L), Y(9 - FOOT - lift)],
+  mark: true,
+};
+
+// Inner corners where the arms leave the stem.
+const rI = 0.5;
+arcs.topInner = {
+  c: [X(STEM_R + rI), Y(TT + rI)],
+  r: rI * u,
+  a: [X(STEM_R + rI), Y(TT)],
+  b: [X(STEM_R), Y(TT + rI)],
+  mark: true,
+};
+arcs.botInner = {
+  c: [X(STEM_R + rI), Y(9 - TB - rI)],
+  r: rI * u,
+  a: [X(STEM_R), Y(9 - TB - rI)],
+  b: [X(STEM_R + rI), Y(9 - TB)],
+  mark: true,
+};
+const rM = 0.3;
+arcs.midUpIn = {
+  c: [X(STEM_R + rM), Y(MID - TM / 2 - rM)],
+  r: rM * u,
+  a: [X(STEM_R), Y(MID - TM / 2 - rM)],
+  b: [X(STEM_R + rM), Y(MID - TM / 2)],
+  mark: false,
+};
+arcs.midDnIn = {
+  c: [X(STEM_R + rM), Y(MID + TM / 2 + rM)],
+  r: rM * u,
+  a: [X(STEM_R + rM), Y(MID + TM / 2)],
+  b: [X(STEM_R), Y(MID + TM / 2 + rM)],
+  mark: false,
+};
+
+// Beaks and the middle serifs: a circle tangent to the arm, through the
+// serif's point. Solve for where it leaves the arm.
+const tangentArc = (tipX: number, tipY: number, edgeY: number, r: number, down: boolean): { c: Pt; from: Pt } => {
+  // Centre lies r beyond the arm edge, on the side the serif hangs.
+  const cy = down ? edgeY + r : edgeY - r;
+  const dy = tipY - cy;
+  const cx = tipX - Math.sqrt(r * r - dy * dy);
+  return { c: [cx, cy], from: [cx, edgeY] };
+};
+
+const TOP_END = 6.62;
+const TOP_TIP: Pt = [X(6.74), Y(1.42)];
+const topBeak = tangentArc(TOP_TIP[0], TOP_TIP[1], Y(TT), 1.25 * u, true);
+arcs.topBeak = { c: topBeak.c, r: 1.25 * u, a: TOP_TIP, b: topBeak.from, mark: true };
+
+const BOT_END = 7.02;
+const BOT_TIP: Pt = [X(7.12), Y(9 - 1.56)];
+const botBeak = tangentArc(BOT_TIP[0], BOT_TIP[1], Y(9 - TB), 1.34 * u, false);
+arcs.botBeak = { c: botBeak.c, r: 1.34 * u, a: botBeak.from, b: BOT_TIP, mark: true };
+
+const MID_END = 6.02;
+const MID_UP: Pt = [X(MID_END), Y(MID - 0.82)];
+const MID_DN: Pt = [X(MID_END + 0.04), Y(MID + 0.82)];
+const midUp = tangentArc(MID_UP[0], MID_UP[1], Y(MID - TM / 2), 0.8 * u, false);
+const midDn = tangentArc(MID_DN[0], MID_DN[1], Y(MID + TM / 2), 0.8 * u, true);
+arcs.midUp = { c: midUp.c, r: 0.8 * u, a: midUp.from, b: MID_UP, mark: true };
+arcs.midDn = { c: midDn.c, r: 0.8 * u, a: MID_DN, b: midDn.from, mark: true };
+
+// Always the short way round the centre, from a to b.
+const A = (k: keyof typeof arcs) => {
+  const { c, r, a, b } = arcs[k];
+  const turn = (a[0] - c[0]) * (b[1] - c[1]) - (a[1] - c[1]) * (b[0] - c[0]);
+  return `A${f(r)},${f(r)},0,0,${turn > 0 ? 1 : 0},${P2(b)}`;
+};
+const at = (k: keyof typeof arcs) => P2(arcs[k].a);
+
+// The outline, clockwise from the top left corner.
+const letter =
+  `M${P2([X(SERIF_L), Y0])}` +
+  `H${f(X(TOP_END))}` +
+  `L${P2(TOP_TIP)}` +
+  A('topBeak') +
+  `L${at('topInner')}` +
+  A('topInner') +
+  `L${at('midUpIn')}` +
+  A('midUpIn') +
+  `L${at('midUp')}` +
+  A('midUp') +
+  `L${P2(MID_DN)}` +
+  A('midDn') +
+  `L${at('midDnIn')}` +
+  A('midDnIn') +
+  `L${at('botInner')}` +
+  A('botInner') +
+  `L${at('botBeak')}` +
+  A('botBeak') +
+  `L${P2([X(BOT_END), YB])}` +
+  `H${f(X(SERIF_L))}` +
+  `L${at('botLeft')}` +
+  A('botLeft') +
+  `L${at('topLeft')}` +
+  A('topLeft') +
+  'Z';
+
+const marked = Object.values(arcs).filter((a) => a.mark);
+const radii = marked.map((a) => `M${P2(a.a)}L${P2(a.c)}L${P2(a.b)}`).join('');
+const centres = marked.map((a) => cross(a.c, 2.6)).join('');
+
+// Construction: the square, its diagonals, the inscribed circle, the ninths.
+const C: Pt = [X0 + S / 2, Y0 + S / 2];
+const ninths = Array.from({ length: 10 }, (_, i) => `M${f(X0 - (i % 9 === 0 ? 0 : 5))},${f(Y(i))}H${f(X0)}`).join('');
+const stemLead = `M${f(X(STEM_L) + 1.8)},${f(Y(FOOT + lift) + 2)}V${f(Y(9 - FOOT - lift) - 2)}`;
+
+// The 1/9 dimension across the stem, above the square.
+const DIM_Y = Y0 - 11;
+const T = (n: number) => `--d: ${delay + n}`;
+---
+
+<Study
+  id="letter"
+  title="Letter E, constructed after Pacioli"
+  discipline="Branding and graphic design"
+  year={2016}
+  href={href}
+  viewBox="0 0 320 290"
+  delay={delay}
+  class="letter-e"
+  label="A Roman capital E constructed in a square with compass and rule, after Luca Pacioli's De divina proportione of 1509. The stem is one ninth of the height; the serifs are compass arcs with their centres marked."
+>
+  <g aria-hidden="true">
+    <line class="metal" x1={X0} y1={Y0} x2={X0 + S} y2={YB} />
+    <line class="metal" x1={X0 + S} y1={Y0} x2={X0} y2={YB} />
+    <circle class="metal" cx={C[0]} cy={C[1]} r={S / 2} />
+    <line class="metal" x1={C[0]} y1={Y0 - 4} x2={C[0]} y2={YB + 4} />
+    <line class="metal" x1={X0 - 4} y1={C[1]} x2={X0 + S + 4} y2={C[1]} />
+    <path class="metal" d={radii} />
+  </g>
+
+  <rect class="ink-fine" x={X0} y={Y0} width={S} height={S} pathLength="1" style={T(0)} />
+  <path class="ink-fine" d={ninths} pathLength="1" style={T(80)} />
+
+  <g style={T(200)}>
+    <path style="fill: var(--ground)" d={letter} />
+    <path class="settle" fill="url(#hatch-ink)" d={letter} />
+    <path class="ink" d={letter} pathLength="1" />
+  </g>
+  <path class="lead" d={stemLead} />
+  <path class="ink-fine settle" d={centres} />
+
+  <g class="settle" aria-hidden="true">
+    <line class="ink-fine" style="stroke: var(--line-2)" x1={X(STEM_L)} y1={Y0 - 3} x2={X(STEM_L)} y2={DIM_Y - 5} />
+    <line class="ink-fine" style="stroke: var(--line-2)" x1={X(STEM_R)} y1={Y0 - 3} x2={X(STEM_R)} y2={DIM_Y - 5} />
+    <line class="ink-fine" style="stroke: var(--line-2)" x1={X(STEM_L)} y1={DIM_Y} x2={X(STEM_R)} y2={DIM_Y} marker-start="url(#arrow)" marker-end="url(#arrow)" />
+    <text class="dim" font-size="10" x={X(STEM_R) + 6} y={DIM_Y + 3.5}>1/9</text>
+  </g>
+  <text class="note settle" font-size="12.5" x={X0} y={YB + 26}>The stem, one ninth of the height</text>
+  <text class="dim settle" font-size="10" x={X0} y={YB + 42}>Luca Pacioli, De divina proportione, 1509</text>
+</Study>

@@ -1,0 +1,589 @@
+---
+import Instrument from '../../layouts/Instrument.astro';
+import {
+  computeDilution,
+  dilutionSvg,
+  dilutionHeight,
+  dilutionSentence,
+  DILUTION_DEFAULTS,
+  ROUNDS,
+  POOL_MAX,
+  MONEY_MAX,
+  pct,
+  money,
+  poolText,
+  poolSpoken,
+} from '../../lib/instruments/dilution';
+
+const r = computeDilution(DILUTION_DEFAULTS);
+if (!r.ok) throw new Error('The default dilution case must be valid.');
+const D = DILUTION_DEFAULTS;
+const last = r.stages[r.stages.length - 1];
+const H = dilutionHeight(r);
+// The total row is added up from the printed shares, not asserted.
+const shownTotal = (s: (typeof r.stages)[number]) =>
+  s.shown.founders + s.shown.pool + Object.values(s.shown.investors).reduce((a, b) => a + (b ?? 0), 0);
+---
+
+<Instrument
+  title="Dilution"
+  lede="How much of the company the founders keep, round after round."
+  description="A cap table calculator that follows founders' ownership through up to four funding rounds, with the option pool created in the pre-money."
+  family="Capital"
+  slug="dilution"
+>
+  <div class="instrument-grid">
+    <form class="controls" data-instrument="dilution" novalidate>
+      {
+        ROUNDS.map((round) => {
+          const x = D[round.id];
+          const id = round.id;
+          return (
+            <fieldset class:list={['group', 'round', { 'is-off': !x.on }]} data-round={id}>
+              <legend>
+                <span class="round-name">{round.name}</span>
+                <label class="toggle">
+                  <input type="checkbox" name={`${id}-on`} checked={x.on} />
+                  <span class="toggle-box" aria-hidden="true" />
+                  <span class="toggle-text">
+                    Include<span class="visually-hidden"> the {round.name} round</span>
+                  </span>
+                </label>
+              </legend>
+              <div class="round-fields">
+                <label class="field">
+                  <span class="field-label">Pre-money valuation</span>
+                  <span class="field-input">
+                    <input
+                      type="number"
+                      name={`${id}-pre`}
+                      inputmode="decimal"
+                      min="0"
+                      max={MONEY_MAX}
+                      step="any"
+                      value={x.pre}
+                      disabled={!x.on}
+                      aria-describedby={`err-${id}-pre`}
+                    />
+                    <span class="unit">€m</span>
+                  </span>
+                  <span class="field-error" id={`err-${id}-pre`} data-error-for={`${id}-pre`} hidden />
+                </label>
+                <label class="field">
+                  <span class="field-label">Amount raised</span>
+                  <span class="field-input">
+                    <input
+                      type="number"
+                      name={`${id}-raise`}
+                      inputmode="decimal"
+                      min="0"
+                      max={MONEY_MAX}
+                      step="any"
+                      value={x.raise}
+                      disabled={!x.on}
+                      aria-describedby={`err-${id}-raise`}
+                    />
+                    <span class="unit">€m</span>
+                  </span>
+                  <span class="field-error" id={`err-${id}-raise`} data-error-for={`${id}-raise`} hidden />
+                </label>
+                <label class="scale">
+                  <span class="field-label">
+                    Option pool, % of post-money
+                    <output class="scale-value" data-out={`${id}-pool`}>
+                      {poolText(x.pool)}
+                    </output>
+                  </span>
+                  <input
+                    type="range"
+                    name={`${id}-pool`}
+                    min="0"
+                    max={POOL_MAX}
+                    step="0.5"
+                    value={x.pool}
+                    disabled={!x.on}
+                    aria-valuetext={poolSpoken(x.pool)}
+                    aria-describedby={`err-${id}-pool`}
+                  />
+                  <span class="scale-ticks" aria-hidden="true">
+                    <span>0%</span>
+                    <span>{POOL_MAX}%</span>
+                  </span>
+                  <span class="field-error" id={`err-${id}-pool`} data-error-for={`${id}-pool`} hidden />
+                </label>
+              </div>
+            </fieldset>
+          );
+        })
+      }
+      <div class="form-actions">
+        <button type="button" class="action" data-reset>Reset to the defaults</button>
+      </div>
+    </form>
+
+    <div class="readout" aria-live="polite">
+      <p class="readout-error" data-void-message hidden></p>
+
+      <div class="readout-body" data-body>
+        <dl class="figures">
+          <div class="figure is-key">
+            <dt>Founders keep</dt>
+            <dd data-fig="founders">{pct(r.foundersShown)}</dd>
+          </div>
+          <div class="figure">
+            <dt>Post-money</dt>
+            <dd data-fig="post">{money(r.lastPost)}</dd>
+            <small data-fig="postNote">After {last.name}</small>
+          </div>
+          <div class="figure">
+            <dt>Founders’ stake, on paper</dt>
+            <dd data-fig="value">{money(r.founderValue)}</dd>
+            <small>At that post-money, before any exit</small>
+          </div>
+        </dl>
+
+        <div class="ledger-wrap" tabindex="0" role="region" aria-label="Ownership after each round">
+          <table class="ledger" data-ledger>
+            <caption class="visually-hidden">Ownership after each round, fully diluted</caption>
+            <thead>
+              <tr>
+                <th scope="col">Holder</th>
+                {r.stages.map((s) => <th scope="col" class="num">{s.name}</th>)}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Founders</th>
+                {r.stages.map((s) => <td class="num">{pct(s.shown.founders)}</td>)}
+              </tr>
+              <tr>
+                <th scope="row">Option pool</th>
+                {r.stages.map((s) => <td class="num">{pct(s.shown.pool)}</td>)}
+              </tr>
+              <tr class="is-group">
+                <th colspan={r.stages.length + 1}>Investors, by round</th>
+              </tr>
+              {
+                r.stages.map((inv) => (
+                  <tr class="is-inv">
+                    <th scope="row">{inv.name}</th>
+                    {r.stages.map((s) => {
+                      const v = s.shown.investors[inv.round];
+                      return <td class="num">{v === undefined ? <span class="visually-hidden">not yet in</span> : pct(v)}</td>;
+                    })}
+                  </tr>
+                ))
+              }
+              <tr class="is-total">
+                <th scope="row">Total</th>
+                {r.stages.map((s) => <td class="num">{pct(shownTotal(s))}</td>)}
+              </tr>
+              <tr class="is-post">
+                <th scope="row">Post-money</th>
+                {r.stages.map((s) => <td class="num">{money(s.post)}</td>)}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <figure class="study readout-drawing" aria-live="off">
+          <svg viewBox={`0 0 640 ${H}`} role="img" aria-labelledby="dil-title dil-desc" data-dil-svg>
+            <title id="dil-title">Ownership after each round, as stacked bars</title>
+            <desc id="dil-desc" data-dil-desc>{dilutionSentence(r)}</desc>
+            <g data-dil set:html={dilutionSvg(r, 640)} />
+          </svg>
+          <figcaption class="t-note" data-dil-caption>{dilutionSentence(r)}</figcaption>
+        </figure>
+      </div>
+
+      <p class="note">The starting rounds are illustrative, not the cap table of a real company.</p>
+    </div>
+  </div>
+
+  <Fragment slot="method">
+    <p>
+      Each round sells new shares at the pre-money valuation. The post-money is pre-money plus the amount raised, and the
+      new investors own the amount raised over the post-money. Everyone already on the cap table shares the rest, pre-money
+      over post-money, in proportion to what they held.
+    </p>
+    <p>
+      The option pool is set as a share of the post-money, but it is created in the pre-money. This is the option pool
+      shuffle: investors ask for a pool of, say, 12% after the round and price it into the valuation, so the new options
+      dilute the existing holders and not the incoming money. If the pool left from earlier rounds, once diluted, already
+      covers the target, nothing is added. Otherwise the gap is issued before the round, and the pool lands exactly on its
+      target.
+    </p>
+    <p>
+      Every figure is fully diluted: granted and ungranted options count as shares. The tool ignores convertible notes,
+      SAFEs, liquidation preferences, anti-dilution clauses, secondary sales and founder vesting. The paper value is the
+      founders’ share times the last post-money, which is a price paid for a minority stake, not what the founders would
+      receive in a sale.
+    </p>
+  </Fragment>
+</Instrument>
+
+<style>
+  .scale input[type='range'] {
+    height: 44px;
+  }
+  .scale input[type='range'][aria-invalid='true'] {
+    outline: 1px dashed var(--line);
+    outline-offset: 2px;
+  }
+  .field-input input {
+    min-height: 44px;
+  }
+  .field-error:not([hidden]) {
+    display: block;
+    padding-left: 0.6em;
+    border-left: 1px solid var(--line);
+    line-height: 1.4;
+  }
+
+  .round legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1em;
+  }
+  .round-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s3) var(--s3);
+  }
+  .round-fields .scale {
+    grid-column: 1 / -1;
+  }
+  .round.is-off .round-fields {
+    opacity: 0.45;
+  }
+  .round.is-off .round-name {
+    color: var(--line-2);
+  }
+
+  /* The on/off switch: a ruled square that takes an ink fill when the round counts. */
+  .toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+    min-height: 44px;
+    padding-inline: 0.2em;
+    cursor: pointer;
+    font-family: var(--font-ui);
+    font-style: normal;
+    font-size: var(--step--1);
+    color: var(--line);
+  }
+  .toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+  }
+  .toggle-box {
+    width: 20px;
+    height: 20px;
+    border: 1px solid var(--line);
+    padding: 4px;
+    background-clip: content-box;
+  }
+  .toggle input:checked + .toggle-box {
+    background-color: var(--line);
+  }
+  .toggle input:focus-visible + .toggle-box {
+    outline: 2px solid var(--line);
+    outline-offset: 3px;
+  }
+  .toggle:hover .toggle-box {
+    background-color: var(--wash);
+  }
+  .toggle:hover input:checked + .toggle-box {
+    background-color: var(--line);
+  }
+
+  .form-actions {
+    padding-top: var(--s1);
+  }
+  .action {
+    min-height: 44px;
+    color: var(--line);
+  }
+  .action:focus-visible {
+    outline: 2px solid var(--line);
+    outline-offset: 3px;
+  }
+
+  .readout-drawing {
+    margin: 0;
+  }
+  .readout-body {
+    display: grid;
+    gap: var(--s4);
+  }
+  .readout-body[hidden] {
+    display: none;
+  }
+  .readout-error {
+    font-family: var(--font-text);
+    font-size: var(--step-1);
+    line-height: 1.4;
+    padding: var(--s2) 0 var(--s2) var(--s2);
+    border-left: 2px solid var(--line);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    max-width: 30em;
+  }
+  .ledger-wrap {
+    overflow-x: auto;
+  }
+  .ledger-wrap:focus-visible {
+    outline: 2px solid var(--line);
+    outline-offset: 3px;
+  }
+  .ledger :global(th[scope='row']) {
+    font-weight: 450;
+    color: var(--line);
+    border-bottom: 1px solid var(--rule);
+    white-space: nowrap;
+  }
+  .ledger :global(tr.is-total th) {
+    border-bottom: 1px solid var(--line);
+    font-weight: 550;
+  }
+  .ledger :global(tr.is-post th),
+  .ledger :global(tr.is-post td) {
+    color: var(--line-2);
+    border-bottom: 0;
+  }
+  .ledger :global(tr.is-group th) {
+    padding-top: 1em;
+    font-family: var(--font-text);
+    font-style: italic;
+    font-size: var(--step-0);
+    color: var(--line-2);
+  }
+  .ledger :global(tr.is-inv th) {
+    padding-left: 0.9em;
+  }
+  .ledger :global(th.num) {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 420px) {
+    .round-fields {
+      grid-template-columns: 1fr;
+    }
+    .ledger {
+      font-size: var(--step--2);
+    }
+    .ledger :global(th),
+    .ledger :global(td) {
+      padding-right: 0.4em;
+    }
+    .ledger :global(tr.is-inv th) {
+      padding-left: 0.6em;
+    }
+  }
+</style>
+
+<script>
+  import {
+    computeDilution,
+    dilutionFromQuery,
+    dilutionToQuery,
+    dilutionSvg,
+    dilutionHeight,
+    dilutionSentence,
+    DILUTION_DEFAULTS,
+    ROUNDS,
+    pct,
+    money,
+    poolText,
+    poolSpoken,
+    structuredCloneInputs,
+    type DilutionInputs,
+    type DilutionResult,
+    type RoundField,
+  } from '../../lib/instruments/dilution';
+
+  const form = document.querySelector<HTMLFormElement>('form[data-instrument="dilution"]');
+  if (form) {
+    const fields: RoundField[] = ['pre', 'raise', 'pool'];
+    const readout = form.parentElement!.querySelector<HTMLElement>('.readout')!;
+    const body = readout.querySelector<HTMLElement>('[data-body]')!;
+    const voidMsg = readout.querySelector<HTMLElement>('[data-void-message]')!;
+    const svg = readout.querySelector<SVGSVGElement>('[data-dil-svg]')!;
+    const g = svg.querySelector<SVGGElement>('[data-dil]')!;
+    const desc = svg.querySelector('[data-dil-desc]')!;
+    const caption = readout.querySelector<HTMLElement>('[data-dil-caption]')!;
+    const ledger = readout.querySelector<HTMLTableElement>('[data-ledger]')!;
+    const figure = svg.closest('figure')!;
+    const el = (name: string) => form.querySelector<HTMLInputElement>(`[name="${name}"]`)!;
+
+    const set = (sel: string, text: string) => {
+      const n = readout.querySelector<HTMLElement>(`[data-fig="${sel}"]`);
+      if (n && n.textContent !== text) n.textContent = text;
+    };
+
+    const read = (): DilutionInputs => {
+      const out = structuredCloneInputs(DILUTION_DEFAULTS);
+      for (const r of ROUNDS) {
+        out[r.id].on = el(`${r.id}-on`).checked;
+        for (const f of fields) {
+          const raw = el(`${r.id}-${f}`).value.trim();
+          out[r.id][f] = raw === '' ? NaN : Number(raw);
+        }
+      }
+      return out;
+    };
+
+    const write = (i: DilutionInputs) => {
+      for (const r of ROUNDS) {
+        el(`${r.id}-on`).checked = i[r.id].on;
+        for (const f of fields) el(`${r.id}-${f}`).value = String(i[r.id][f]);
+      }
+    };
+
+    let last: DilutionResult | null = null;
+    const drawingWidth = () => Math.max(300, Math.min(760, Math.round(figure.getBoundingClientRect().width) || 640));
+    const draw = () => {
+      if (!last) return;
+      const w = drawingWidth();
+      svg.setAttribute('viewBox', `0 0 ${w} ${dilutionHeight(last)}`);
+      g.innerHTML = dilutionSvg(last, w);
+    };
+
+    const cell = (tag: 'th' | 'td', text: string, cls?: string, scope?: string) => {
+      const c = document.createElement(tag);
+      if (cls) c.className = cls;
+      if (scope) c.setAttribute('scope', scope);
+      c.textContent = text;
+      return c;
+    };
+
+    const renderLedger = (r: DilutionResult) => {
+      const head = document.createElement('tr');
+      head.append(cell('th', 'Holder', undefined, 'col'), ...r.stages.map((s) => cell('th', s.name, 'num', 'col')));
+      const rows: HTMLTableRowElement[] = [];
+      const row = (label: string, values: (string | null)[], cls?: string) => {
+        const tr = document.createElement('tr');
+        if (cls) tr.className = cls;
+        tr.append(cell('th', label, undefined, 'row'));
+        for (const v of values) {
+          const td = cell('td', v ?? '', 'num');
+          if (v === null) {
+            const hidden = document.createElement('span');
+            hidden.className = 'visually-hidden';
+            hidden.textContent = 'not yet in';
+            td.append(hidden);
+          }
+          tr.append(td);
+        }
+        rows.push(tr);
+      };
+      row('Founders', r.stages.map((s) => pct(s.shown.founders)));
+      row('Option pool', r.stages.map((s) => pct(s.shown.pool)));
+      const group = document.createElement('tr');
+      group.className = 'is-group';
+      const gh = cell('th', 'Investors, by round');
+      gh.colSpan = r.stages.length + 1;
+      group.append(gh);
+      rows.push(group);
+      for (const inv of r.stages) {
+        row(inv.name, r.stages.map((s) => (s.shown.investors[inv.round] === undefined ? null : pct(s.shown.investors[inv.round]!))), 'is-inv');
+      }
+      // The total is added up from the printed shares, not asserted.
+      const total = (s: DilutionResult['stages'][number]) =>
+        s.shown.founders + s.shown.pool + Object.values(s.shown.investors).reduce((a, b) => a + (b ?? 0), 0);
+      row('Total', r.stages.map((s) => pct(total(s))), 'is-total');
+      row('Post-money', r.stages.map((s) => money(s.post)), 'is-post');
+      ledger.tHead!.replaceChildren(head);
+      ledger.tBodies[0].replaceChildren(...rows);
+    };
+
+    const update = (persist = true) => {
+      const i = read();
+
+      for (const r of ROUNDS) {
+        const on = i[r.id].on;
+        const fs = form.querySelector<HTMLFieldSetElement>(`[data-round="${r.id}"]`)!;
+        fs.classList.toggle('is-off', !on);
+        for (const f of fields) el(`${r.id}-${f}`).disabled = !on;
+        const pool = el(`${r.id}-pool`);
+        const v = Number(pool.value);
+        const out = form.querySelector<HTMLOutputElement>(`[data-out="${r.id}-pool"]`);
+        if (out) out.textContent = poolText(v);
+        pool.setAttribute('aria-valuetext', poolSpoken(v));
+      }
+
+      const res = computeDilution(i);
+
+      for (const r of ROUNDS) {
+        for (const f of fields) {
+          const name = `${r.id}-${f}`;
+          const input = el(name);
+          const box = form.querySelector<HTMLElement>(`[data-error-for="${name}"]`)!;
+          const err = res.ok ? undefined : res.errors.find((e) => e.round === r.id && e.field === f);
+          if (err) {
+            input.setAttribute('aria-invalid', 'true');
+            input.closest('.field-input')?.setAttribute('aria-invalid', 'true');
+            box.textContent = err.message;
+            box.hidden = false;
+          } else {
+            input.removeAttribute('aria-invalid');
+            input.closest('.field-input')?.removeAttribute('aria-invalid');
+            box.textContent = '';
+            box.hidden = true;
+          }
+        }
+      }
+
+      if (!res.ok) {
+        last = null;
+        voidMsg.textContent = res.empty
+          ? 'No round is switched on, so the founders still own 100% of the company. Include at least one round to see the dilution.'
+          : 'No cap table to show until the marked inputs are corrected.';
+        voidMsg.hidden = false;
+        body.hidden = true;
+      } else {
+        last = res;
+        voidMsg.hidden = true;
+        body.hidden = false;
+        const lastStage = res.stages[res.stages.length - 1];
+        set('founders', pct(res.foundersShown));
+        set('post', money(res.lastPost));
+        set('postNote', `After ${lastStage.name}`);
+        set('value', money(res.founderValue));
+        renderLedger(res);
+        const sentence = dilutionSentence(res);
+        desc.textContent = sentence;
+        if (caption.textContent !== sentence) caption.textContent = sentence;
+        draw();
+      }
+
+      if (persist) history.replaceState(history.state, '', location.pathname + dilutionToQuery(i) + location.hash);
+    };
+
+    form.addEventListener('input', () => update());
+    form.addEventListener('submit', (e) => e.preventDefault());
+    form.querySelector('[data-reset]')?.addEventListener('click', () => {
+      write(DILUTION_DEFAULTS);
+      update();
+    });
+
+    if (location.search) write(dilutionFromQuery(location.search));
+    update(false);
+
+    if ('ResizeObserver' in window) {
+      let lastW = 0;
+      new ResizeObserver(() => {
+        const w = drawingWidth();
+        if (w !== lastW) {
+          lastW = w;
+          draw();
+        }
+      }).observe(figure);
+    }
+  }
+</script>
