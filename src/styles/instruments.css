@@ -52,9 +52,10 @@
 .group legend {
   padding: 0;
   margin-bottom: var(--s2);
-  font-family: var(--font-text);
-  font-style: italic;
-  font-size: var(--step-1);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
   color: var(--line);
   width: 100%;
   border-bottom: 1px solid var(--rule);

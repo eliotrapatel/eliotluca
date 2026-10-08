@@ -10,11 +10,11 @@ import { render } from './polyhedron';
 
 // The light sheet only: a shared image cannot follow the reader's theme.
 const C = {
-  carta: '#a3b8ca',
-  ink: '#221a14',
-  metal: '#39434e',
-  silver: '#5d6c7a',
-  lead: '#f4f1e8',
+  carta: '#050506',
+  ink: '#f1efe9',
+  metal: '#a3a19b',
+  silver: '#3a3936',
+  lead: '#cdb68a',
   rule: 'rgba(34,26,20,0.28)',
 };
 

@@ -86,8 +86,7 @@ const jsonLd =
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
-    <meta name="theme-color" content="#a3b8ca" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1b2139" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#050506" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="alternate" type="application/rss+xml" title={`${site.name}, writing`} href="/rss.xml" />
@@ -110,10 +109,6 @@ const jsonLd =
     <script is:inline>
       (function () {
         var d = document.documentElement;
-        try {
-          var t = localStorage.getItem('theme');
-          if (t === 'light' || t === 'dark') d.setAttribute('data-theme', t);
-        } catch (e) {}
         var drawn = false;
         try {
           drawn = sessionStorage.getItem('sheet-drawn') === '1';
@@ -147,7 +142,6 @@ const jsonLd =
     {!bare && <Footer />}
     <script>
       import '../lib/clock';
-      import '../lib/theme';
       import '../lib/draw';
     </script>
   </body>

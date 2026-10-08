@@ -26,7 +26,7 @@ const links = [
     <header class="top">
       <div class="emblem"><Polyhedron href="/" /></div>
       <h1 class="t-title name"><a href="/">Eliot Luca</a></h1>
-      <p class="line">Capital, software and objects. Building THE ENTITY and ORBES.</p>
+      <p class="line">Capital, code and craft. Founder of THE ENTITY and ORBES.</p>
     </header>
 
     <ul class="list">
@@ -34,15 +34,18 @@ const links = [
         links.map((l) => (
           <li>
             <a href={l.href} rel={l.href.startsWith('http') ? 'noopener me' : undefined}>
-              <span class="label">{l.label}</span>
-              <span class="note t-ui">{l.note}</span>
+              <span class="txt">
+                <span class="label">{l.label}</span>
+                <span class="note">{l.note}</span>
+              </span>
+              <svg class="arrow" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </a>
           </li>
         ))
       }
     </ul>
 
-    <p class="home t-ui"><a href="/">eliotluca.com</a></p>
+    <p class="home t-label"><a href="/">eliotluca.com</a></p>
   </div>
 </Base>
 
@@ -60,67 +63,68 @@ const links = [
   }
 
   .emblem {
-    width: 132px;
+    width: 120px;
   }
 
-  /* On this page the drawing is an emblem: no caption, no hint. */
   .emblem :global(figcaption),
-  .emblem :global(.hint),
-  .emblem :global(.metal) {
+  .emblem :global(.hint) {
     display: none;
   }
 
   .name {
     margin-top: var(--s2);
     font-size: var(--step-4);
-    letter-spacing: 0.04em;
   }
 
   .name a {
     text-decoration: none;
-    background: none;
   }
 
   .line {
     margin-top: var(--s1);
-    font-style: italic;
     color: var(--line-2);
-    font-size: var(--step-1);
     max-width: 22em;
   }
 
   .list {
     list-style: none;
     margin-top: var(--s5);
-    border-top: 1px solid var(--line);
-  }
-
-  .list li {
-    border-bottom: 1px solid var(--line);
+    display: grid;
+    gap: 10px;
   }
 
   .list a {
     display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
     min-height: 4.25rem;
-    justify-content: center;
-    padding: 0.85rem 0.25rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.035), rgb(255 255 255 / 0.01)), var(--panel);
     text-decoration: none;
-    background-image: linear-gradient(var(--wash), var(--wash));
-    background-position: 0 0;
-    background-size: 0% 100%;
-    transition: background-size 320ms var(--ease-out);
+    transition:
+      border-color 200ms var(--ease-out),
+      transform 200ms var(--ease-out);
   }
 
   .list a:hover,
   .list a:focus-visible {
-    background-size: 100% 100%;
+    border-color: rgb(205 182 138 / 0.4);
+    transform: translateY(-2px);
+  }
+
+  .txt {
+    display: grid;
+    gap: 2px;
+    min-width: 0;
   }
 
   .label {
-    font-size: var(--step-2);
-    line-height: 1.15;
+    font-weight: 500;
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
   }
 
   .note {
@@ -128,9 +132,23 @@ const links = [
     color: var(--line-2);
   }
 
+  .arrow {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    color: var(--line-2);
+  }
+
+  .list a:hover .arrow {
+    color: var(--gold);
+  }
+
   .home {
     margin-top: var(--s5);
     text-align: center;
-    font-size: var(--step--1);
+  }
+
+  .home a {
+    text-decoration: none;
   }
 </style>

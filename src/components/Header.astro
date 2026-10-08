@@ -1,4 +1,6 @@
 ---
+import { site } from '../data/site';
+
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
 
 const items = [
@@ -11,81 +13,146 @@ const items = [
 const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
 ---
 
-<header class="top wrap" lang="en">
-  <a class="mark t-title" href="/" aria-label="Eliot Luca, home" aria-current={path === '/' ? 'page' : undefined}>Eliot Luca</a>
-  <nav class="nav t-ui" aria-label="Main">
-    <ul>
-      {
-        items.map((item) => (
-          <li>
-            <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
-              {item.label}
-            </a>
-          </li>
-        ))
-      }
-      <li class="contact"><a href="#contact">Contact</a></li>
-    </ul>
-  </nav>
+<header class="top" lang="en">
+  <div class="bar">
+    <a class="mark" href="/" aria-label="Eliot Luca, home" aria-current={path === '/' ? 'page' : undefined}>
+      <svg class="glyph" viewBox="0 0 20 20" aria-hidden="true">
+        <rect x="1.5" y="1.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="1.2"></rect>
+        <path d="M6.5 5.5h7M6.5 10h5.5M6.5 14.5h7M6.5 5.5v9" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"></path>
+      </svg>
+      <span class="word">Eliot Luca</span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <ul>
+        {
+          items.map((item) => (
+            <li>
+              <a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <a class="btn btn-primary cta" href={`mailto:${site.email}`}>Contact</a>
+  </div>
 </header>
 
 <style>
   .top {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    padding: 14px var(--gutter) 0;
+  }
+
+  .bar {
+    max-width: var(--max);
+    margin: 0 auto;
     display: flex;
-    align-items: baseline;
-    justify-content: space-between;
+    align-items: center;
     gap: var(--s3);
-    padding-top: var(--s3);
-    padding-bottom: var(--s3);
+    padding: 8px 8px 8px 18px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    background: rgb(12 12 14 / 0.62);
+    -webkit-backdrop-filter: saturate(140%) blur(18px);
+    backdrop-filter: saturate(140%) blur(18px);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.05),
+      0 20px 40px -24px rgb(0 0 0 / 0.9);
   }
 
   .mark {
-    font-size: 1.0625rem;
-    letter-spacing: 0.14em;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
     text-decoration: none;
+    color: var(--line);
     white-space: nowrap;
-    background: none;
+  }
+
+  .glyph {
+    width: 20px;
+    height: 20px;
+    color: var(--gold);
+  }
+
+  .word {
+    font-family: var(--font-ui);
+    font-stretch: 125%;
+    font-weight: 450;
+    font-size: 0.8125rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+
+  .nav {
+    margin-left: auto;
   }
 
   .nav ul {
     list-style: none;
     display: flex;
-    gap: clamp(14px, 2.4vw, 36px);
+    gap: 2px;
   }
 
   .nav a {
+    display: inline-block;
+    padding: 0.55rem 0.85rem;
+    border-radius: 10px;
     font-size: var(--step--1);
-    font-weight: 450;
-    text-decoration-color: transparent;
-    padding-block: 0.35em;
+    color: var(--line-2);
+    text-decoration: none;
+    transition:
+      color 160ms var(--ease-out),
+      background 160ms var(--ease-out);
   }
 
   .nav a:hover {
-    text-decoration-color: var(--line);
+    color: var(--line);
+    background: rgb(255 255 255 / 0.04);
   }
 
   .nav a[aria-current='page'] {
-    text-decoration-color: var(--line);
-    text-decoration-thickness: 1px;
-    background-size: 100% 0.55em;
+    color: var(--line);
+    background: rgb(255 255 255 / 0.06);
   }
 
-  @media (max-width: 640px) {
+  .cta {
+    min-height: 36px;
+    padding: 0.55em 1em;
+    border-radius: 11px;
+  }
+
+  @media (max-width: 760px) {
     .top {
+      padding-top: 10px;
+    }
+    .bar {
       flex-wrap: wrap;
-      row-gap: var(--s1);
-      padding-top: var(--s2);
-      padding-bottom: var(--s2);
+      row-gap: 4px;
+      padding: 8px 8px 6px 14px;
+    }
+    .word {
+      letter-spacing: 0.24em;
     }
     .nav {
+      order: 3;
       width: 100%;
+      margin-left: 0;
+      border-top: 1px solid var(--border);
+      padding-top: 4px;
     }
     .nav ul {
       justify-content: space-between;
-      gap: 0;
     }
-    .nav .contact {
-      display: none;
+    .nav a {
+      padding: 0.55rem 0.5rem;
+    }
+    .cta {
+      margin-left: auto;
     }
   }
 </style>
