@@ -52,14 +52,14 @@ export type RecordEntry = {
 // Finance record, most recent first. Add dates when you want them shown.
 export const record: RecordEntry[] = [
   {
-    firm: 'Amundi Technology',
+    firm: 'Asset management technology',
     role: 'Corporate development',
     scope: 'Strategy and transformation, post-merger integration',
   },
   {
-    firm: 'Novastone Capital Advisors',
+    firm: 'Search fund',
     role: 'Analyst',
-    scope: 'Private equity and search fund',
+    scope: 'Private equity',
   },
   {
     firm: 'Private equity',

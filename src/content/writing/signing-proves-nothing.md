@@ -9,7 +9,7 @@ draft: true
 
 Everyone celebrates the signing. The people who will run the combined business should be the least excited people in the room.
 
-I have worked on both sides of that moment. On one side, I helped prepare the information memorandum and the Q&A for an €80M M&A deal: the document that explains why a business is worth buying, and the answers that defend that explanation line by line. On the other, in corporate development at Amundi Technology, I worked on post-merger integration, the part where two organisations described as complementary have to operate as one from a given Monday morning.
+I have worked on both sides of that moment. On one side, I helped prepare the information memorandum and the Q&A for an €80M M&A deal: the document that explains why a business is worth buying, and the answers that defend that explanation line by line. On the other, in corporate development at an asset management technology company, I worked on post-merger integration, the part where two organisations described as complementary have to operate as one from a given Monday morning.
 
 The two jobs taught me the same lesson from opposite ends. Signing is the moment the work starts, and at that moment most of the value in the deal is still unproven.
 

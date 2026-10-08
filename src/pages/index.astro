@@ -34,7 +34,7 @@ const cells = [
   { id: 'routing', C: Routing, cls: 'c-route', delay: 920 },
 ];
 
-const credentials = ['Amundi Technology', 'Novastone Capital Advisors', 'ESSEC Business School', 'emlyon business school', 'McGill University'];
+const credentials = ['ESSEC Business School', 'emlyon business school', 'McGill University'];
 
 const tools = [
   { slug: 'returns', family: 'Capital', name: 'Returns', line: 'What a buyout returns, and where the return comes from.', value: '2.86×', unit: 'MOIC, 23.4% IRR' },
@@ -46,8 +46,8 @@ const tools = [
 const roles = [
   { org: 'THE ENTITY', href: '/work/the-entity', role: 'Founder', what: 'AI supply-chain intelligence for investors' },
   { org: 'ORBES', href: '/work/orbes', role: 'Founder', what: 'Jewellery house, Paris' },
-  { org: 'Amundi Technology', href: '/about#record', role: 'Corporate development', what: 'Strategy and transformation, post-merger integration' },
-  { org: 'Novastone Capital Advisors', href: '/about#record', role: 'Analyst', what: 'Private equity and search fund' },
+  { org: 'Corporate development', href: '/about#record', role: 'M&A', what: 'Post-merger integration' },
+  { org: 'Private equity and venture capital', href: '/about#record', role: 'Analyst', what: 'Deals, fundraising, search fund' },
 ];
 ---
 
@@ -106,7 +106,7 @@ const roles = [
   </section>
 
   <section class="wrap creds" aria-labelledby="creds-title">
-    <h2 id="creds-title" class="t-label creds-title">Trained and tested at</h2>
+    <h2 id="creds-title" class="t-label creds-title">Educated at</h2>
     <ul class="creds-list">
       {credentials.map((c) => <li>{c}</li>)}
     </ul>
