@@ -12,8 +12,8 @@ import EntityPlate from '../components/plates/EntityPlate.astro';
 import OrbesPlate from '../components/plates/OrbesPlate.astro';
 import Strata from '../components/Strata.astro';
 import EssayList from '../components/EssayList.astro';
-import Record from '../components/Record.astro';
-import { site, disciplines } from '../data/site';
+import InstrumentList from '../components/InstrumentList.astro';
+import { site } from '../data/site';
 import { getEssays } from '../lib/writing';
 import { getCollection } from 'astro:content';
 
@@ -22,573 +22,521 @@ const lab = (await getCollection('work', ({ data }) => data.visible && data.tier
   (a, b) => a.data.order - b.data.order,
 );
 
-const byStudy = Object.fromEntries(disciplines.map((d) => [d.study, d]));
-const cells = [
-  { id: 'polyhedron', C: Polyhedron, cls: 'c-poly', delay: 0 },
-  { id: 'escapement', C: Escapement, cls: 'c-esc', delay: 200 },
-  { id: 'letter', C: LetterE, cls: 'c-letter', delay: 320 },
-  { id: 'bridge', C: ValueBridge, cls: 'c-bridge', delay: 440 },
-  { id: 'amm', C: AmmCurve, cls: 'c-amm', delay: 560 },
-  { id: 'envelope', C: Envelope, cls: 'c-env', delay: 680 },
-  { id: 'dieline', C: Dieline, cls: 'c-die', delay: 800 },
-  { id: 'routing', C: Routing, cls: 'c-route', delay: 920 },
-];
-
-const credentials = ['Amundi Technology', 'Novastone Capital Advisors', 'ESSEC Business School', 'emlyon business school', 'McGill University'];
-
-const tools = [
-  { slug: 'returns', family: 'Capital', name: 'Returns', line: 'What a buyout returns, and where the return comes from.', value: '2.86×', unit: 'MOIC, 23.4% IRR' },
-  { slug: 'dilution', family: 'Capital', name: 'Dilution', line: 'What founders keep, round after round, pool included.', value: '52.1%', unit: 'founders after Series A' },
-  { slug: 'copilot-economics', family: 'Code', name: 'Copilot economics', line: 'What an AI copilot costs per user, and the margin left.', value: '80.4%', unit: 'gross margin' },
-  { slug: 'ring-sizes', family: 'Craft', name: 'Ring sizes', line: 'One finger, six sizing systems, in millimetres.', value: '17.0 mm', unit: 'US 6½, UK M½, EU 53' },
+const roles = [
+  { org: 'THE ENTITY', href: '/work/the-entity', role: 'Founder', what: 'AI supply-chain intelligence for investors' },
+  { org: 'ORBES', href: '/work/orbes', role: 'Founder', what: 'Jewellery house, Paris' },
+  { org: 'Amundi Technology', href: '/about#record', role: 'Corporate development', what: 'Strategy and transformation, post-merger integration' },
+  { org: 'Novastone Capital Advisors', href: '/about#record', role: 'Analyst', what: 'Private equity and search fund' },
 ];
 ---
 
 <Base draw>
   <section class="hero wrap" aria-labelledby="name">
-    <div class="grid-bg" aria-hidden="true"></div>
-    <p class="badge t-label"><span class="dot" aria-hidden="true"></span>Building THE ENTITY and ORBES</p>
-    <h1 id="name" class="t-title name">Eliot Luca<span class="t-fade">Capital, code and craft.</span></h1>
-    <p class="sub">
-      Trained in private equity, venture capital and M&amp;A. I build an intelligence platform for investors and a jewellery
-      house in Paris, and I practise eight disciplines in the open.
-    </p>
-    <p class="actions">
-      <a class="btn btn-primary" href={`mailto:${site.email}`}>Write to me</a>
-      <a class="btn" href="#ventures">See the ventures</a>
-    </p>
-  </section>
+    <div class="head">
+      <h1 id="name" class="t-title name">Eliot Luca</h1>
+      <p class="claim">I work where capital, software and objects meet.</p>
+      <p class="intro">
+        Trained in private equity, venture capital and M&amp;A. I now build two companies: an intelligence platform for
+        investors and a jewellery house.
+      </p>
 
-  <section class="wrap studio-wrap" aria-labelledby="studio-title">
-    <div class="studio panel">
-      <div class="chrome">
-        <span class="lights" aria-hidden="true"><i></i><i></i><i></i></span>
-        <h2 id="studio-title" class="t-label chrome-title">Studies, eight disciplines</h2>
-        <span class="t-label chrome-clock">Paris <span data-clock="Europe/Paris">--:--</span></span>
-      </div>
-      <div class="cells">
+      <ul class="roles" aria-label="Current and past roles">
         {
-          cells.map(({ id, C, cls, delay }) => {
-            const d = byStudy[id];
-            return (
-              <div class:list={['cell', cls]}>
-                <div class="cell-head">
-                  <span class="t-label">{d?.name}</span>
-                  <span class="t-label since">{d?.since}</span>
-                </div>
-                <div class="cell-art">
-                  <C delay={delay} />
-                </div>
-              </div>
-            );
-          })
+          roles.map((r) => (
+            <li>
+              <a class="org" href={r.href}>
+                {r.org}
+              </a>
+              <span class="role t-ui">{r.role}</span>
+              <span class="what">{r.what}</span>
+            </li>
+          ))
         }
-      </div>
-      <div class="studio-foot">
-        <Strata />
-      </div>
+      </ul>
+
+      <p class="actions t-ui">
+        <a href={`mailto:${site.email}`}>Write to me</a>
+        <a href="/about">About</a>
+        {site.social.linkedin && <a href={site.social.linkedin} rel="me noopener">LinkedIn</a>}
+      </p>
     </div>
-    <p class="swipe t-label" aria-hidden="true">Swipe for all eight studies</p>
+
+    <div class="studies">
+      <div class="s s-poly"><Polyhedron delay={0} /></div>
+      <div class="s s-letter"><LetterE delay={240} /></div>
+      <div class="s s-esc"><Escapement delay={360} /></div>
+      <div class="s s-env"><Envelope delay={480} /></div>
+      <div class="s s-amm"><AmmCurve delay={600} /></div>
+      <div class="s s-bridge"><ValueBridge delay={720} /></div>
+      <div class="s s-die"><Dieline delay={840} /></div>
+      <div class="s s-route"><Routing delay={960} /></div>
+    </div>
+    <p class="swipe t-note" aria-hidden="true">Eight drawings, one per discipline. Swipe for the rest.</p>
   </section>
 
-  <section class="wrap creds" aria-labelledby="creds-title">
-    <h2 id="creds-title" class="t-label creds-title">Trained and tested at</h2>
-    <ul class="creds-list">
-      {credentials.map((c) => <li>{c}</li>)}
-    </ul>
-  </section>
-
-  <section class="wrap band" id="ventures" aria-labelledby="ventures-title">
+  <section class="band wrap" aria-labelledby="ventures-title">
     <header class="band-head">
-      <p class="t-label">Ventures</p>
-      <h2 id="ventures-title" class="t-title band-title">Two companies. <span class="t-fade">One for capital, one for craft.</span></h2>
+      <h2 id="ventures-title" class="band-title">Ventures</h2>
+      <p class="band-more t-ui"><a href="/work">All ventures</a></p>
     </header>
-    <div class="ventures">
-      <div class="venture">
+    <div class="plates">
+      <article class="plate-fig plate-entity">
         <EntityPlate size="feature" />
-        <div class="v-meta">
-          <div>
-            <h3 class="v-name"><a href="/work/the-entity">THE ENTITY</a></h3>
-            <p class="muted">The institutional-grade map of the AI supply chain. Live, model 2.8.</p>
-          </div>
-          <span class="v-role t-label">Founder</span>
+        <div class="plate-cap">
+          <h3><a href="/work/the-entity">THE ENTITY</a></h3>
+          <p>The institutional-grade map of the AI supply chain, built for investors. Live, model 2.8.</p>
         </div>
-      </div>
-      <div class="venture">
+      </article>
+      <article class="plate-fig plate-orbes">
         <OrbesPlate size="feature" />
-        <div class="v-meta">
-          <div>
-            <h3 class="v-name"><a href="/work/orbes">ORBES</a></h3>
-            <p class="muted">A Paris jewellery house. Few pieces, by draw, each with a code you can verify.</p>
-          </div>
-          <span class="v-role t-label">Founder</span>
+        <div class="plate-cap">
+          <h3><a href="/work/orbes">ORBES</a></h3>
+          <p>A Paris jewellery house. Few pieces, allocated by draw, each with a code you can verify.</p>
         </div>
-      </div>
+      </article>
     </div>
     {
       lab.length > 0 && (
-        <ul class="lab">
-          {lab.map((w) => (
-            <li>
-              <a href={`/work/${w.id}`} class="lab-link">
-                <span class="lab-name">{w.data.name}</span>
-                <span class="lab-line muted">{w.data.line}</span>
-                <span class="t-label">{w.data.status}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div class="lab">
+          <h3 class="lab-title">Also in progress</h3>
+          <ul>
+            {lab.map((w) => (
+              <li>
+                <a href={`/work/${w.id}`} class="lab-name">
+                  {w.data.name}
+                </a>
+                <span class="lab-line">{w.data.line}</span>
+                <span class="lab-status t-ui">{w.data.status}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )
     }
   </section>
 
-  <section class="wrap band" aria-labelledby="record-title">
+  <section class="band wrap" aria-labelledby="practice-title">
     <header class="band-head">
-      <p class="t-label">Record</p>
-      <h2 id="record-title" class="t-title band-title">Finance first. <span class="t-fade">Private equity, venture capital, M&amp;A.</span></h2>
+      <h2 id="practice-title" class="band-title">Disciplines</h2>
+      <p class="band-note">Eight fields, each started on a known date and practised through real work.</p>
+      <p class="band-more t-ui"><a href="/about#practice">How I work</a></p>
     </header>
-    <div class="panel record-panel">
-      <Record />
-    </div>
-  </section>
-
-  <section class="wrap band" aria-labelledby="tools-title">
-    <header class="band-head">
-      <p class="t-label">Instruments</p>
-      <h2 id="tools-title" class="t-title band-title">Tools I use. <span class="t-fade">Open, in your browser.</span></h2>
-    </header>
-    <ul class="tools">
-      {
-        tools.map((t) => (
-          <li>
-            <a class="tool panel" href={`/instruments/${t.slug}`}>
-              <span class="t-label">{t.family}</span>
-              <span class="tool-value t-mono">{t.value}</span>
-              <span class="tool-unit t-label">{t.unit}</span>
-              <span class="tool-name">{t.name}</span>
-              <span class="tool-line muted">{t.line}</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <Strata />
   </section>
 
   {
     essays.length > 0 && (
-      <section class="wrap band" aria-labelledby="writing-title">
+      <section class="band wrap" aria-labelledby="writing-title">
         <header class="band-head">
-          <p class="t-label">Writing</p>
-          <h2 id="writing-title" class="t-title band-title">
-            Essays. <span class="t-fade">On capital, technology and objects.</span>
+          <h2 id="writing-title" class="band-title">
+            Writing
           </h2>
+          <p class="band-note">Essays on capital, technology and objects.</p>
+          <p class="band-more t-ui">
+            <a href="/writing">All writing</a>
+            <a href="/rss.xml">RSS</a>
+          </p>
         </header>
-        <div class="panel essays-panel">
-          <EssayList essays={essays} />
-        </div>
+        <EssayList essays={essays} />
       </section>
     )
   }
+
+  <section class="band wrap" aria-labelledby="instruments-title">
+    <header class="band-head">
+      <h2 id="instruments-title" class="band-title">Instruments</h2>
+      <p class="band-note">Small calculators for deals, products and pieces. They run in your browser.</p>
+      <p class="band-more t-ui"><a href="/instruments">All instruments</a></p>
+    </header>
+    <InstrumentList />
+  </section>
 </Base>
 
 <style>
+  /* ---------- Hero ---------- */
   .hero {
-    position: relative;
     display: grid;
-    justify-items: center;
-    text-align: center;
-    padding-top: clamp(64px, 11vw, 140px);
-    padding-bottom: clamp(48px, 7vw, 88px);
-  }
-
-  .grid-bg {
-    position: absolute;
-    inset: -80px 0 0;
-    z-index: -1;
-    background-image:
-      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
-    background-size: 56px 56px;
-    -webkit-mask-image: radial-gradient(ellipse 60% 70% at 50% 30%, #000 30%, transparent 75%);
-    mask-image: radial-gradient(ellipse 60% 70% at 50% 30%, #000 30%, transparent 75%);
-  }
-
-  .badge {
-    display: inline-flex;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
     align-items: center;
-    gap: 10px;
-    padding: 7px 14px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.02);
+    padding-top: var(--s6);
+    padding-bottom: var(--s5);
   }
 
-  .dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--gold);
-    box-shadow: 0 0 0 3px rgb(205 182 138 / 0.18);
+  .head {
+    grid-column: 1 / span 6;
   }
 
   .name {
-    margin-top: var(--s4);
-    font-size: clamp(3rem, 1rem + 7vw, 6rem);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    font-size: clamp(3rem, 1rem + 6vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
   }
 
-  .sub {
+  .claim {
+    font-family: var(--font-title);
     margin-top: var(--s4);
-    max-width: 36em;
+    font-size: var(--step-3);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    max-width: 18em;
+  }
+
+  .intro {
+    margin-top: var(--s2);
     font-size: var(--step-1);
-    line-height: 1.55;
+    line-height: 1.5;
+    max-width: 30em;
+    color: var(--line-2);
+  }
+
+  .roles {
+    list-style: none;
+    margin-top: var(--s5);
+    border-top: 1px solid var(--line);
+    max-width: 48rem;
+  }
+
+  .roles li {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.9fr) minmax(0, 1.45fr);
+    gap: var(--s3);
+    align-items: baseline;
+    padding-block: 0.7rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .org {
+    font-size: var(--step-0);
+    font-weight: 500;
+  }
+
+  .role {
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+
+  .what {
     color: var(--line-2);
   }
 
   .actions {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
+    gap: var(--s1) var(--s4);
+    margin-top: var(--s4);
+    font-size: var(--step--1);
+    font-weight: 500;
+  }
+
+  .actions a {
+    text-decoration-color: var(--line);
+    padding-block: 0.6rem;
+  }
+
+  .studies {
+    display: contents;
+  }
+
+  .s {
+    min-width: 0;
+  }
+
+  /* Desktop: the solid beside the introduction, smaller studies in its
+     margin, the rest of the sheet below at varied sizes and heights. */
+  .head {
+    grid-row: 1 / span 2;
+    align-self: start;
+  }
+  .s-poly {
+    grid-column: 7 / span 3;
+    grid-row: 1;
+    align-self: start;
+  }
+  .s-letter {
+    grid-column: 10 / span 3;
+    grid-row: 1;
+    align-self: start;
     margin-top: var(--s4);
   }
-
-  .studio {
-    overflow: hidden;
+  .s-esc {
+    grid-column: 7 / span 6;
+    grid-row: 2;
+    align-self: start;
+    margin-top: var(--s4);
   }
-
-  .chrome {
-    display: flex;
-    align-items: center;
-    gap: var(--s3);
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
+  .s-env {
+    grid-column: 1 / span 4;
+    grid-row: 3;
+    margin-top: var(--s7);
   }
-
-  .lights {
-    display: inline-flex;
-    gap: 6px;
+  .s-amm {
+    grid-column: 5 / span 3;
+    grid-row: 3;
+    margin-top: var(--s8);
   }
-
-  .lights i {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background: rgb(255 255 255 / 0.12);
+  .s-bridge {
+    grid-column: 9 / span 3;
+    grid-row: 3;
+    margin-top: var(--s6);
   }
-
-  .chrome-title {
-    font-weight: 400;
+  .s-die {
+    grid-column: 2 / span 3;
+    grid-row: 4;
+    margin-top: var(--s5);
   }
-
-  .chrome-clock {
-    margin-left: auto;
-  }
-
-  .chrome-clock span {
-    color: var(--line);
-  }
-
-  .cells {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1px;
-    background: var(--border);
-  }
-
-  .cell {
-    display: flex;
-    flex-direction: column;
-    gap: var(--s2);
-    padding: 18px 20px 22px;
-    background: var(--panel);
-    min-width: 0;
-    transition: background 300ms var(--ease-out);
-  }
-
-  .cell:hover {
-    background: #0e0e11;
-  }
-
-  .cell-head {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-
-  .since {
-    color: var(--gold);
-  }
-
-  .cell-art {
-    flex: 1;
-    display: grid;
-    align-items: center;
-  }
-
-  .cell-art :global(figcaption) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-  }
-
-  .c-poly {
-    grid-column: 1 / span 2;
-    grid-row: 1 / span 2;
-  }
-  .c-poly .cell-art {
-    padding: 4% 14%;
-  }
-  .c-esc {
-    grid-column: 3 / span 2;
-  }
-
-  .studio-foot {
-    padding: 22px 24px 26px;
-    border-top: 1px solid var(--border);
+  .s-route {
+    grid-column: 8 / span 3;
+    grid-row: 4;
+    margin-top: var(--s4);
   }
 
   .swipe {
     display: none;
-  }
-
-  @media (max-width: 900px) {
-    .cells {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .c-poly {
-      grid-column: 1 / -1;
-      grid-row: auto;
-    }
-    .c-esc {
-      grid-column: 1 / -1;
-    }
-  }
-
-  @media (max-width: 600px) {
-    .cells {
-      display: flex;
-      overflow-x: auto;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-    }
-    .cells::-webkit-scrollbar {
-      display: none;
-    }
-    .cell {
-      flex: 0 0 82%;
-      scroll-snap-align: start;
-    }
-    .c-poly .cell-art {
-      padding: 0 8%;
-    }
-    .swipe {
-      display: block;
-      margin-top: 12px;
-      text-align: center;
-    }
-  }
-
-  .creds {
-    margin-top: var(--s7);
-    text-align: center;
-  }
-
-  .creds-title {
-    font-weight: 400;
-  }
-
-  .creds-list {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 14px clamp(24px, 4vw, 56px);
-    margin-top: var(--s3);
-    font-size: var(--step-1);
-    font-weight: 500;
-    letter-spacing: -0.01em;
     color: var(--line-2);
   }
 
+  @media (max-width: 1100px) {
+    .head {
+      grid-column: 1 / -1;
+      grid-row: 1;
+    }
+    .s-poly {
+      grid-column: 1 / span 6;
+      grid-row: 2;
+      margin-top: var(--s6);
+    }
+    .s-letter {
+      grid-column: 8 / span 5;
+      grid-row: 2;
+      margin-top: var(--s6);
+    }
+    .s-esc {
+      grid-column: 1 / span 6;
+      grid-row: 3;
+    }
+    .s-env {
+      grid-column: 7 / span 6;
+      grid-row: 3;
+      margin-top: var(--s5);
+    }
+    .s-amm {
+      grid-column: 1 / span 6;
+      grid-row: 4;
+    }
+    .s-bridge {
+      grid-column: 7 / span 6;
+      grid-row: 4;
+      margin-top: var(--s6);
+    }
+    .s-die {
+      grid-column: 1 / span 6;
+      grid-row: 5;
+    }
+    .s-route {
+      grid-column: 7 / span 6;
+      grid-row: 5;
+      margin-top: var(--s5);
+    }
+  }
+
+  /* Phones: words first, then the sheet as a strip, two drawings at a time. */
+  @media (max-width: 700px) {
+    .hero {
+      display: block;
+      padding-top: var(--s4);
+    }
+    .name {
+      font-size: 16vw;
+    }
+    .roles li {
+      grid-template-columns: 1fr auto;
+      row-gap: 0.15rem;
+    }
+    .what {
+      grid-column: 1 / -1;
+      font-size: var(--step--1);
+    }
+    .studies {
+      display: flex;
+      gap: var(--s3);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      margin: var(--s5) calc(-1 * var(--gutter)) 0;
+      padding: 0 var(--gutter) var(--s2);
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
+      align-items: flex-end;
+    }
+    .studies::-webkit-scrollbar {
+      display: none;
+    }
+    .s {
+      flex: 0 0 calc((100vw - 2 * var(--gutter) - var(--s3)) / 2);
+      scroll-snap-align: start;
+      margin: 0 !important;
+    }
+    .s :global(figcaption .meta) {
+      display: none;
+    }
+    .s :global(figcaption .t-note) {
+      font-size: var(--step--1);
+    }
+    .swipe {
+      display: block;
+      font-size: var(--step--1);
+      margin-top: var(--s1);
+    }
+  }
+
+  /* ---------- Bands ---------- */
   .band {
     margin-top: var(--s8);
   }
 
   .band-head {
-    margin-bottom: var(--s5);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s1) var(--s4);
+    padding-bottom: var(--s3);
   }
 
   .band-title {
-    margin-top: var(--s2);
-    font-size: var(--step-5);
-    max-width: 18em;
+    font-family: var(--font-text);
+    font-size: var(--step-4);
+    line-height: 1;
+    letter-spacing: -0.015em;
   }
 
-  .ventures {
-    display: grid;
-    grid-template-columns: 7fr 5fr;
-    gap: 20px;
-    align-items: start;
+  .band-note {
+    flex: 1 1 18rem;
+    color: var(--line-2);
+    max-width: 34em;
   }
 
-  .venture {
-    display: grid;
-    gap: 18px;
-    text-decoration: none;
-    color: inherit;
-  }
-
-  .venture > :global(*:first-child) {
-    transition: transform 400ms var(--ease-out);
-  }
-
-  .venture:hover > :global(*:first-child) {
-    transform: translateY(-4px);
-  }
-
-  .v-meta {
+  .band-more {
+    margin-left: auto;
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
     gap: var(--s3);
-    padding: 0 4px;
-  }
-
-  .v-name {
-    font-size: var(--step-2);
-    letter-spacing: -0.02em;
-  }
-
-  .v-name a {
-    text-decoration: none;
-  }
-
-  .v-name a:hover {
-    color: var(--gold);
-  }
-
-  .v-meta p {
-    margin-top: 4px;
-    max-width: 30em;
-  }
-
-  .v-role {
-    padding: 5px 10px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
-    white-space: nowrap;
+    font-size: var(--step--1);
   }
 
   @media (max-width: 900px) {
-    .ventures {
-      grid-template-columns: 1fr;
+    .band {
+      margin-top: var(--s7);
+    }
+    .band-more {
+      margin-left: 0;
+    }
+  }
+
+  .plates {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
+    row-gap: var(--s5);
+    align-items: start;
+  }
+
+  .plate-fig {
+    display: grid;
+    gap: var(--s3);
+  }
+
+  .plate-entity {
+    grid-column: 1 / span 7;
+  }
+
+  .plate-orbes {
+    grid-column: 8 / span 5;
+  }
+
+  .plate-cap h3 {
+    font-family: var(--font-text);
+    font-size: var(--step-2);
+    line-height: 1.1;
+  }
+
+  .plate-cap h3 a {
+    text-decoration-color: transparent;
+  }
+
+  .plate-cap h3 a:hover {
+    text-decoration-color: var(--line);
+  }
+
+  .plate-cap p {
+    margin-top: 0.3rem;
+    color: var(--line-2);
+    max-width: 34em;
+  }
+
+  @media (max-width: 900px) {
+    .plate-entity,
+    .plate-orbes {
+      grid-column: 1 / -1;
     }
   }
 
   .lab {
-    list-style: none;
-    margin-top: 28px;
-    border-top: 1px solid var(--border);
+    margin-top: var(--s6);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--s4);
   }
 
-  .lab-link {
+  .lab-title {
+    font-family: var(--font-text);
+    font-size: var(--step-1);
+    padding-top: 0.8rem;
+  }
+
+  .lab ul {
+    list-style: none;
+    border-top: 1px solid var(--line);
+  }
+
+  .lab li {
     display: grid;
-    grid-template-columns: 10rem minmax(0, 1fr) auto;
+    grid-template-columns: 9rem minmax(0, 1fr) auto;
     gap: var(--s3);
     align-items: baseline;
-    padding: 18px 4px;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none;
-  }
-
-  .lab-link:hover .lab-name {
-    color: var(--gold);
+    padding-block: 0.9rem;
+    border-bottom: 1px solid var(--rule);
   }
 
   .lab-name {
-    font-weight: 500;
-    transition: color 180ms;
+    font-size: var(--step-1);
   }
 
-  @media (max-width: 700px) {
-    .lab-link {
+  .lab-line {
+    color: var(--line-2);
+  }
+
+  .lab-status {
+    font-size: var(--step--2);
+    color: var(--line-2);
+  }
+
+  @media (max-width: 760px) {
+    .lab {
+      grid-template-columns: 1fr;
+    }
+    .lab li {
       grid-template-columns: 1fr auto;
+      row-gap: 0.2rem;
     }
     .lab-line {
       grid-column: 1 / -1;
       grid-row: 2;
     }
   }
-
-  .record-panel,
-  .essays-panel {
-    padding: clamp(18px, 3vw, 32px);
-  }
-
-  .tools {
-    list-style: none;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-  }
-
-  .tool {
-    display: grid;
-    gap: 6px;
-    height: 100%;
-    padding: 22px 22px 24px;
-    text-decoration: none;
-    transition:
-      border-color 250ms var(--ease-out),
-      transform 250ms var(--ease-out);
-  }
-
-  .tool:hover {
-    border-color: rgb(205 182 138 / 0.35);
-    transform: translateY(-3px);
-  }
-
-  .tool-value {
-    margin-top: var(--s4);
-    font-size: var(--step-4);
-    letter-spacing: -0.03em;
-    color: var(--line);
-  }
-
-  .tool-unit {
-    letter-spacing: 0.12em;
-  }
-
-  .tool-name {
-    margin-top: var(--s3);
-    font-weight: 500;
-    font-size: var(--step-1);
-  }
-
-  .tool-line {
-    font-size: var(--step--1);
-  }
-
-  @media (max-width: 1000px) {
-    .tools {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 560px) {
-    .tools {
-      grid-template-columns: 1fr;
-    }
-  }
 </style>
 
 <script>
-  // Hovering a discipline in the timeline lights its drawing, and the other way round.
+  // Hovering a discipline lights its drawing, and the other way round.
   const figs = new Map<string, HTMLElement>();
   document.querySelectorAll<HTMLElement>('figure.study[data-study]').forEach((f) => figs.set(f.dataset.study!, f));
   document.querySelectorAll<HTMLElement>('.strata .row[data-study]').forEach((row) => {
