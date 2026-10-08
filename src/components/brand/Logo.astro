@@ -1,0 +1,52 @@
+---
+// The lockup: the step-cut mark and the ELIOT LUCA logotype.
+import Mark from './Mark.astro';
+
+interface Props {
+  size?: 'sm' | 'md' | 'lg';
+  stacked?: boolean;
+  class?: string;
+}
+const { size = 'sm', stacked = false, class: className } = Astro.props;
+---
+
+<span class:list={['logo', `logo--${size}`, { 'logo--stacked': stacked }, className]}>
+  <Mark class="logo-mark" detail={stacked ? 'display' : 'fine'} />
+  <span class="wordmark">Eliot Luca</span>
+</span>
+
+<style>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.95em;
+    color: var(--line);
+    line-height: 1;
+  }
+
+  .logo :global(.logo-mark) {
+    font-size: 1.7em;
+    flex: none;
+  }
+
+  .logo--sm {
+    font-size: 0.8125rem;
+  }
+
+  .logo--md {
+    font-size: 0.9375rem;
+  }
+
+  .logo--lg {
+    font-size: 1.125rem;
+  }
+
+  .logo--stacked {
+    flex-direction: column;
+    gap: 1.4em;
+  }
+
+  .logo--stacked :global(.logo-mark) {
+    font-size: 4.5em;
+  }
+</style>

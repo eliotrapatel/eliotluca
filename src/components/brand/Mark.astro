@@ -1,0 +1,67 @@
+---
+// The mark: a step-cut stone seen from above. An octagonal girdle, two
+// steps, the table in gold, and the eight corner facets that join them.
+// Something cut, weighed and kept: the tangible, in one sign.
+interface Props {
+  class?: string;
+  detail?: 'fine' | 'bold' | 'display'; // bold for 16px and below, display for 64px and above
+}
+const { class: className, detail = 'fine' } = Astro.props;
+
+const f = (n: number) => n.toFixed(2);
+// Square octagon with a deep chamfer, centred on (50, 50).
+const ring = (half: number, chamfer: number) => {
+  const a = 50 - half;
+  const b = 50 + half;
+  const c = chamfer;
+  return [
+    [a + c, a],
+    [b - c, a],
+    [b, a + c],
+    [b, b - c],
+    [b - c, b],
+    [a + c, b],
+    [a, b - c],
+    [a, a + c],
+  ];
+};
+const girdle = ring(50, 22);
+const step = ring(34, 15);
+const table = ring(19, 8.5);
+const pts = (r: number[][]) => r.map(([x, y]) => `${f(x)},${f(y)}`).join(' ');
+const joins = girdle.map(([x, y], i) => `M${f(x)},${f(y)}L${f(table[i][0])},${f(table[i][1])}`).join('');
+
+const outer = detail === 'bold' ? 7.5 : detail === 'display' ? 2.6 : 5;
+const inner = detail === 'bold' ? 5 : detail === 'display' ? 1.6 : 3.2;
+---
+
+<svg class:list={['mark', className]} viewBox="-5 -5 110 110" aria-hidden="true" focusable="false">
+  <polygon class="table" points={pts(table)}></polygon>
+  <path class="facets" d={joins} stroke-width={inner}></path>
+  {detail !== 'bold' && <polygon class="facets" points={pts(step)} stroke-width={inner}></polygon>}
+  <polygon class="edge" points={pts(table)} stroke-width={inner}></polygon>
+  <polygon class="edge" points={pts(girdle)} stroke-width={outer}></polygon>
+</svg>
+
+<style>
+  .mark {
+    display: block;
+    width: 1em;
+    height: 1em;
+    color: var(--gold);
+    overflow: visible;
+  }
+  .table {
+    fill: currentColor;
+    opacity: 0.28;
+  }
+  .facets,
+  .edge {
+    fill: none;
+    stroke: currentColor;
+    stroke-linejoin: miter;
+  }
+  .facets {
+    opacity: 0.7;
+  }
+</style>

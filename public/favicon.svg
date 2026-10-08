@@ -1,14 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
   <title>Eliot Luca</title>
-  <style>
-    .g { fill: #a3b8ca }
-    .e { fill: #221a14 }
-    @media (prefers-color-scheme: dark) {
-      .g { fill: #1b2139 }
-      .e { fill: #ece9e0 }
-    }
-  </style>
-  <rect class="g" width="32" height="32"/>
-  <!-- Roman capital E, ruled on a 32 unit square: stem 4, arms 2.4, 2.3, 2.4, bracketed serifs. -->
-  <path class="e" d="M7.5 6H23.2V10.8H22.4Q21.9 8.4 19.4 8.4H14V14H18.4Q19.4 14 19.6 12.4H20.4V17.9H19.6Q19.4 16.3 18.4 16.3H14V23.6H20.6Q22.9 23.6 23.5 20.6H24.4L24.7 26H7.5V25.6Q10 25.4 10 23.8V8.2Q10 6.6 7.5 6.4Z"/>
+  <rect width="32" height="32" rx="7" fill="#0b0b0d"/>
+  <polygon points="13.40,11.40 18.60,11.40 20.60,13.40 20.60,18.60 18.60,20.60 13.40,20.60 11.40,18.60 11.40,13.40" fill="#cdb68a" fill-opacity="0.35"/>
+  <path d="M9.50,4.50L13.40,11.40M22.50,4.50L18.60,11.40M27.50,9.50L20.60,13.40M27.50,22.50L20.60,18.60M22.50,27.50L18.60,20.60M9.50,27.50L13.40,20.60M4.50,22.50L11.40,18.60M4.50,9.50L11.40,13.40" fill="none" stroke="#cdb68a" stroke-width="1" stroke-opacity="0.8"/>
+  <polygon points="13.40,11.40 18.60,11.40 20.60,13.40 20.60,18.60 18.60,20.60 13.40,20.60 11.40,18.60 11.40,13.40" fill="none" stroke="#cdb68a" stroke-width="1"/>
+  <polygon points="9.50,4.50 22.50,4.50 27.50,9.50 27.50,22.50 22.50,27.50 9.50,27.50 4.50,22.50 4.50,9.50" fill="none" stroke="#cdb68a" stroke-width="1.6" stroke-linejoin="miter"/>
 </svg>

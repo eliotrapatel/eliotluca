@@ -1,5 +1,6 @@
 ---
 import { site } from '../data/site';
+import Logo from './brand/Logo.astro';
 
 const elsewhere = [
   { label: 'THE ENTITY', href: 'https://joinentity.com' },
@@ -37,7 +38,7 @@ const year = new Date().getFullYear();
 
     <div class="cols">
       <div class="brand">
-        <p class="word">Eliot Luca</p>
+        <a class="brand-home" href="/" aria-label="Eliot Luca, home"><Logo size="md" /></a>
         <p class="muted small">Value you can trace to something real. Paris.</p>
       </div>
       <nav aria-label="On this site">
@@ -117,15 +118,15 @@ const year = new Date().getFullYear();
     font-size: var(--step--1);
   }
 
-  .word {
-    font-stretch: 125%;
-    letter-spacing: 0.32em;
-    text-transform: uppercase;
-    font-size: 0.8125rem;
+  .brand-home {
+    display: inline-flex;
+    text-decoration: none;
+    color: var(--line);
   }
 
   .small {
-    margin-top: 0.5rem;
+    margin-top: 1rem;
+    max-width: 22em;
   }
 
   ul {

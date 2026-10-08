@@ -54,7 +54,7 @@ const roles = [
 <Base draw>
   <section class="hero wrap" aria-labelledby="name">
     <div class="head">
-      <h1 id="name" class="t-title name">Eliot Luca</h1>
+      <h1 id="name" class="name"><span class="w">Eliot</span> <span class="w">Luca</span></h1>
       <p class="claim">I build on what is tangible.</p>
       <p class="intro">
         Trained in private equity, venture capital and M&amp;A. I look for value you can trace to something real: the
@@ -75,10 +75,10 @@ const roles = [
         }
       </ul>
 
-      <p class="actions t-ui">
-        <a href={`mailto:${site.email}`}>Write to me</a>
-        <a href="/about">About</a>
-        {site.social.linkedin && <a href={site.social.linkedin} rel="me noopener">LinkedIn</a>}
+      <p class="actions">
+        <a class="btn btn-primary" href={`mailto:${site.email}`}>Write to me</a>
+        <a class="btn" href="/about">About me</a>
+        {site.social.linkedin && <a class="btn" href={site.social.linkedin} rel="me noopener">LinkedIn</a>}
       </p>
     </div>
 
@@ -220,11 +220,40 @@ const roles = [
     grid-column: 1 / span 6;
   }
 
+  /* The name is the logotype at display size: expanded capitals, light. */
   .name {
-    font-size: clamp(3rem, 1rem + 6vw, 5.5rem);
-    line-height: 0.95;
-    letter-spacing: 0.02em;
+    font-family: var(--font-ui);
+    font-stretch: 125%;
+    font-weight: 300;
+    text-transform: uppercase;
+    font-size: clamp(2.75rem, 0.6rem + 4.6vw, 5rem);
+    line-height: 0.92;
+    letter-spacing: 0.06em;
+    margin-right: -0.06em;
     white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.can-draw) .name {
+      animation: name-in 1300ms var(--ease-out) both;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .name {
+      font-size: clamp(2.75rem, 0.5rem + 7.4vw, 5.25rem);
+    }
+  }
+
+  @keyframes name-in {
+    from {
+      clip-path: inset(-10% 100% -10% 0);
+      letter-spacing: 0.14em;
+    }
+    to {
+      clip-path: inset(-10% -2% -10% 0);
+      letter-spacing: 0.06em;
+    }
   }
 
   .claim {
@@ -282,15 +311,8 @@ const roles = [
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--s1) var(--s4);
+    gap: 10px;
     margin-top: var(--s4);
-    font-size: var(--step--1);
-    font-weight: 500;
-  }
-
-  .actions a {
-    text-decoration-color: var(--line);
-    padding-block: 0.6rem;
   }
 
   .studies {
@@ -406,7 +428,11 @@ const roles = [
       padding-top: var(--s4);
     }
     .name {
-      font-size: 16vw;
+      font-size: 18.5vw;
+      white-space: normal;
+    }
+    .name .w {
+      display: block;
     }
     .roles li {
       grid-template-columns: 1fr auto;

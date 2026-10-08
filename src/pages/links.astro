@@ -1,7 +1,7 @@
 ---
 // The link-in-bio page: one column, large targets, nothing else.
 import Base from '../layouts/Base.astro';
-import Polyhedron from '../components/studies/Polyhedron.astro';
+import Logo from '../components/brand/Logo.astro';
 import { site } from '../data/site';
 import { getEssays } from '../lib/writing';
 
@@ -24,8 +24,7 @@ const links = [
 <Base title="Links" description="Every link to Eliot Luca's work in one place." image="/og/links.png" bare>
   <div class="links-page">
     <header class="top">
-      <div class="emblem"><Polyhedron href="/" /></div>
-      <h1 class="t-title name"><a href="/">Eliot Luca</a></h1>
+      <h1 class="name"><a href="/" aria-label="Eliot Luca, home"><Logo size="lg" stacked /></a></h1>
       <p class="line">I build on what is tangible. Founder of THE ENTITY and ORBES.</p>
     </header>
 
@@ -62,26 +61,19 @@ const links = [
     justify-items: center;
   }
 
-  .emblem {
-    width: 120px;
-  }
-
-  .emblem :global(figcaption),
-  .emblem :global(.hint) {
-    display: none;
-  }
-
   .name {
     margin-top: var(--s2);
-    font-size: var(--step-4);
+    font-weight: inherit;
   }
 
   .name a {
+    display: inline-flex;
     text-decoration: none;
+    color: var(--line);
   }
 
   .line {
-    margin-top: var(--s1);
+    margin-top: var(--s3);
     color: var(--line-2);
     max-width: 22em;
   }

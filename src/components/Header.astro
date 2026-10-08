@@ -1,5 +1,6 @@
 ---
 import { site } from '../data/site';
+import Logo from './brand/Logo.astro';
 
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
 
@@ -15,7 +16,9 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
 
 <header class="top" lang="en">
   <div class="wrap bar">
-    <a class="mark" href="/" aria-current={path === '/' ? 'page' : undefined}>Eliot Luca</a>
+    <a class="home" href="/" aria-label="Eliot Luca, home" aria-current={path === '/' ? 'page' : undefined}>
+      <Logo size="sm" />
+    </a>
     <nav class="nav" aria-label="Main">
       <ul>
         {
@@ -51,13 +54,16 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
     min-height: 64px;
   }
 
-  .mark {
-    font-size: 1.0625rem;
-    font-weight: 560;
-    letter-spacing: -0.02em;
-    color: var(--line);
+  .home {
+    display: inline-flex;
+    padding-block: 10px;
     text-decoration: none;
-    white-space: nowrap;
+    color: var(--line);
+    transition: opacity 180ms var(--ease-out);
+  }
+
+  .home:hover {
+    opacity: 0.82;
   }
 
   .nav {
