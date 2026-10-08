@@ -1,6 +1,13 @@
 ---
 import Base from '../layouts/Base.astro';
 import Polyhedron from '../components/studies/Polyhedron.astro';
+import Escapement from '../components/studies/Escapement.astro';
+import LetterE from '../components/studies/LetterE.astro';
+import AmmCurve from '../components/studies/AmmCurve.astro';
+import ValueBridge from '../components/studies/ValueBridge.astro';
+import Dieline from '../components/studies/Dieline.astro';
+import Envelope from '../components/studies/Envelope.astro';
+import Routing from '../components/studies/Routing.astro';
 import EntityPlate from '../components/plates/EntityPlate.astro';
 import OrbesPlate from '../components/plates/OrbesPlate.astro';
 import Strata from '../components/Strata.astro';
@@ -54,9 +61,17 @@ const roles = [
       </p>
     </div>
 
-    <div class="emblem">
-      <Polyhedron quiet />
+    <div class="studies">
+      <div class="s s-poly"><Polyhedron delay={0} /></div>
+      <div class="s s-letter"><LetterE delay={240} /></div>
+      <div class="s s-esc"><Escapement delay={360} /></div>
+      <div class="s s-env"><Envelope delay={480} /></div>
+      <div class="s s-amm"><AmmCurve delay={600} /></div>
+      <div class="s s-bridge"><ValueBridge delay={720} /></div>
+      <div class="s s-die"><Dieline delay={840} /></div>
+      <div class="s s-route"><Routing delay={960} /></div>
     </div>
+    <p class="swipe t-note" aria-hidden="true">Eight drawings, one per discipline. Swipe for the rest.</p>
   </section>
 
   <section class="band wrap" aria-labelledby="ventures-title">
@@ -106,7 +121,7 @@ const roles = [
       <p class="band-note">Eight fields, each started on a known date and practised through real work.</p>
       <p class="band-more t-ui"><a href="/about#practice">How I work</a></p>
     </header>
-    <Strata linkStudies={false} />
+    <Strata />
   </section>
 
   {
@@ -149,14 +164,7 @@ const roles = [
   }
 
   .head {
-    grid-column: 1 / span 7;
-  }
-
-  .emblem {
-    grid-column: 9 / span 4;
-    max-width: 380px;
-    justify-self: end;
-    width: 100%;
+    grid-column: 1 / span 6;
   }
 
   .name {
@@ -191,7 +199,7 @@ const roles = [
 
   .roles li {
     display: grid;
-    grid-template-columns: minmax(0, 15.5rem) minmax(0, 10.5rem) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.95fr) minmax(0, 1.6fr);
     gap: var(--s3);
     align-items: baseline;
     padding-block: 0.7rem;
@@ -225,28 +233,120 @@ const roles = [
     padding-block: 0.6rem;
   }
 
-  @media (max-width: 1000px) {
+  .studies {
+    display: contents;
+  }
+
+  .s {
+    min-width: 0;
+  }
+
+  /* Desktop: the solid beside the introduction, smaller studies in its
+     margin, the rest of the sheet below at varied sizes and heights. */
+  .head {
+    grid-row: 1 / span 2;
+    align-self: start;
+  }
+  .s-poly {
+    grid-column: 7 / span 3;
+    grid-row: 1;
+    align-self: start;
+  }
+  .s-letter {
+    grid-column: 10 / span 3;
+    grid-row: 1;
+    align-self: start;
+    margin-top: var(--s4);
+  }
+  .s-esc {
+    grid-column: 7 / span 6;
+    grid-row: 2;
+    align-self: start;
+    margin-top: var(--s4);
+  }
+  .s-env {
+    grid-column: 1 / span 4;
+    grid-row: 3;
+    margin-top: var(--s7);
+  }
+  .s-amm {
+    grid-column: 5 / span 3;
+    grid-row: 3;
+    margin-top: var(--s8);
+  }
+  .s-bridge {
+    grid-column: 9 / span 3;
+    grid-row: 3;
+    margin-top: var(--s6);
+  }
+  .s-die {
+    grid-column: 2 / span 3;
+    grid-row: 4;
+    margin-top: var(--s5);
+  }
+  .s-route {
+    grid-column: 8 / span 3;
+    grid-row: 4;
+    margin-top: var(--s4);
+  }
+
+  .swipe {
+    display: none;
+    color: var(--line-2);
+  }
+
+  @media (max-width: 1100px) {
     .head {
       grid-column: 1 / -1;
-    }
-    .emblem {
-      grid-column: 1 / -1;
       grid-row: 1;
-      justify-self: start;
-      max-width: 200px;
-      margin-bottom: var(--s3);
+    }
+    .s-poly {
+      grid-column: 1 / span 6;
+      grid-row: 2;
+      margin-top: var(--s6);
+    }
+    .s-letter {
+      grid-column: 8 / span 5;
+      grid-row: 2;
+      margin-top: var(--s6);
+    }
+    .s-esc {
+      grid-column: 1 / span 6;
+      grid-row: 3;
+    }
+    .s-env {
+      grid-column: 7 / span 6;
+      grid-row: 3;
+      margin-top: var(--s5);
+    }
+    .s-amm {
+      grid-column: 1 / span 6;
+      grid-row: 4;
+    }
+    .s-bridge {
+      grid-column: 7 / span 6;
+      grid-row: 4;
+      margin-top: var(--s6);
+    }
+    .s-die {
+      grid-column: 1 / span 6;
+      grid-row: 5;
+    }
+    .s-route {
+      grid-column: 7 / span 6;
+      grid-row: 5;
+      margin-top: var(--s5);
     }
   }
 
-  @media (max-width: 640px) {
+  /* Phones: words first, then the sheet as a strip, two drawings at a time. */
+  @media (max-width: 700px) {
     .hero {
+      display: block;
       padding-top: var(--s4);
     }
     .name {
       font-size: 12vw;
-    }
-    .emblem {
-      display: none;
     }
     .roles li {
       grid-template-columns: 1fr auto;
@@ -255,6 +355,36 @@ const roles = [
     .what {
       grid-column: 1 / -1;
       font-size: var(--step--1);
+    }
+    .studies {
+      display: flex;
+      gap: var(--s3);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      margin: var(--s5) calc(-1 * var(--gutter)) 0;
+      padding: 0 var(--gutter) var(--s2);
+      scroll-padding-inline: var(--gutter);
+      scrollbar-width: none;
+      align-items: flex-end;
+    }
+    .studies::-webkit-scrollbar {
+      display: none;
+    }
+    .s {
+      flex: 0 0 calc((100vw - 2 * var(--gutter) - var(--s3)) / 2);
+      scroll-snap-align: start;
+      margin: 0 !important;
+    }
+    .s :global(figcaption .meta) {
+      display: none;
+    }
+    .s :global(figcaption .t-note) {
+      font-size: var(--step--1);
+    }
+    .swipe {
+      display: block;
+      font-size: var(--step--1);
+      margin-top: var(--s1);
     }
   }
 
@@ -402,3 +532,21 @@ const roles = [
     }
   }
 </style>
+
+<script>
+  // Hovering a discipline lights its drawing, and the other way round.
+  const figs = new Map<string, HTMLElement>();
+  document.querySelectorAll<HTMLElement>('figure.study[data-study]').forEach((f) => figs.set(f.dataset.study!, f));
+  document.querySelectorAll<HTMLElement>('.strata .row[data-study]').forEach((row) => {
+    const fig = figs.get(row.dataset.study!);
+    if (!fig) return;
+    const on = () => (row.classList.add('is-lit'), fig.classList.add('is-lit'));
+    const off = () => (row.classList.remove('is-lit'), fig.classList.remove('is-lit'));
+    for (const el of [row, fig]) {
+      el.addEventListener('pointerenter', on);
+      el.addEventListener('pointerleave', off);
+      el.addEventListener('focusin', on);
+      el.addEventListener('focusout', off);
+    }
+  });
+</script>

@@ -335,7 +335,7 @@ const ground = 'fill: var(--ground)';
     document.addEventListener('sheet:tick', () => {
       if (reduce.matches || document.hidden) return;
       for (const m of movements) {
-        if (!m.visible || !m.active) continue;
+        if (!m.visible) continue;
         m.beats += 1;
         const odd = m.beats % 2 === 1;
         m.wheel.style.transform = `rotate(${m.beats * PITCH_HALF}deg)`;
