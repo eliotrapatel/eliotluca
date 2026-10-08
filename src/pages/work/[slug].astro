@@ -2,8 +2,6 @@
 import Base from '../../layouts/Base.astro';
 import EntityPlate from '../../components/plates/EntityPlate.astro';
 import OrbesPlate from '../../components/plates/OrbesPlate.astro';
-import Routing from '../../components/studies/Routing.astro';
-import AmmCurve from '../../components/studies/AmmCurve.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -18,7 +16,7 @@ const { entry, next } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
 const plates: Record<string, any> = { 'the-entity': EntityPlate, orbes: OrbesPlate };
-const studies: Record<string, any> = { keplum: Routing, desk: AmmCurve };
+const studies: Record<string, any> = {};
 const Plate = plates[entry.id];
 const Drawing = studies[entry.id];
 ---

@@ -34,5 +34,5 @@ Signature: the polyhedron study (Leonardo's skeletal rhombicuboctahedron for Pac
 ## Open decisions
 
 - Real social URLs and the public inbox (placeholder hello@eliotluca.com).
-- Whether Lab items (KEPLUM, the trading desk) stay public.
+- Only ORBES and THE ENTITY are shown as ventures (owner decision, 2026-10-08).
 - Real photos of ORBES pieces could be tipped in later as plates.

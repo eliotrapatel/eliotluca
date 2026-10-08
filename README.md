@@ -81,7 +81,7 @@ Tout ce qui est personnel est dans `src/data/site.ts` :
 
 ## Modifier les ventures et les projets
 
-Chaque projet est un fichier de `src/content/work/` (`the-entity.md`, `orbes.md`, `keplum.md`, `desk.md`). L'en-tête contient :
+Chaque projet est un fichier de `src/content/work/` (`the-entity.md`, `orbes.md`). L'en-tête contient :
 
 - `name`, `line` (la phrase de présentation), `role`, `status`, `since` (année) ;
 - `url` et `urlLabel` : le lien vers le site du projet ;
@@ -122,7 +122,6 @@ La propagation prend de quelques minutes à quelques heures. Le certificat HTTPS
 - [ ] Relire `record` et `education` : ajouter dates et noms de fonds seulement si tu veux les rendre publics.
 - [ ] Mettre à jour ORBES après la clôture du tirage du 11 octobre 2026 : `status` et `facts` dans `src/content/work/orbes.md`, le texte de cette page, et l'entrée ORBES de `now` dans `src/data/site.ts`.
 - [ ] Vérifier les chiffres de THE ENTITY (`src/content/work/the-entity.md`) contre joinentity.com le jour du lancement.
-- [ ] Décider si les projets du lab (KEPLUM, The Desk) restent visibles.
 - [ ] Relire chaque texte et passer `draft: false` sur ceux à publier.
 - [ ] Mettre à jour la page /now (`now.updated`) le jour du lancement.
 - [ ] Après la mise en ligne : tester un lien du site dans LinkedIn ou iMessage pour voir l'aperçu, et ajouter `https://eliotluca.com/sitemap-index.xml` dans Google Search Console.
