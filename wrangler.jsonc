@@ -1,9 +1,29 @@
 // Cloudflare Workers: serves the built static site from ./dist.
+// Cloudflare builds it on every push with `npm run build`, then `npx wrangler deploy`.
 {
   "name": "eliotluca",
   "compatibility_date": "2026-10-01",
+
+  // The free public address (eliotluca.<account>.workers.dev) and a preview
+  // address for every branch stay switched on.
+  "workers_dev": true,
+  "preview_urls": true,
+
   "assets": {
     "directory": "./dist",
+    // /about serves about.html, and /about/ redirects to /about, as the site's own links expect.
+    "html_handling": "drop-trailing-slash",
+    // Any unknown address shows the site's 404 page.
     "not_found_handling": "404-page"
-  }
+  },
+
+  // Request logs in the Cloudflare dashboard.
+  "observability": { "enabled": true }
+
+  // The domain. Uncomment once eliotluca.com is added to this Cloudflare
+  // account (its nameservers must point to Cloudflare first, or the deploy fails).
+  // ,"routes": [
+  //   { "pattern": "eliotluca.com", "custom_domain": true },
+  //   { "pattern": "www.eliotluca.com", "custom_domain": true }
+  // ]
 }
