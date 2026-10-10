@@ -6,9 +6,9 @@ export const site = {
   domain: 'eliotluca.com',
   url: 'https://eliotluca.com',
   description:
-    'Eliot Luca builds on what is tangible: a finance background in private equity, venture and M&A, THE ENTITY, which ties markets to the physical value chain of AI, and ORBES, a Paris jewellery house.',
+    "Eliot Luca, creator and operator, builds on what is tangible. Eight disciplines practised at once: design, crypto, e-commerce, finance, music, AI, 3D modelling and watchmaking. Founder of THE ENTITY, which ties markets to the physical value chain of AI, and of ORBES, a men's accessories brand (jewellery and leather goods) sold online worldwide.",
   statement:
-    'I build on what is tangible. Trained in private equity, venture and M&A, I now build THE ENTITY and ORBES.',
+    'Creator and operator. I build on what is tangible, across eight disciplines practised at once. Founder of THE ENTITY and ORBES.',
   email: 'hello@eliotluca.com',
   // Fill these in when ready. Empty values are hidden.
   social: {
@@ -25,16 +25,18 @@ export type Discipline = {
   id: string;
   name: string;
   since: number;
+  pause?: [number, number]; // years set aside: stopped in the first, taken up again in the second
   note: string;
   href: string;
   study: string; // id of the drawing on the home sheet
 };
 
-// The practice, in order of entry. Years are the year each discipline began.
+// The practice, in order of entry. Years are the year each discipline began;
+// `pause` marks years set aside (e-commerce stopped in 2021 and resumed in 2026).
 export const disciplines: Discipline[] = [
   { id: 'mark', name: 'Branding and graphic design', since: 2016, note: 'Names, marks, packaging', href: '/work/orbes', study: 'letter' },
   { id: 'chain', name: 'Blockchain and crypto', since: 2017, note: 'Markets, DeFi and a thesis', href: '/writing/defi-competes-on-mechanics', study: 'amm' },
-  { id: 'commerce', name: 'E-commerce', since: 2018, note: 'Selling objects online', href: '/work/orbes', study: 'dieline' },
+  { id: 'commerce', name: 'E-commerce', since: 2018, pause: [2021, 2026], note: 'Selling objects online, taken up again in 2026', href: '/work/orbes', study: 'dieline' },
   { id: 'capital', name: 'Finance and private equity', since: 2021, note: 'PE, VC, M&A, integration', href: '/about#record', study: 'bridge' },
   { id: 'sound', name: 'Music production', since: 2023, note: 'Personal practice', href: '/about#practice', study: 'envelope' },
   { id: 'compute', name: 'AI infrastructure', since: 2025, note: 'Models, routing, cost', href: '/work/the-entity', study: 'routing' },
@@ -75,10 +77,10 @@ export const record: RecordEntry[] = [
   },
 ];
 
+// Degrees only: the schools are not named on the site.
 export const education = [
-  { school: 'emlyon business school', programme: 'MSc in Finance' },
-  { school: 'ESSEC Business School', programme: 'Global BBA' },
-  { school: 'McGill University', programme: 'Study trip, Montreal' },
+  { programme: 'MSc in Finance', level: 'Master' },
+  { programme: 'Business administration', level: 'Bachelor' },
 ];
 
 export const thesis = {
@@ -96,8 +98,8 @@ export const now = {
       href: 'https://joinentity.com',
     },
     {
-      title: 'Running the ORBES draw',
-      body: 'The Orchid ring in 18ct gold and emerald baguettes, ten pieces, allocated by draw. Entries close on 11 October 2026.',
+      title: 'Preparing the first ORBES reveal',
+      body: "ORBES is my men's accessories brand: jewellery and leather goods, sold online worldwide. The first pieces are not shown yet: the first reveal is soon, on verify.theorbes.com.",
       href: 'https://verify.theorbes.com',
     },
     {

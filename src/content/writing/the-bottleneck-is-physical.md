@@ -1,58 +1,28 @@
 ---
 title: "The bottleneck is physical"
-description: "AI is capped by power, memory, packaging and networking; pricing power sits at the tightest point, so I mapped the chain as a graph."
+description: "How much AI the world can run is set by power, memory, packaging and networking. Whichever is scarcest decides who earns the most, and it keeps changing."
 date: 2026-09-29
 lang: en
 kind: essay
 draft: true
 ---
 
-Every frontier model ends up as a load on a substation.
+When a new AI model is announced, the conversation is about what it can do. I have become more interested in a duller question: how many of these models can be run at the same time, and what stops that number from being larger.
 
-The public story of AI runs on two feeds: model demos and stock tickers. One shows what software can do, the other shows what investors think it is worth. Neither shows how much of it can physically exist. That is settled by physical inputs with long lead times: power, copper, cooling, memory, packaging, optics. A model can be retrained in weeks. A grid connection can take years.
+The answer has very little to do with software. A model runs in a data centre, and a data centre is first of all a request for electricity. Its size is fixed by the megawatts it is allowed to draw, and that permission comes from a grid operator who has to build the connection: transformers, a substation, sometimes a new line. A model can be retrained in a few weeks. A grid connection of that size can take years, and no amount of money makes a transformer arrive before a factory has built it.
 
-## Where the limit sits
+Power is only the first limit. The processors that do the work need a particular kind of fast memory placed right beside them, and only a handful of companies make it. Chip and memory then have to be assembled together, in a packaging step that used to be an afterthought of the semiconductor industry and now sets how many finished processors leave the factory each month. After that, thousands of those processors have to be wired together so that they behave as one machine, which takes switches, optical links and cabling that are in short supply as well.
 
-Start with electricity. A data centre is, before anything else, a claim on power. Its size is set by the megawatts it can draw, and those megawatts arrive through a connection the grid operator has to agree to build. Transformers, substations and transmission lines move on utility timelines, with permits and queues. When demand for compute grows faster than the grid can connect new load, the scarce asset stops being the chip and becomes the right to switch it on.
+So the amount of AI the world can run in a given year is set by whichever of these inputs is scarcest at that moment. Having twice as many chips as you can power gives you nothing extra. I built a small instrument, [Bottleneck](/instruments/bottleneck), to make that visible: it is a barrel whose staves have different heights, and the water stops at the shortest one.
 
-Go one level down, under the processor. An accelerator is only as fast as the memory that feeds it, and the high-bandwidth memory stacked beside the die comes from very few suppliers. Chip and memory then have to be joined by advanced packaging, a step that once sat quietly at the end of the semiconductor chain and now decides how many finished accelerators leave the line. A shortage at either step caps output however many wafers are printed upstream.
+Two things follow from this.
 
-Then look sideways. Training a large model means making thousands of chips behave as one machine. That depends on networking: switches, interconnects, optical transceivers, the cabling between racks. A cluster with excellent chips and a weak fabric spends its time waiting. The network is part of the computer, even if nobody puts it in a demo.
+The first is about money. The company that controls the scarce input can raise its prices and choose its customers, because everyone further along the chain is waiting for it. Companies whose input is plentiful have to compete with one another. If you want to know who will earn the most from the growth of AI over the next year, the size of a company tells you less than whether it sits at the tight point.
 
-None of this appears on stage at a launch. All of it decides what the next launch can be.
+The second is that the tight point moves. When more packaging capacity comes online, memory becomes the limit. When memory catches up, the grid connection does. Someone who correctly identified the constraint a year ago can be wrong today without any single company having changed much. What changed is the relationship between them.
 
-## Pricing power follows the tight node
+This is why a list of "AI stocks" is so little help. A list tells you which companies are involved. It cannot tell you which company depends on which, or what happens to one of them when something tightens three steps away. That information is in the links between companies, and a list has no links.
 
-The useful question about any supply chain is where it is tightest, because that is where pricing power sits. A supplier at a constrained step can raise prices, choose its customers and set terms. A supplier at an abundant step competes on cost and hopes for volume.
+It is also why I built THE ENTITY as a graph. Every company is placed on the part of the chain it supplies or depends on, from power at the bottom to applications at the top, and every dependency is a link. Today that is 835 companies on 80 nodes, joined by 2,808 links, with 624 physical facilities placed on a globe. Every night the whole graph is scored again, to see which part has tightened and where the pressure is likely to go next.
 
-The difficulty is that the tight node moves. Relieve one constraint and the pressure shifts to the next. More packaging capacity exposes the memory supply. More memory exposes the power connection. More power exposes the transformers, and the skilled crews needed to install them. A view that was right about the bottleneck a year ago can be wrong today without any single input looking different on a screen.
-
-This is why I do not trust lists. A list of AI companies, sorted by size or by theme, tells you who is exposed to the story. It cannot tell you who sits at the constraint, who depends on whom, or what happens to one company when a step three layers away tightens. Those answers live in the relationships between companies, and a list throws the relationships away.
-
-## Why THE ENTITY is a graph
-
-I built THE ENTITY as an institutional-grade map of the AI supply chain, and I built it as a graph because the chain is one. It holds 835 companies across 80 chain nodes, organised in five layers: energy, chips, infrastructure, models and applications. Between them sit 2,808 calibrated links. Beneath them sit 624 geolocated facilities in 74 geographies, because every constraint is a physical place before it is a line in a model.
-
-The method has three steps.
-
-**Map the chain.** Every company is placed at the nodes where it actually operates, and every link records a dependency. The point is to follow a path from an application all the way down to the power it consumes, and to see where many paths pass through the same few suppliers. Those crossings are the chokepoints. The map currently counts 48.
-
-**Follow the money.** The graph also tracks 103 elite funds and scores 92 of them. Positioning is evidence. When serious capital moves towards or away from a node, that tells you something the companies' own announcements will not.
-
-**Run it forward.** Once the structure exists, you can ask what happens if a step gets tighter: which nodes absorb the shock, which companies sit in its path, where the pressure lands next. A list has no way to frame that question. A graph frames it properly, and that is most of the work.
-
-## Accountability over prediction
-
-Anyone can publish a view on where AI is going. Very few publish a record of where they were wrong, and that record is what should earn a reader's trust.
-
-The standard I hold the work to is plain, and THE ENTITY keeps it in public. Every call is recorded the day it is made and graded afterwards, misses included. Every figure says what it is: a fact, an estimate, or the output of a model. Most analysis blends the three into one confident sentence, and the reader cannot tell which part was observed and which part was assumed. Separating them costs almost nothing, and it changes how a number can be used. The 871 narratives in THE ENTITY carry their sources for the same reason.
-
-A forecast that is never scored teaches its author nothing and gives the reader no reason to weight it. A graded record shows where the method holds and where it breaks, and it forces the method either to improve or to admit its limits in the open. I would take a modest record that survives checking over a bold one nobody can check.
-
-Part of this comes from where I trained. In private equity and M&A, a thesis is something you defend in front of people who will hold you to it, with a data room behind every claim. I wanted that discipline applied to a subject that is mostly discussed in headlines.
-
-## The boundary
-
-THE ENTITY shows where the AI supply chain is under pressure, who sits at those points and how the pressure is likely to travel. It does not choose positions for anyone. What a reader does with the map depends on their own mandate, horizon and tolerance for risk, and I have no view on those.
-
-What it offers is a starting point made of megawatts, memory and fibre. The chain will keep moving, and the tight node with it. A map that stands still is just a list.
+I find this a more useful way to look at AI than demos and share prices. The software is extraordinary. It is also the last step of a very long industrial chain, and the chain decides how fast any of it can grow.

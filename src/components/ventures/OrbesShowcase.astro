@@ -1,0 +1,456 @@
+---
+// ORBES, shown in its own identity: the NOCTURNE palette (ivory on near-black),
+// the official monogram and wordmark, hairline corner brackets, slow motion.
+// The brand comes first: men's accessories, jewellery and leather goods.
+// ORBES VERIFY is one part of it, shown in full only on the venture page.
+// House rules: no piece names, materials or prices before the first reveal; a
+// scan shows that an identity was issued and signed by ORBES, nothing more.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+interface Props {
+  film?: 'loop' | 'none';
+  headingLevel?: 'h2' | 'h3';
+  detail?: 'short' | 'full';
+}
+const { film = 'loop', headingLevel = 'h3', detail = 'short' } = Astro.props;
+const H = headingLevel;
+
+// The monogram, inlined so it takes the ivory of the block.
+const svg = readFileSync(join(process.cwd(), 'public', 'media', 'orbes', 'monogram.svg'), 'utf8');
+const monogramPaths = [...svg.matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]);
+
+// The brand, in three parts. ORBES VERIFY is the third, not the headline.
+const PARTS = [
+  { k: 'The pieces', v: 'Not shown yet. First reveal soon, on verify.theorbes.com.' },
+  { k: 'The releases', v: 'By draw, or live: the door opens at the hour and each collector holds the seal to secure one piece.' },
+  { k: 'ORBES Verify', v: 'Every piece carries an ORBES CODE, issued and signed by ORBES, that its owner can check, register and pass on.' },
+];
+
+const STEPS = [
+  { k: 'Scan', v: 'Scan the ORBES CODE with any phone.' },
+  { k: 'Authentic', v: 'The identity was issued and signed by ORBES.' },
+  { k: 'Register', v: 'Record the piece in your name.' },
+  { k: 'Certificate', v: 'Share its ownership certificate.' },
+  { k: 'Pass it on', v: 'Transfer it to the next owner with a code.' },
+];
+---
+
+<article class="orbes" lang="en">
+  <span class="o-corner tl" aria-hidden="true"></span>
+  <span class="o-corner tr" aria-hidden="true"></span>
+  <span class="o-corner bl" aria-hidden="true"></span>
+  <span class="o-corner br" aria-hidden="true"></span>
+
+  <header class="o-top">
+    <a class="o-brand" href="https://verify.theorbes.com" rel="noopener" aria-label="ORBES, verify.theorbes.com">
+      <svg class="o-monogram" viewBox="0 0 500 500" aria-hidden="true">
+        {monogramPaths.map((d) => <path d={d} />)}
+      </svg>
+      <span class="o-word">Orbes</span>
+    </a>
+    <span class="o-place">Worldwide, 2026</span>
+  </header>
+
+  <div class="o-plate">
+    <svg class="o-water" viewBox="0 0 500 500" aria-hidden="true">
+      {monogramPaths.map((d) => <path d={d} />)}
+    </svg>
+    <p class="o-manifesto">
+      <span>Permanent weight</span>
+      <span>for those who curate</span>
+      <span>their own existence.</span>
+    </p>
+    <p class="o-sign">We sleep when we die</p>
+  </div>
+
+  <div class="o-body">
+    <H class="o-title">Men's accessories, worldwide</H>
+    <p class="o-lede">
+      ORBES is my men's accessories brand: jewellery and leather goods, sold online worldwide. "We celebrate a journey of grind, offering a fresh perspective on
+      self-realization."
+    </p>
+
+    <ol class="o-steps o-parts">
+      {
+        PARTS.map((s) => (
+          <li>
+            <span class="o-k">{s.k}</span>
+            <span class="o-v">{s.v}</span>
+          </li>
+        ))
+      }
+    </ol>
+
+    {
+      detail === 'full' && (
+        <section class="o-genome" aria-label="ORBES VERIFY">
+          <p class="o-sub">ORBES VERIFY</p>
+          <p class="o-lede">How a piece is checked, registered and passed on, at verify.theorbes.com.</p>
+          {film === 'loop' && (
+            <div class="o-film">
+              <video
+                class="o-video"
+                muted
+                loop
+                playsinline
+                autoplay
+                preload="metadata"
+                poster="/media/orbes/genome-poster.jpg"
+                aria-label="ORBES VERIFY: a piece scanned, shown authentic, then a place in the line of a live release"
+              >
+                <source src="/media/orbes/genome-loop.mp4" type="video/mp4" />
+              </video>
+            </div>
+          )}
+          <ol class="o-steps">
+            {STEPS.map((s) => (
+              <li>
+                <span class="o-k">{s.k}</span>
+                <span class="o-v">{s.v}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    <footer class="o-foot">
+      <a class="o-cta" href="https://verify.theorbes.com" rel="noopener">Visit ORBES</a>
+      <a class="o-link" href="https://verify.theorbes.com" rel="noopener">verify.theorbes.com</a>
+      <span class="o-soon">First reveal soon</span>
+    </footer>
+  </div>
+</article>
+
+<style>
+  .orbes {
+    --o-ground: #0a0a0a;
+    --o-ivory: #f6f2ea;
+    --o-plate: #141312;
+    --o-soft: #a7a29a;
+    --o-faint: #6f6a63;
+    --o-hair: rgb(246 242 234 / 0.16);
+    --o-ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+    position: relative;
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    background: var(--o-ground);
+    color: var(--o-ivory);
+    border: 1px solid var(--o-hair);
+    font-family: 'Helvetica Neue', HelveticaNeue, Helvetica, Arial, sans-serif;
+  }
+
+  /* Four hairline corner brackets, the house frame. */
+  .o-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: var(--o-ivory);
+    border-style: solid;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .tl {
+    top: 10px;
+    left: 10px;
+    border-width: 1px 0 0 1px;
+  }
+  .tr {
+    top: 10px;
+    right: 10px;
+    border-width: 1px 1px 0 0;
+  }
+  .bl {
+    bottom: 10px;
+    left: 10px;
+    border-width: 0 0 1px 1px;
+  }
+  .br {
+    bottom: 10px;
+    right: 10px;
+    border-width: 0 1px 1px 0;
+  }
+
+  .o-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 22px 30px;
+    border-bottom: 1px solid var(--o-hair);
+  }
+
+  .o-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    color: var(--o-ivory);
+    text-decoration: none;
+  }
+
+  .o-monogram {
+    width: 30px;
+    height: 30px;
+    fill: var(--o-ivory);
+  }
+
+  /* The word is typed, the monogram is the emblem. */
+  .o-word {
+    font-family: var(--font-brand);
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 0.62em;
+    margin-right: -0.62em;
+    text-transform: uppercase;
+  }
+
+  .o-manifesto,
+  .o-sign,
+  .o-sub,
+  .o-title,
+  .o-k,
+  .o-cta,
+  .o-link,
+  .o-soon {
+    font-family: var(--font-brand);
+    font-weight: 500;
+  }
+
+  .o-place {
+    font-size: 0.6875rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--o-soft);
+  }
+
+  /* The plate: the house line over the monogram. */
+  .o-plate {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--o-hair);
+    background: radial-gradient(60% 70% at 50% 45%, rgb(246 242 234 / 0.05), transparent 70%), var(--o-ground);
+  }
+
+  .o-water {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 46%;
+    transform: translate(-50%, -50%);
+    fill: var(--o-ivory);
+    opacity: 0.06;
+  }
+
+  .o-manifesto {
+    position: relative;
+    display: grid;
+    gap: 0.9em;
+    text-align: center;
+    font-size: clamp(0.6875rem, 2.7cqi, 1.3125rem);
+    line-height: 1;
+    letter-spacing: 0.34em;
+    margin-right: -0.34em;
+    text-transform: uppercase;
+    color: var(--o-ivory);
+  }
+
+  .o-manifesto span {
+    display: block;
+  }
+
+  .o-sign {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(12px, 3.4cqi, 26px);
+    text-align: center;
+    font-size: clamp(0.5rem, 1.25cqi, 0.625rem);
+    letter-spacing: 0.4em;
+    margin-right: -0.4em;
+    text-transform: uppercase;
+    color: var(--o-faint);
+  }
+
+  .o-film {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000 url('/media/orbes/genome-poster.jpg') center / cover no-repeat;
+    border: 1px solid var(--o-hair);
+  }
+
+  .o-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .o-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 28px 30px 30px;
+  }
+
+  .o-title {
+    font-size: 1.0625rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--o-ivory);
+  }
+
+  .o-lede {
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--o-soft);
+    max-width: 30em;
+  }
+
+  /* ORBES VERIFY, on the venture page only. */
+  .o-genome {
+    display: grid;
+    gap: 18px;
+    margin-top: 14px;
+    padding-top: 26px;
+    border-top: 1px solid var(--o-hair);
+  }
+
+  .o-sub {
+    font-size: 0.8125rem;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--o-ivory);
+  }
+
+  .o-steps {
+    list-style: none;
+    counter-reset: step;
+    border-top: 1px solid var(--o-hair);
+  }
+
+  .o-steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.25rem 8.5rem minmax(0, 1fr);
+    gap: 12px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--o-hair);
+  }
+
+  .o-steps li::before {
+    content: counter(step, decimal-leading-zero);
+    font-size: 0.6875rem;
+    color: var(--o-faint);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .o-k {
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .o-v {
+    font-size: 0.9375rem;
+    color: var(--o-soft);
+  }
+
+  .o-foot {
+    margin-top: auto;
+    padding-top: 6px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 22px;
+  }
+
+  .o-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 42px;
+    padding: 0 20px;
+    background: var(--o-ivory);
+    color: var(--o-ground);
+    font-size: 0.6875rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 400ms var(--o-ease);
+  }
+
+  .o-cta:hover {
+    background: #fff;
+  }
+
+  .o-cta:focus-visible,
+  .o-link:focus-visible {
+    outline-color: var(--o-ivory);
+  }
+
+  .o-link {
+    font-size: 0.6875rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--o-ivory);
+    text-decoration-color: var(--o-hair);
+  }
+
+  .o-link:hover {
+    text-decoration-color: var(--o-ivory);
+  }
+
+  .o-soon {
+    margin-left: auto;
+    font-size: 0.625rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--o-faint);
+  }
+
+  @media (max-width: 560px) {
+    .o-top,
+    .o-body {
+      padding-inline: 22px;
+    }
+    .o-steps li {
+      grid-template-columns: 2rem minmax(0, 1fr);
+      row-gap: 6px;
+    }
+    .o-v {
+      grid-column: 2;
+    }
+    .o-soon {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  // Slow, quiet, and only when seen. Still for visitors who asked for less motion.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll<HTMLVideoElement>('.orbes .o-video').forEach((v) => {
+    if (reduce.matches) {
+      v.removeAttribute('autoplay');
+      v.pause();
+      return;
+    }
+    new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        }
+      },
+      { threshold: 0.2 },
+    ).observe(v);
+  });
+</script>

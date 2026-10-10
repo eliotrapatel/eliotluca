@@ -3,9 +3,19 @@
 @import '@fontsource-variable/mona-sans/wdth.css';
 @import '@fontsource-variable/geist-mono/wght.css';
 
+/* Gravesend Sans Medium: the face of the ORBES and THE ENTITY wordmarks,
+   used here for the ELIOT LUCA logotype and both ventures' marks. */
+@font-face {
+  font-family: 'Gravesend Sans';
+  src: url('/fonts/gravesend-sans-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
 /* ------------------------------------------------------------------
-   Eliot Luca. A dark atelier: near-black, light drawn in fine lines,
-   one warm metal (18ct gold) for what matters.
+   Eliot Luca. Near-black, light drawn in fine lines, one warm metal
+   (gold) for what matters.
 ------------------------------------------------------------------- */
 :root {
   --black: #050506;
@@ -15,6 +25,7 @@
   --ash: #a3a19b;
   --smoke: #5d5c58;
   --gold: #cdb68a;
+  --gold-eliot: #cdb68a; /* the stone keeps its gold in every house */
 
   /* Semantic tokens (the drawings and components read these). */
   --ground: var(--black);
@@ -40,6 +51,7 @@
   --font-ui: 'Mona Sans Variable', 'Mona Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --font-text: 'EB Garamond Variable', 'EB Garamond', Garamond, 'Times New Roman', serif;
   --font-mono: 'Geist Mono Variable', 'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-brand: 'Gravesend Sans', 'Mona Sans Variable', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 
   /* Type scale (px at 16px root): 12 14 16 19 22 32 44 64 88 */
   --step--2: 0.75rem;
@@ -78,6 +90,62 @@
 *::after {
   box-sizing: border-box;
 }
+
+/* Each house keeps its own colours on its own pages. */
+:root[data-brand='entity'] {
+  --black: #0c0c0a;
+  --panel: #161512;
+  --panel-2: #1b1a16;
+  --bone: #f2f1ec;
+  --ash: #a39e93;
+  --smoke: #6b675f;
+  --gold: #7abdb4;
+  --wash: rgb(122 189 180 / 0.12);
+  --glow: rgb(122 189 180 / 0.16);
+  --border: #292823;
+  --border-2: #393730;
+  --rule: #292823;
+}
+
+:root[data-brand='orbes'] {
+  --black: #0a0a0a;
+  --panel: #141312;
+  --panel-2: #191816;
+  --bone: #f6f2ea;
+  --ash: #a7a29a;
+  --smoke: #6f6a63;
+  --gold: #f6f2ea;
+  --wash: rgb(246 242 234 / 0.08);
+  --glow: rgb(246 242 234 / 0.1);
+  --border: rgb(246 242 234 / 0.1);
+  --border-2: rgb(246 242 234 / 0.16);
+  --rule: rgb(246 242 234 / 0.1);
+}
+
+/* Pages cross-fade; the bar stays put. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+::view-transition-group(site-header) {
+  animation-duration: 0s;
+}
+
+/* Until the lockup composes, it is held back (shown anyway if scripts never run). */
+.logo-hold .top [data-lockup] .lk-word,
+.logo-hold .top [data-lockup] .lk-marks {
+  opacity: 0;
+  animation: lk-release 0s 2.4s forwards;
+}
+
+@keyframes lk-release {
+  to {
+    opacity: 1;
+  }
+}
+
 
 html {
   -webkit-text-size-adjust: 100%;
@@ -262,6 +330,16 @@ textarea {
 
 .muted {
   color: var(--line-2);
+}
+
+/* ORBES inside a title is set in its own face, as a logotype. */
+.brand-word {
+  font-family: var(--font-brand);
+  font-weight: 500;
+  font-size: 0.86em;
+  letter-spacing: 0.3em;
+  margin-right: -0.14em;
+  text-transform: uppercase;
 }
 
 /* ------------------------------------------------------------------
@@ -510,12 +588,12 @@ textarea {
    is pulled back so the word sits optically centred and aligned.
 ------------------------------------------------------------------- */
 .wordmark {
-  font-family: var(--font-ui);
-  font-stretch: 125%;
-  font-weight: 420;
+  font-family: var(--font-brand);
+  font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.3em;
   margin-right: -0.3em;
+  word-spacing: 0.12em;
   white-space: nowrap;
   font-kerning: normal;
 }

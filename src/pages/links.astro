@@ -9,10 +9,9 @@ const latest = (await getEssays())[0];
 
 const links = [
   { label: 'THE ENTITY', note: 'The map of the AI supply chain', href: 'https://joinentity.com' },
-  { label: 'ORBES', note: 'Jewellery house, Paris', href: 'https://theorbes.com' },
-  { label: 'The Orchid ring', note: 'Current ORBES release, by draw', href: 'https://verify.theorbes.com' },
+  { label: 'ORBES', note: "Men's accessories: jewellery and leather goods. First reveal soon", href: 'https://verify.theorbes.com' },
   latest && { label: latest.data.title, note: `Latest writing, No. ${latest.number}`, href: `/writing/${latest.id}` },
-  { label: 'Instruments', note: 'Returns, dilution, copilot costs, ring sizes', href: '/instruments' },
+  { label: 'Instruments', note: 'Working tools for capital, crypto, commerce, AI and objects', href: '/instruments' },
   site.social.linkedin && { label: 'LinkedIn', note: 'Career and contact', href: site.social.linkedin },
   site.social.x && { label: 'X', note: 'Notes in public', href: site.social.x },
   site.social.instagram && { label: 'Instagram', note: 'Pictures', href: site.social.instagram },
@@ -25,7 +24,7 @@ const links = [
   <div class="links-page">
     <header class="top">
       <h1 class="name"><a href="/" aria-label="Eliot Luca, home"><Logo size="lg" stacked /></a></h1>
-      <p class="line">I build on what is tangible. Founder of THE ENTITY and ORBES.</p>
+      <p class="line">Creator and operator. I build on what is tangible. Founder of THE ENTITY and ORBES.</p>
     </header>
 
     <ul class="list">
@@ -34,7 +33,7 @@ const links = [
           <li>
             <a href={l.href} rel={l.href.startsWith('http') ? 'noopener me' : undefined}>
               <span class="txt">
-                <span class="label">{l.label}</span>
+                <span class="label" set:html={l.label.replace(/\bORBES\b/g, '<span class="brand-word">ORBES</span>')} />
                 <span class="note">{l.note}</span>
               </span>
               <svg class="arrow" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>

@@ -41,8 +41,8 @@ const { full = false } = Astro.props;
         <ul class="edu">
           {education.map((e) => (
             <li>
-              <span class="school">{e.school}</span>
-              <span class="prog t-ui">{e.programme}</span>
+              <span class="school">{e.programme}</span>
+              <span class="prog t-ui">{e.level}</span>
             </li>
           ))}
         </ul>

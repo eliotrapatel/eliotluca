@@ -10,8 +10,23 @@ import ValueBridge from '../components/studies/ValueBridge.astro';
 import { site } from '../data/site';
 import { essayHref } from '../lib/writing';
 
-// What I can do, kept to things that can be shown.
+// What I can do, in the order I took the disciplines up.
 const letterRaw = [
+  {
+    text: "I can design a brand: branding and graphic design since 2016, and now a men's accessories brand of my own, ORBES.",
+    href: '/work/orbes',
+    label: 'ORBES',
+  },
+  {
+    text: 'I can analyse decentralised finance: crypto since 2017, and a thesis on whether it can compete with traditional finance.',
+    href: '/writing/defi-competes-on-mechanics',
+    label: 'On DeFi',
+  },
+  {
+    text: 'I can sell objects online: e-commerce from 2018 to 2021, taken up again in 2026.',
+    href: '/work/orbes',
+    label: 'ORBES',
+  },
   {
     text: 'I can prepare an information memorandum and the Q&A that follows it, as on an €80M M&A transaction.',
     href: '/about#record',
@@ -43,45 +58,49 @@ const letterRaw = [
     label: 'Copilot economics',
   },
   {
-    text: 'I can design a brand: branding and graphic design since 2016, and now a house of my own, ORBES.',
-    href: '/work/orbes',
-    label: 'ORBES',
-  },
-  {
     text: 'I can model objects in three dimensions, a discipline I took up in 2026.',
     href: '/work/orbes',
     label: 'ORBES',
   },
   {
-    text: 'I can build proof into an object: every ORBES piece carries a code that its authentication app verifies.',
+    text: "I can build a men's accessories brand from nothing: jewellery and leather goods, the identity, the releases by draw or live, and an ORBES CODE on every piece.",
     href: '/work/orbes',
     label: 'ORBES',
-  },
-  {
-    text: 'I can analyse decentralised finance: crypto since 2017, and a thesis on whether it can compete with traditional finance.',
-    href: '/writing/defi-competes-on-mechanics',
-    label: 'On DeFi',
   },
 ];
 const letter = await Promise.all(letterRaw.map(async (p) => ({ ...p, href: await essayHref(p.href) })));
 const manifesto = await essayHref('/writing/da-vinci-mode');
+const COUNT = ['Zero', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
 ---
 
-<Base title="About" description="Eliot Luca's finance record, education and disciplines, with the work behind each." image="/og/about.png">
-  <PageHead title="About" lede="Finance by training, builder by habit. I learn a discipline by making something real in it, and I keep several going at once." />
+<Base title="About" description="Eliot Luca, creator and operator: eight disciplines practised at once, what he can do, and his record." image="/og/about.png">
+  <PageHead title="About" lede="A creator and an operator. I design the thing, build it, finance it and run it, across eight disciplines practised at once." />
 
-  <section class="wrap rec" id="record" aria-labelledby="record-title">
-    <h2 id="record-title" class="sec-title">Record</h2>
-    <div class="rec-body">
-      <Record full />
-      <p class="langs t-ui">Languages: {site.languages.join(', ').replace(/, ([^,]*)$/, ' and $1')}.</p>
+  <section class="wrap practice" id="practice" aria-labelledby="practice-title">
+    <h2 id="practice-title" class="sec-title">Da Vinci Mode</h2>
+    <div class="practice-body">
+      <p class="t-lede">
+        Design, crypto, e-commerce, finance, music, AI, 3D modelling and watchmaking, practised at once. Leonardo put
+        anatomy, hydraulics and geometry on the same sheet because, to him, they were one subject. I work the same way:
+        each field feeds the others, and the ventures are where they meet.
+      </p>
+      <p class="more t-ui"><a href={manifesto}>{manifesto === '/writing' ? 'Read the writing' : 'Read Da Vinci Mode'}</a></p>
+    </div>
+    <div class="practice-chart">
+      <Strata linkStudies={false} />
+    </div>
+    <div class="studies-grid">
+      <ValueBridge href="/instruments/returns" />
+      <LetterE href="/work/orbes" />
+      <Escapement href="/about#practice" />
+      <Envelope href="/about#practice" />
     </div>
   </section>
 
   <section class="wrap letter" aria-labelledby="letter-title">
     <div class="letter-head">
       <h2 id="letter-title" class="sec-title">What I can do</h2>
-      <p class="context">Ten things, each with the work that shows it.</p>
+      <p class="context">{COUNT[letter.length] ?? letter.length} things, in the order I took them up.</p>
     </div>
     <ol class="points">
       {
@@ -95,23 +114,11 @@ const manifesto = await essayHref('/writing/da-vinci-mode');
     </ol>
   </section>
 
-  <section class="wrap practice" id="practice" aria-labelledby="practice-title">
-    <h2 id="practice-title" class="sec-title">How I work</h2>
-    <div class="practice-body">
-      <p class="t-lede">
-        Several disciplines at once, each started on a known date and held to one rule: it counts once it has produced something
-        real. Music I keep for pleasure; watchmaking is in its first year.
-      </p>
-      <p class="more t-ui"><a href={manifesto}>{manifesto === '/writing' ? 'Read the writing' : 'Read Da Vinci Mode'}</a></p>
-    </div>
-    <div class="practice-chart">
-      <Strata linkStudies={false} />
-    </div>
-    <div class="studies-grid">
-      <ValueBridge href="/instruments/returns" />
-      <LetterE href="/work/orbes" />
-      <Escapement href="/about#practice" />
-      <Envelope href="/about#practice" />
+  <section class="wrap rec" id="record" aria-labelledby="record-title">
+    <h2 id="record-title" class="sec-title">Record</h2>
+    <div class="rec-body">
+      <Record full />
+      <p class="langs t-ui">Languages: {site.languages.join(', ').replace(/, ([^,]*)$/, ' and $1')}.</p>
     </div>
   </section>
 </Base>

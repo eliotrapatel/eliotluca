@@ -22,7 +22,7 @@ const updated = new Date(now.updated + 'T00:00:00Z');
           <li>
             <h2 class="i-title">
               <a href={item.href} rel={item.href.startsWith('http') ? 'noopener' : undefined}>
-                {item.title}
+                <Fragment set:html={item.title.replace(/\bORBES\b/g, '<span class="brand-word">ORBES</span>')} />
               </a>
             </h2>
             <p class="i-body">{item.body}</p>

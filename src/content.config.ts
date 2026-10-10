@@ -20,6 +20,8 @@ const work = defineCollection({
   schema: z.object({
     name: z.string(),
     line: z.string(),
+    summary: z.string().optional(),
+    points: z.array(z.string()).default([]),
     role: z.string(),
     status: z.string(),
     since: z.number(),

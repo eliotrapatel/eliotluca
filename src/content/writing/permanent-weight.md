@@ -1,26 +1,22 @@
 ---
 title: "Permanent weight"
-description: "Why the ORBES Orchid ring exists in ten pieces, goes to a draw and carries a code you can verify."
+description: "Why I am building a men's accessories brand at a time when almost everything is made to be replaced, and what that changes in the way it sells."
 date: 2026-09-21
 lang: en
 kind: manifesto
 draft: true
 ---
 
-Most of what we buy is designed to be replaced.
+Almost everything I own was designed to be replaced. My phone was priced with its successor already planned. Most clothes are cut for a single season. Even the software I build has to change every week to stay useful. I do not resent any of that, but it left me wanting to make one kind of object that does the opposite.
 
-Phones are priced around the next model. Clothes are cut for one season and photographed for one scroll. Online jewellery has learned the same trick: plated metal, a hand on a pastel backdrop, a countdown timer, a discount code, and a piece that looks tired by the time the next collection drops. The business works because the object does not last.
+That is where ORBES comes from. It is a men's accessories brand, jewellery and leather goods, and its purpose is written in one line: "Permanent weight for those who curate their own existence."
 
-ORBES starts from the opposite premise. The house puts it in one line, "Permanent weight for those who curate their own existence", and two words in it carry the rest. Permanent: the object should outlast its first owner. Weight: real material you feel on the hand, with nothing cheaper hiding under a coating. I treat both as constraints on the work, long before they describe the result.
+I chose both words with care. Weight, because a piece of jewellery or a leather good is one of the few things a man carries every day and physically feels. Permanent, because it is one of the even fewer things that can outlive the person who bought it. A piece can mark a decision, a year or a version of yourself, and still be there decades later. Very few products can say that, and I think the ones that can should be made as if they meant it.
 
-The current release is the Orchid ring: 18ct gold set with emerald baguettes, ten pieces in total. Ten is a decision. A house that releases ten pieces is telling you how it intends to behave. It will make fewer things than it could, and it will treat each one as a record it has to stand behind. Scarcity manufactured with timers and "only three left" banners disappears the moment the marketing stops. Scarcity that comes from a fixed number, announced in advance, stays true for as long as the pieces exist.
+Taking this seriously changes how the brand has to behave, starting with how it sells. The usual way to sell something limited online is first come, first served. It sounds fair, and in practice it rewards whoever is fastest in the first second: the reseller, the script, the person with the best connection. None of that has anything to do with wanting the piece. So ORBES releases in two other ways. In a draw, collectors enter, ORBES draws, and those selected confirm. In a live release, the door opens at a set hour, each collector keeps their place in the line and holds the seal to secure a piece, one per collector. Both ask for intention and take away the advantage of speed.
 
-Then there is the question of who gets them. First come, first served sounds fair. In practice it rewards whoever is fastest at the second of release: the best connection, the reseller with a script, the bot. Speed says nothing about who wants the piece. A draw takes speed out of the equation. Entries close at a fixed time and the pieces are drawn from them. What it rewards is intent. You decide you want the ring, you enter, and you wait.
+It also changes what comes with the piece. Normally the history of an accessory lives outside it: a receipt, a card in a box, the word of whoever sold it. Those get lost, and they almost never survive a second owner. Every ORBES piece carries an ORBES CODE, issued and signed by ORBES. Its owner can scan it, register the piece in their name, and pass it on to the next owner when the time comes. That history then travels with the object for as long as the object exists, which is the only arrangement that makes sense for something meant to last that long.
 
-Every ORBES piece carries a code. Scan it with the ORBES authentication app and it tells you whether the piece is genuine. This matters more than it sounds. In most of the trade, authenticity is a promise: a certificate in a box, a receipt, the reputation of a shop. Promises live outside the object. They get lost, copied and forged, and they rarely survive a resale. A code you can verify moves authenticity into the object itself. Sold on, inherited or handed across a table decades from now, the ring can still answer the first question anyone asks of it. In finance I prepared data rooms, where a claim without a document behind it counts for nothing. A piece of jewellery deserves the same standard.
+And it changes the tone. ORBES speaks in black, in wide capitals and in few words. There are no countdowns and no discounts. A release is announced, it opens, and it closes.
 
-The house also refuses a look. ORBES speaks in black, in wide capitals, in few words. Nothing is on sale and the interface invents no urgency. A release is announced, it opens, it closes, it is drawn. The restraint is part of the product, because the way a thing is sold tells you how seriously it was made.
-
-None of this is nostalgia. I also build THE ENTITY, a product that has to change every time the AI supply chain does. That is exactly why I want some things in my life that do not update. An object you keep for decades is a fixed point. It holds a date, a decision and a person, and it does not ask to be replaced.
-
-Ten rings, one draw, a code in each. The rest is measured in decades.
+The first pieces are not shown yet. When they are, I would like them judged by one test: whether someone is still wearing them, and knows exactly what they are, long after the season of their release has been forgotten.

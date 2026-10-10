@@ -7,6 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { renderOg, type OgCard } from '../../lib/og';
 import { now, site } from '../../data/site';
+import { instruments } from '../../data/instruments';
 
 export const prerender = true;
 
@@ -20,7 +21,7 @@ const pages: Record<string, OgCard> = {
   },
   about: {
     title: 'About',
-    line: 'Trained in private equity, venture and M&A, now building THE ENTITY and ORBES.',
+    line: 'Creator and operator, across eight disciplines. Founder of THE ENTITY and ORBES.',
   },
   now: {
     title: 'Now',
@@ -45,7 +46,7 @@ const pages: Record<string, OgCard> = {
   },
 };
 
-const instrumentSlugs = ['returns', 'dilution', 'copilot-economics', 'ring-sizes'];
+const instrumentSlugs = instruments.map((i) => i.slug);
 
 // Read the title and lede an instrument page passes to its layout, so the card
 // stays in step with the page. Falls back to a plain name from the slug.
@@ -99,6 +100,7 @@ export const getStaticPaths = (async () => {
       props: {
         card: {
           title: w.data.name,
+          face: w.data.tier === 'venture' ? 'brand' : undefined,
           line: w.data.line,
           meta: `${tier}, ${w.data.role.toLowerCase()} since ${w.data.since}`,
           seed: `work/${w.id}`,

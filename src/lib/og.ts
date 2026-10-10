@@ -24,8 +24,8 @@ const COL = 640; // width of the type column
 export type OgCard = {
   /** Main title. The site name is set as the logotype; anything else in Mona Sans. */
   title: string;
-  /** Kept for the callers: 'text' marks mixed-case essay titles. */
-  face?: 'titling' | 'text';
+  /** 'text' marks mixed-case essay titles; 'brand' sets a venture name in Gravesend capitals. */
+  face?: 'titling' | 'text' | 'brand';
   /** One line beneath the title. */
   line?: string;
   /** Small line above the title (kind, date, role). */
@@ -45,6 +45,8 @@ let fonts: FontDef[] | null = null;
 function loadFonts(): FontDef[] {
   if (fonts) return fonts;
   fonts = [
+    // Gravesend Sans Medium: the logotype face, shared with ORBES and THE ENTITY.
+    { name: 'Gravesend Sans', data: readFileSync(join(OWN, 'GravesendSans-Medium.otf')), weight: 500, style: 'normal' },
     // Static instances of Mona Sans at 125% width, cut from the variable font.
     { name: 'Mona Sans Expanded', data: readFileSync(join(OWN, 'MonaSans-Expanded-300.ttf')), weight: 300, style: 'normal' },
     { name: 'Mona Sans Expanded', data: readFileSync(join(OWN, 'MonaSans-Expanded-400.ttf')), weight: 400, style: 'normal' },
@@ -149,7 +151,7 @@ function titleSize(title: string): number {
   return 44;
 }
 
-function card({ title, line, meta, seed }: OgCard): Node {
+function card({ title, line, meta, seed, face }: OgCard): Node {
   const isName = title.trim().toLowerCase() === 'eliot luca';
 
   // On the name card the logotype is the title, so the corner keeps the mark alone.
@@ -159,7 +161,7 @@ function card({ title, line, meta, seed }: OgCard): Node {
       ? null
       : h(
           'div',
-          { display: 'flex', fontFamily: 'Mona Sans Expanded', fontWeight: 400, fontSize: 19, letterSpacing: 19 * 0.3, color: C.ink },
+          { display: 'flex', fontFamily: 'Gravesend Sans', fontWeight: 500, fontSize: 18, letterSpacing: 18 * 0.3, color: C.ink },
           'ELIOT LUCA',
         ),
   ].filter(Boolean));
@@ -169,16 +171,31 @@ function card({ title, line, meta, seed }: OgCard): Node {
         'div',
         {
           display: 'flex',
-          fontFamily: 'Mona Sans Expanded',
-          fontWeight: 300,
-          fontSize: 92,
+          fontFamily: 'Gravesend Sans',
+          fontWeight: 500,
+          fontSize: 80,
           lineHeight: 0.95,
-          letterSpacing: 92 * 0.05,
+          letterSpacing: 80 * 0.1,
           color: C.ink,
         },
         'ELIOT LUCA',
       )
-    : h(
+    : face === 'brand'
+      ? h(
+          'div',
+          {
+            display: 'flex',
+            width: COL,
+            fontFamily: 'Gravesend Sans',
+            fontWeight: 500,
+            fontSize: 58,
+            lineHeight: 1.1,
+            letterSpacing: 58 * (title === 'ORBES' ? 0.4 : 0.1),
+            color: C.ink,
+          },
+          title.toUpperCase(),
+        )
+      : h(
         'div',
         {
           display: 'flex',

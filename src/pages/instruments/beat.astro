@@ -1,0 +1,856 @@
+---
+import Instrument from '../../layouts/Instrument.astro';
+import {
+  BEAT_DEFAULTS,
+  PRESETS,
+  SLOW,
+  VIEW,
+  compute,
+  count,
+  describe,
+  drawing,
+  drift,
+  fieldText,
+  figures,
+  presetFor,
+  type BeatKey,
+} from '../../lib/instruments/beat';
+
+const d = BEAT_DEFAULTS;
+const result = compute(d);
+const figs = figures(result);
+const rows = drift(result);
+const activePreset = presetFor(d.vph);
+
+// The rate error is typed with its sign, so it takes the full keyboard on a phone.
+type Field = { key: BeatKey; label: string; unit: string; mode: 'numeric' | 'decimal' | 'text'; hint?: string };
+const rateField: Field = { key: 'vph', label: 'Beat rate', unit: 'vph', mode: 'numeric' };
+const groups: { legend: string; fields: Field[] }[] = [
+  {
+    legend: 'Movement',
+    fields: [
+      {
+        key: 'teeth',
+        label: 'Escape wheel teeth',
+        unit: 'teeth',
+        mode: 'numeric',
+        hint: 'Fifteen is the classic count. Twenty is common in faster movements.',
+      },
+      { key: 'reserve', label: 'Power reserve', unit: 'hours', mode: 'decimal' },
+    ],
+  },
+  {
+    legend: 'Rate',
+    fields: [
+      {
+        key: 'rate',
+        label: 'Rate error',
+        unit: 'seconds per day',
+        mode: 'text',
+        hint: 'Positive runs fast, negative runs slow.',
+      },
+    ],
+  },
+];
+---
+
+<Instrument
+  title="Beat"
+  lede="How fast a watch beats, what it sounds like, and what a few seconds a day add up to."
+  description="See and hear the beat of a mechanical watch: frequency in hertz, beats per second, the turn of the escape wheel, and what a rate error in seconds per day adds up to."
+  family="Time"
+  slug="beat"
+>
+  <div class="instrument-grid" data-beat>
+    <form class="controls" novalidate aria-label="Watch settings">
+      <fieldset class="group">
+        <legend>Beat rate</legend>
+        <div class="presets">
+          <span class="field-label" id="bt-preset-label">Common rates, in vibrations per hour</span>
+          <div class="choice" role="radiogroup" aria-labelledby="bt-preset-label">
+            {
+              PRESETS.map((p) => (
+                <label>
+                  <input type="radio" name="preset" value={p} checked={activePreset === p} />
+                  {count(p)}
+                </label>
+              ))
+            }
+          </div>
+        </div>
+        <label class="field">
+          <span class="field-label">{rateField.label}</span>
+          <span class="field-input">
+            <input
+              type="text"
+              inputmode={rateField.mode}
+              autocomplete="off"
+              spellcheck="false"
+              name={rateField.key}
+              id={`bt-${rateField.key}`}
+              value={fieldText(rateField.key, d[rateField.key])}
+              aria-describedby={`bt-${rateField.key}-hint bt-${rateField.key}-err`}
+            />
+            <span class="unit">{rateField.unit}</span>
+          </span>
+          <span class="field-hint" id={`bt-${rateField.key}-hint`}>Type any rate from 3,600 to 360,000.</span>
+          <span class="field-error" id={`bt-${rateField.key}-err`} hidden></span>
+        </label>
+      </fieldset>
+
+      {
+        groups.map((g) => (
+          <fieldset class="group">
+            <legend>{g.legend}</legend>
+            {g.fields.map((f) => (
+              <label class="field">
+                <span class="field-label">{f.label}</span>
+                <span class="field-input">
+                  <input
+                    type="text"
+                    inputmode={f.mode}
+                    autocomplete="off"
+                    spellcheck="false"
+                    name={f.key}
+                    id={`bt-${f.key}`}
+                    value={fieldText(f.key, d[f.key])}
+                    aria-describedby={f.hint ? `bt-${f.key}-hint bt-${f.key}-err` : `bt-${f.key}-err`}
+                  />
+                  <span class="unit">{f.unit}</span>
+                </span>
+                {f.hint && (
+                  <span class="field-hint" id={`bt-${f.key}-hint`}>
+                    {f.hint}
+                  </span>
+                )}
+                <span class="field-error" id={`bt-${f.key}-err`} hidden />
+              </label>
+            ))}
+          </fieldset>
+        ))
+      }
+
+      <div class="form-foot">
+        <button type="button" class="action" data-copy>Copy link</button>
+        <button type="button" class="action" data-reset>Reset</button>
+        <p class="t-note muted status" data-status aria-live="polite"></p>
+      </div>
+    </form>
+
+    <div class="readout" aria-live="polite">
+      <dl class="figures">
+        {
+          figs.map((f) => (
+            <div class:list={['figure', { 'is-key': f.key }]} data-fig={f.id}>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+              <small>{f.small}</small>
+            </div>
+          ))
+        }
+      </dl>
+
+      <div class="bench" aria-live="off">
+        <div class="player">
+          <button type="button" class="action listen" data-listen>
+            <span class="listen-mark" aria-hidden="true"></span>
+            <span data-listen-label>Listen</span>
+          </button>
+          <div class="speed">
+            <span class="visually-hidden" id="bt-speed-label">Speed of the drawing</span>
+            <div class="choice" role="radiogroup" aria-labelledby="bt-speed-label">
+              <label><input type="radio" name="speed" value="real" checked />Real time</label>
+              <label><input type="radio" name="speed" value="slow" />1/{SLOW} speed</label>
+              <label><input type="radio" name="speed" value="rest" />At rest</label>
+            </div>
+          </div>
+          <p class="t-note muted sound-status" data-sound-status aria-live="polite"></p>
+        </div>
+        <p class="t-note muted player-note">The sound keeps the true rate. Slow motion slows the drawing only.</p>
+        <p class="t-note muted still-note">
+          Motion is reduced on this device, so the balance is drawn at rest. The strip under it shows the rhythm.
+        </p>
+
+        <figure class="study readout-drawing">
+          <svg viewBox={`0 0 ${VIEW.w} ${VIEW.h}`} role="img" aria-labelledby="bt-svg-title bt-svg-desc" data-svg>
+            <title id="bt-svg-title">The balance of a watch, and one second cut into its beats</title>
+            <desc id="bt-svg-desc">{describe(result)}</desc>
+            <g data-plot set:html={drawing(result)} />
+          </svg>
+          <figcaption class="t-note">
+            The gold mark leaves rest, turns 270° one way, comes back through rest and turns 270° the other way. Each pass
+            through rest is one beat, where two arches meet on the strip.
+          </figcaption>
+        </figure>
+      </div>
+
+      <table class="ledger">
+        <caption class="visually-hidden">What the rate error adds up to</caption>
+        <thead>
+          <tr>
+            <th scope="col">If the rate holds for</th>
+            <th scope="col" class="num">The watch is</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((row) => (
+              <tr data-drift={row.id}>
+                <th scope="row">{row.label}</th>
+                <td class="num">{row.value}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+
+      <p class="note">The defaults are illustrative and describe no particular watch.</p>
+    </div>
+  </div>
+
+  <Fragment slot="method">
+    <p>
+      A balance swings one way, then back. Each swing from one end to the other is a vibration, and it is what you hear
+      as a tick or a tock. Watchmakers count vibrations per hour (vph). An oscillation is the full cycle, there and
+      back, so it takes two vibrations. Beats per second are vph ÷ 3,600. Frequency in hertz counts oscillations per
+      second, which is half of that: vph ÷ 7,200. At 28,800 vph that is 8 beats a second and 4 Hz, and one beat lasts
+      3,600,000 ÷ vph milliseconds, here 125.
+    </p>
+    <p>
+      In a lever escapement each beat lets the escape wheel advance by half a tooth. A tooth therefore passes in two
+      beats, and one turn takes teeth × 2 beats. Dividing by beats per second gives the time of one turn: 15 teeth at
+      28,800 vph is 30 beats, or 3.75 seconds. A seconds hand geared directly to the train advances once per beat,
+      which is why it seems to glide at high rates and visibly steps at low ones. Beats per day are vph × 24, and beats
+      over the reserve are vph × hours.
+    </p>
+    <p>
+      A rate error in seconds per day becomes a fraction when divided by the 86,400 seconds in a day. Multiplied by a
+      million, it is parts per million: +4 seconds a day is about 46 ppm, a watch that is right to within 0.005%. The
+      table multiplies the daily error by 7, 30 and 365, as if it never changed.
+    </p>
+    <p>
+      On a real watch it does change, and all of that is left out. Isochronism is never perfect: the period shifts a
+      little as the mainspring runs down and the amplitude falls. The rate differs between positions, flat or on edge,
+      and with temperature. Amplitude itself is not modelled, and the drawing fixes it at 270° each side of rest. Beat
+      error, the unevenness between tick and tock, is ignored. A timing machine reads the rate over a short interval in
+      one position, while a watch on the wrist averages many positions, temperatures and states of wind, so the two
+      figures rarely agree exactly.
+    </p>
+    <p>
+      The sound is made in the browser and modelled on a lever escapement. Each beat is three knocks a few
+      milliseconds apart: the impulse jewel unlocks the lever, the escape tooth gives its impulse, then the tooth drops
+      onto the other pallet, which is the loudest. Each knock makes the movement ring briefly at several high pitches.
+      The tock comes off the other pallet, so it sits a little lower, and a faster watch packs its three knocks closer
+      together. It is not a recording. A screen redraws about 60 times a second, so at high rates the swing is easier
+      to read in slow motion.
+    </p>
+  </Fragment>
+</Instrument>
+
+<style>
+  .readout-drawing {
+    margin: 0;
+  }
+  .presets {
+    display: grid;
+    gap: 0.5rem;
+  }
+  .choice label {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .presets .choice {
+    display: flex;
+  }
+  .presets .choice label {
+    flex: 1 0 auto;
+    padding-inline: 0.5em;
+  }
+  .field-hint {
+    font-family: var(--font-ui);
+    font-size: var(--step--2);
+    color: var(--line-2);
+    line-height: 1.4;
+  }
+  .field-error:not([hidden]) {
+    display: block;
+    padding-left: 0.6em;
+    border-left: 1px solid var(--line);
+    line-height: 1.4;
+  }
+  .action {
+    min-height: 44px;
+    color: var(--line);
+  }
+  .field-input input {
+    min-height: 44px;
+  }
+  .form-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .status,
+  .sound-status {
+    font-size: var(--step-0);
+  }
+
+  /* Figures are set in the monospace cut, so digits hold their columns as they change. */
+  .figure dd {
+    font-family: var(--font-mono);
+    letter-spacing: -0.03em;
+  }
+  .figure.is-key dd {
+    font-family: var(--font-mono);
+    letter-spacing: -0.05em;
+  }
+  .figure small {
+    line-height: 1.35;
+  }
+  .ledger td.num {
+    font-family: var(--font-mono);
+    letter-spacing: -0.02em;
+  }
+  .ledger th[scope='row'] {
+    font-weight: 450;
+    color: var(--line);
+    border-bottom: 1px solid var(--rule);
+  }
+  .readout.is-stale .figures,
+  .readout.is-stale .ledger,
+  .readout.is-stale .readout-drawing {
+    opacity: 0.45;
+  }
+
+  /* The bench: sound and speed above the drawing they act on. */
+  .bench {
+    display: grid;
+    gap: var(--s2);
+    padding-top: var(--s2);
+    border-top: 1px solid var(--border-2);
+  }
+  .player {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .listen {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    min-width: 7.5em;
+    transition:
+      background-color 200ms var(--ease-out),
+      color 200ms var(--ease-out);
+  }
+  .listen-mark {
+    width: 0;
+    height: 0;
+    border-left: 0.6em solid currentColor;
+    border-top: 0.38em solid transparent;
+    border-bottom: 0.38em solid transparent;
+  }
+  .listen[data-on] {
+    background: var(--line);
+    color: var(--black);
+  }
+  .listen[data-on] .listen-mark {
+    width: 0.62em;
+    height: 0.62em;
+    border: 0;
+    background: currentColor;
+  }
+  .listen:disabled {
+    color: var(--line-3);
+    border-color: var(--line-3);
+    cursor: not-allowed;
+    background: transparent;
+  }
+  .player-note,
+  .still-note {
+    font-size: var(--step-0);
+    max-width: 34em;
+  }
+  .still-note {
+    display: none;
+  }
+  .readout-drawing figcaption {
+    max-width: 34em;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .speed {
+      display: none;
+    }
+    .still-note {
+      display: block;
+    }
+    .listen {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import {
+    BEAT_DEFAULTS,
+    BEAT_FIELDS,
+    BEAT_KEYS,
+    SLOW,
+    compute,
+    count,
+    describe,
+    drawing,
+    drift,
+    fieldText,
+    figures,
+    parseNumber,
+    pose,
+    presetFor,
+    validateField,
+    type BeatInputs,
+    type BeatKey,
+  } from '../../lib/instruments/beat';
+
+  const root = document.querySelector<HTMLElement>('[data-beat]');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    const readout = root.querySelector<HTMLElement>('.readout')!;
+    const svg = root.querySelector<SVGSVGElement>('[data-svg]')!;
+    const plot = root.querySelector<SVGGElement>('[data-plot]')!;
+    const desc = root.querySelector<SVGDescElement>('#bt-svg-desc')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const presetRadios = [...root.querySelectorAll<HTMLInputElement>('input[name="preset"]')];
+    const speedRadios = [...root.querySelectorAll<HTMLInputElement>('input[name="speed"]')];
+    const listen = root.querySelector<HTMLButtonElement>('[data-listen]')!;
+    const listenLabel = root.querySelector<HTMLElement>('[data-listen-label]')!;
+    const soundStatus = root.querySelector<HTMLElement>('[data-sound-status]')!;
+
+    const input = (k: BeatKey) => root.querySelector<HTMLInputElement>(`#bt-${k}`)!;
+
+    const setError = (k: BeatKey, msg: string | null) => {
+      const el = input(k);
+      const err = root.querySelector<HTMLElement>(`#bt-${k}-err`);
+      const wrap = el.closest('.field-input');
+      if (msg) {
+        el.setAttribute('aria-invalid', 'true');
+        wrap?.setAttribute('aria-invalid', 'true');
+        if (err) {
+          err.textContent = msg;
+          err.hidden = false;
+        }
+      } else {
+        el.removeAttribute('aria-invalid');
+        wrap?.removeAttribute('aria-invalid');
+        if (err) {
+          err.textContent = '';
+          err.hidden = true;
+        }
+      }
+    };
+
+    const syncPreset = () => {
+      // Parse as the field does, so "28,800" or "28 800" still lights the matching rate.
+      const p = presetFor(parseNumber(input('vph').value) ?? NaN);
+      presetRadios.forEach((r) => (r.checked = Number(r.value) === p));
+    };
+
+    const writeUrl = (vals: BeatInputs) => {
+      const params = new URLSearchParams();
+      for (const k of BEAT_KEYS) {
+        if (vals[k] !== BEAT_DEFAULTS[k]) params.set(BEAT_FIELDS[k].q, String(vals[k]));
+      }
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
+    };
+
+    /* ---------------------------------------------------------------- */
+    /* The moving drawing                                                */
+
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let current = compute(BEAT_DEFAULTS);
+    let speed = 1; // 1 is real time, 1 / SLOW is slow motion, 0 is at rest
+    let beats = 0; // beats elapsed on the drawing, fractions included
+    let raf = 0;
+    let last = 0;
+    let inView = true;
+
+    // The drawing is replaced on every recompute, so its moving parts are looked up again.
+    let turning: SVGGElement[] = [];
+    let spring: SVGPathElement | null = null;
+    let dot: SVGCircleElement | null = null;
+    let stem: SVGLineElement | null = null;
+    const bind = () => {
+      turning = [...plot.querySelectorAll<SVGGElement>('[data-turn]')];
+      spring = plot.querySelector<SVGPathElement>('[data-spring]');
+      dot = plot.querySelector<SVGCircleElement>('[data-dot]');
+      stem = plot.querySelector<SVGLineElement>('[data-stem]');
+    };
+
+    const place = () => {
+      const p = pose(beats, current.bps);
+      for (const g of turning) g.setAttribute('transform', p.turn);
+      spring?.setAttribute('d', p.spring);
+      dot?.setAttribute('cx', String(p.x));
+      dot?.setAttribute('cy', String(p.y));
+      stem?.setAttribute('x1', String(p.x));
+      stem?.setAttribute('x2', String(p.x));
+      stem?.setAttribute('y2', String(p.y));
+    };
+
+    const frame = (now: number) => {
+      raf = requestAnimationFrame(frame);
+      // A long gap (a hidden tab, a stalled frame) is not replayed.
+      const dt = Math.min(0.1, Math.max(0, (now - last) / 1000));
+      last = now;
+      beats += dt * current.bps * speed;
+      place();
+    };
+
+    // The balance swings only while it can be seen, and never under reduced motion.
+    const sync = () => {
+      const still = speed === 0 || reduce.matches;
+      if (!still && inView && !document.hidden) {
+        if (!raf) {
+          last = performance.now();
+          raf = requestAnimationFrame(frame);
+        }
+        return;
+      }
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+      if (still) {
+        beats = 0;
+        place();
+      }
+    };
+
+    /* ---------------------------------------------------------------- */
+    /* Figures                                                           */
+
+    let everValid = false;
+    const update = (persist = true) => {
+      const vals = {} as BeatInputs;
+      let bad = 0;
+      for (const k of BEAT_KEYS) {
+        const res = validateField(k, input(k).value);
+        if ('error' in res) {
+          setError(k, res.error);
+          bad++;
+        } else {
+          setError(k, null);
+          vals[k] = res.value;
+        }
+      }
+      syncPreset();
+
+      if (bad) {
+        readout.classList.add('is-stale');
+        // A shared link with a bad value never had a valid set of its own: say the readout is the defaults.
+        const shown = everValid ? 'the last valid set' : 'the defaults';
+        status.textContent = bad === 1 ? `One field needs a fix. The readout shows ${shown}.` : `${bad} fields need a fix. The readout shows ${shown}.`;
+        return;
+      }
+      everValid = true;
+      readout.classList.remove('is-stale');
+      status.textContent = '';
+
+      const r = compute(vals);
+      const rateChanged = r.bps !== current.bps;
+      current = r;
+      for (const f of figures(r)) {
+        const el = readout.querySelector<HTMLElement>(`[data-fig="${f.id}"]`);
+        if (!el) continue;
+        el.querySelector('dd')!.textContent = f.value;
+        el.querySelector('small')!.textContent = f.small;
+      }
+      for (const row of drift(r)) {
+        const cell = readout.querySelector<HTMLElement>(`[data-drift="${row.id}"] td`);
+        if (cell) cell.textContent = row.value;
+      }
+      plot.innerHTML = drawing(r);
+      desc.textContent = describe(r);
+      bind();
+      place();
+      if (playing && rateChanged) soundStatus.textContent = playingText();
+      if (persist) writeUrl(vals);
+    };
+
+    /* ---------------------------------------------------------------- */
+    /* Sound: Web Audio only, built on the first press of Listen         */
+
+    type Sound = { ctx: AudioContext; out: GainNode; bus: BiquadFilterNode; rate: number; ticks: AudioBuffer[]; tocks: AudioBuffer[] };
+
+    const AudioCtor: typeof AudioContext | undefined =
+      window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+
+    const LEVEL = 0.55; // master gain
+    const AHEAD = 0.15; // seconds of beats kept scheduled on the audio clock
+    const TAKES = 4; // slightly different recordings of each sound, so no two beats are identical
+
+    // What a lever escapement sounds like. Each beat is three knocks a few
+    // milliseconds apart: the impulse jewel unlocks the lever, the escape tooth
+    // gives its impulse, then the tooth drops onto the other pallet and the lever
+    // reaches its banking, which is the loudest. Each knock is a hard, very short
+    // impact that makes the plates and the case ring at a few high, unrelated
+    // pitches for some milliseconds. [pitch in Hz, level, decay in s]
+    const RING: [number, number, number][] = [
+      [2140, 0.7, 0.0052],
+      [3310, 1, 0.0044],
+      [4790, 0.8, 0.0036],
+      [6350, 0.55, 0.0028],
+      [8620, 0.36, 0.002],
+      [11300, 0.2, 0.0014],
+    ];
+    // [when, as a share of the span of one beat's sound; level; how long it rings, against RING]
+    const KNOCKS: [number, number, number][] = [
+      [0, 0.42, 0.8],
+      [0.42, 0.26, 0.7],
+      [1, 1, 1.6],
+    ];
+
+    let sound: Sound | null = null;
+    let playing = false;
+    let timer = 0;
+    let nextAt = 0; // audio clock time of the next beat
+    let strike = 0; // beats scheduled so far: even is tick, odd is tock
+    const pending = new Set<AudioBufferSourceNode>();
+
+    const playingText = () => {
+      const n = count(current.bps, 2);
+      return `Playing ${n} ${n === '1' ? 'beat' : 'beats'} a second.`;
+    };
+
+    // One beat, rendered sample by sample. A faster watch has a shorter lift, so
+    // its three knocks sit closer together. The tock comes off the other pallet:
+    // a little lower, a little softer, its knocks slightly further apart.
+    const render = (ctx: AudioContext, bps: number, tock: boolean): AudioBuffer => {
+      const rate = ctx.sampleRate;
+      const span = Math.min(0.018, Math.max(0.005, 0.085 / bps)) * (tock ? 1.07 : 1);
+      const n = Math.ceil(rate * (span + 0.045));
+      const buffer = ctx.createBuffer(1, n, rate);
+      const data = buffer.getChannelData(0);
+      const tune = (tock ? 0.94 : 1) * (0.985 + Math.random() * 0.03);
+      for (const [at, level, hold] of KNOCKS) {
+        const start = Math.round(at * span * rate);
+        const hit = level * (tock ? 0.9 : 1) * (0.9 + Math.random() * 0.2);
+        // The impact itself: a burst of noise gone in a fraction of a millisecond.
+        for (let i = start; i < n; i++) {
+          const t = (i - start) / rate;
+          if (t > 0.002) break;
+          data[i] += (Math.random() * 2 - 1) * hit * 0.7 * Math.exp(-t / 0.00022);
+        }
+        // What it sets ringing.
+        for (const [hz, weight, decay] of RING) {
+          const w = 2 * Math.PI * hz * tune * (0.99 + Math.random() * 0.02);
+          const phase = Math.random() * 2 * Math.PI;
+          const amp = hit * weight * (0.6 + Math.random() * 0.4);
+          const tau = decay * hold;
+          for (let i = start; i < n; i++) {
+            const t = (i - start) / rate;
+            if (t > tau * 7) break;
+            data[i] += amp * Math.sin(w * t + phase) * Math.exp(-t / tau);
+          }
+        }
+        // The drop also gives the case a short, lower knock.
+        if (at === 1) {
+          const w = 2 * Math.PI * 1240 * tune;
+          for (let i = start; i < n; i++) {
+            const t = (i - start) / rate;
+            if (t > 0.04) break;
+            data[i] += hit * 0.22 * Math.sin(w * t) * Math.exp(-t / 0.006);
+          }
+        }
+      }
+      let peak = 0;
+      for (let i = 0; i < n; i++) peak = Math.max(peak, Math.abs(data[i]));
+      const scale = peak > 0 ? 0.9 / peak : 1;
+      for (let i = 0; i < n; i++) data[i] *= scale;
+      return buffer;
+    };
+
+    const takes = (ctx: AudioContext, bps: number, tock: boolean) => Array.from({ length: TAKES }, () => render(ctx, bps, tock));
+
+    const build = (Ctor: typeof AudioContext): Sound => {
+      const ctx = new Ctor();
+      const out = ctx.createGain();
+      out.gain.value = 0;
+      out.connect(ctx.destination);
+      // A watch has no bass: everything below the ring of the movement is cut.
+      const bus = ctx.createBiquadFilter();
+      bus.type = 'highpass';
+      bus.frequency.value = 900;
+      bus.Q.value = 0.7;
+      bus.connect(out);
+      const rate = current.bps;
+      return { ctx, out, bus, rate, ticks: takes(ctx, rate, false), tocks: takes(ctx, rate, true) };
+    };
+
+    // Beats are placed on the audio clock a little ahead of time, so the rhythm
+    // does not depend on when this timer happens to fire.
+    const schedule = () => {
+      if (!sound || !playing) return;
+      const { ctx, bus } = sound;
+      // A new beat rate changes the spacing of the knocks: record the beat again.
+      if (sound.rate !== current.bps) {
+        sound.rate = current.bps;
+        sound.ticks = takes(ctx, current.bps, false);
+        sound.tocks = takes(ctx, current.bps, true);
+      }
+      const gap = 1 / current.bps;
+      // After a stall, pick the rhythm up again instead of firing the missed beats at once.
+      if (nextAt < ctx.currentTime) nextAt = ctx.currentTime + 0.02;
+      while (nextAt < ctx.currentTime + AHEAD) {
+        const set = strike % 2 ? sound.tocks : sound.ticks;
+        const src = ctx.createBufferSource();
+        src.buffer = set[(Math.random() * set.length) | 0];
+        const level = ctx.createGain();
+        level.gain.value = 0.88 + Math.random() * 0.12;
+        src.connect(level);
+        level.connect(bus);
+        src.start(nextAt);
+        pending.add(src);
+        src.onended = () => {
+          pending.delete(src);
+          level.disconnect();
+        };
+        strike++;
+        nextAt += gap;
+      }
+    };
+
+    const showListen = () => {
+      listen.toggleAttribute('data-on', playing);
+      listenLabel.textContent = playing ? 'Stop' : 'Listen';
+    };
+
+    const stop = (message = '') => {
+      if (!playing) return;
+      playing = false;
+      window.clearInterval(timer);
+      if (sound) {
+        const { ctx, out } = sound;
+        out.gain.cancelScheduledValues(ctx.currentTime);
+        out.gain.setTargetAtTime(0, ctx.currentTime, 0.008);
+        for (const src of pending) {
+          try {
+            src.stop(ctx.currentTime + 0.05);
+          } catch {
+            // Already ended.
+          }
+        }
+        pending.clear();
+        window.setTimeout(() => {
+          if (!playing) void ctx.suspend();
+        }, 150);
+      }
+      showListen();
+      soundStatus.textContent = message;
+    };
+
+    const start = async () => {
+      if (!AudioCtor || playing) return;
+      playing = true;
+      showListen();
+      let live: Sound;
+      try {
+        // Created and resumed inside the press itself, as browsers require.
+        live = sound ??= build(AudioCtor);
+        await live.ctx.resume();
+      } catch {
+        playing = false;
+        showListen();
+        soundStatus.textContent = 'The browser did not start the sound. Press Listen again.';
+        return;
+      }
+      // Stop may have been pressed while the audio was waking up.
+      if (!playing) return;
+      const { ctx, out } = live;
+      out.gain.cancelScheduledValues(ctx.currentTime);
+      out.gain.setTargetAtTime(LEVEL, ctx.currentTime, 0.01);
+      nextAt = ctx.currentTime + 0.06;
+      strike = 0;
+      window.clearInterval(timer);
+      timer = window.setInterval(schedule, 25);
+      schedule();
+      soundStatus.textContent = playingText();
+    };
+
+    if (AudioCtor) {
+      listen.addEventListener('click', () => {
+        if (playing) stop('Stopped.');
+        else void start();
+      });
+    } else {
+      listen.disabled = true;
+      soundStatus.textContent = 'This browser has no Web Audio, so the beat cannot be played. The figures and the drawing work without it.';
+    }
+
+    /* ---------------------------------------------------------------- */
+    /* Wiring                                                            */
+
+    // Read a shared configuration from the query string.
+    const params = new URLSearchParams(location.search);
+    for (const k of BEAT_KEYS) {
+      const v = params.get(BEAT_FIELDS[k].q);
+      if (v !== null) input(k).value = v;
+    }
+
+    form.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      if (t.name === 'preset') input('vph').value = t.value;
+      update();
+    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+
+    root.querySelector('[data-reset]')!.addEventListener('click', () => {
+      for (const k of BEAT_KEYS) input(k).value = fieldText(k, BEAT_DEFAULTS[k]);
+      update(false);
+      history.replaceState(null, '', location.pathname);
+      status.textContent = 'Back to the defaults.';
+    });
+
+    root.querySelector('[data-copy]')!.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(location.href);
+        status.textContent = 'Link copied. It opens this page with these settings.';
+      } catch {
+        status.textContent = 'The link could not be copied. Copy the address of this page instead.';
+      }
+    });
+
+    for (const r of speedRadios) {
+      r.addEventListener('change', () => {
+        if (!r.checked) return;
+        speed = r.value === 'rest' ? 0 : r.value === 'slow' ? 1 / SLOW : 1;
+        sync();
+      });
+    }
+    // A reload can restore the last choice of speed: start from what is checked.
+    const chosen = speedRadios.find((r) => r.checked)?.value;
+    speed = chosen === 'rest' ? 0 : chosen === 'slow' ? 1 / SLOW : 1;
+
+    reduce.addEventListener('change', sync);
+    document.addEventListener('visibilitychange', () => {
+      // Timers slow down in a hidden tab, which would break the rhythm: stop instead.
+      if (document.hidden) stop('Stopped while the page was hidden.');
+      sync();
+    });
+    window.addEventListener('pagehide', () => stop());
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver((entries) => {
+        inView = entries.some((e) => e.isIntersecting);
+        sync();
+      }).observe(svg);
+    }
+
+    bind();
+    update(false);
+    sync();
+  }
+</script>

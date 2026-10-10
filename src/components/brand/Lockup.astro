@@ -1,0 +1,128 @@
+---
+// A brand lockup: mark and Gravesend wordmark drawn as outlines. With `all`,
+// the three marks are present so the lockup can turn into another house
+// (see src/lib/logo-motion.ts).
+import BrandMark from './BrandMark.astro';
+import { BRANDS, BRAND_ORDER, type BrandId } from '../../lib/brands';
+import { layout, wordmarkSVG } from '../../lib/wordmark';
+
+interface Props {
+  brand?: BrandId;
+  all?: boolean;
+  class?: string;
+}
+const { brand = 'eliot', all = false, class: className } = Astro.props;
+
+const b = BRANDS[brand];
+const L = layout(b.text, b.tracking, b.space);
+const word = wordmarkSVG(L);
+
+const marks = all ? BRAND_ORDER : [brand];
+---
+
+<span class:list={['lockup', className]} data-lockup data-brand={brand}>
+  <span class="lk-marks" aria-hidden="true">
+    {
+      marks.map((id) => (
+        <span class:list={['lk-mark', `lk-mark--${id}`, { 'is-on': id === brand }]} data-brand={id}>
+          <BrandMark id={id} />
+        </span>
+      ))
+    }
+  </span>
+  <span class="lk-word" style={`width:${Math.round(L.width) / 1000}em`} set:html={word} />
+  <span class="visually-hidden" data-lk-name>{b.name}</span>
+</span>
+
+<style>
+  .lockup {
+    --lk-ink: #f1efe9;
+    --lk-accent: #cdb68a;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.95em;
+    color: var(--lk-ink);
+    line-height: 1;
+    transition: color 600ms var(--ease-out);
+  }
+
+  .lockup[data-brand='entity'] {
+    --lk-ink: #f2f1ec;
+    --lk-accent: #7abdb4;
+  }
+
+  .lockup[data-brand='orbes'] {
+    --lk-ink: #f6f2ea;
+    --lk-accent: #f6f2ea;
+  }
+
+  .lk-marks {
+    position: relative;
+    flex: none;
+    width: 1.7em;
+    height: 1.7em;
+  }
+
+  .lk-mark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  .lk-mark.is-on,
+  .lk-mark.is-moving {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lk-mark :global(svg) {
+    display: block;
+    overflow: visible;
+  }
+
+  .lk-mark--eliot :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .lk-mark--entity {
+    color: #7abdb4;
+  }
+
+  .lk-mark--entity :global(svg) {
+    width: 88%;
+    height: auto;
+  }
+
+  .lk-mark--orbes {
+    color: #f6f2ea;
+  }
+
+  .lk-mark--orbes :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .lk-word {
+    position: relative;
+    display: block;
+    height: 0.64em;
+  }
+
+  .lk-word :global(.wm) {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: block;
+    height: 0.64em;
+    overflow: visible;
+    fill: currentColor;
+  }
+
+  .lk-word :global(.scr) {
+    fill: var(--lk-accent);
+  }
+</style>

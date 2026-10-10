@@ -8,19 +8,21 @@ import ValueBridge from '../components/studies/ValueBridge.astro';
 import Dieline from '../components/studies/Dieline.astro';
 import Envelope from '../components/studies/Envelope.astro';
 import Routing from '../components/studies/Routing.astro';
-import EntityPlate from '../components/plates/EntityPlate.astro';
-import OrbesPlate from '../components/plates/OrbesPlate.astro';
+import EntityShowcase from '../components/ventures/EntityShowcase.astro';
+import OrbesShowcase from '../components/ventures/OrbesShowcase.astro';
 import Strata from '../components/Strata.astro';
+import Lockup from '../components/brand/Lockup.astro';
 import EssayList from '../components/EssayList.astro';
 import Record from '../components/Record.astro';
 import { site, disciplines } from '../data/site';
+import { instruments } from '../data/instruments';
 import { getEssays } from '../lib/writing';
-import { getCollection } from 'astro:content';
+import { layout, wordmarkSVG } from '../lib/wordmark';
+
+// The name, word by word, with the hero's tracking (src/lib/logo-motion.ts decodes it).
+const nameSVG = (w: string) => wordmarkSVG(layout(w, 0.1));
 
 const essays = (await getEssays()).slice(0, 4);
-const lab = (await getCollection('work', ({ data }) => data.visible && data.tier === 'lab')).sort(
-  (a, b) => a.data.order - b.data.order,
-);
 
 const byStudy = Object.fromEntries(disciplines.map((d) => [d.study, d]));
 const cells = [
@@ -34,39 +36,36 @@ const cells = [
   { id: 'routing', C: Routing, cls: 'c-route', delay: 920 },
 ];
 
-const credentials = ['ESSEC Business School', 'emlyon business school', 'McGill University'];
-
-const tools = [
-  { slug: 'returns', family: 'Capital', name: 'Returns', line: 'What a buyout returns, and where the return comes from.', value: '2.86×', unit: 'MOIC, 23.4% IRR' },
-  { slug: 'dilution', family: 'Capital', name: 'Dilution', line: 'What founders keep, round after round, pool included.', value: '52.1%', unit: 'founders after Series A' },
-  { slug: 'copilot-economics', family: 'Code', name: 'Copilot economics', line: 'What an AI copilot costs per user, and the margin left.', value: '80.4%', unit: 'gross margin' },
-  { slug: 'ring-sizes', family: 'Craft', name: 'Ring sizes', line: 'One finger, six sizing systems, in millimetres.', value: '17.0 mm', unit: 'US 6½, UK M½, EU 53' },
-];
+const tools = instruments;
 
 const roles = [
-  { org: 'THE ENTITY', href: '/work/the-entity', role: 'Founder', what: 'AI supply-chain intelligence for investors' },
-  { org: 'ORBES', href: '/work/orbes', role: 'Founder', what: 'Jewellery house, Paris' },
-  { org: 'Corporate development', href: '/about#record', role: 'M&A', what: 'Post-merger integration' },
-  { org: 'Private equity and venture capital', href: '/about#record', role: 'Analyst', what: 'Deals, fundraising, search fund' },
-];
+  { brand: 'entity', org: 'THE ENTITY', href: '/work/the-entity', role: 'Founder', what: 'AI supply-chain intelligence for investors' },
+  { brand: 'orbes', org: 'ORBES', href: '/work/orbes', role: 'Founder', what: "Men's accessories, sold online worldwide" },
+] as const;
 ---
 
 <Base draw>
   <section class="hero wrap" aria-labelledby="name">
     <div class="head">
-      <h1 id="name" class="name"><span class="w">Eliot</span> <span class="w">Luca</span></h1>
+      <h1 id="name" class="name">
+        <span class="visually-hidden">Eliot Luca</span>
+        <span class="w" data-word="ELIOT" aria-hidden="true" set:html={nameSVG('ELIOT')} />
+        <span class="w" data-word="LUCA" aria-hidden="true" set:html={nameSVG('LUCA')} />
+      </h1>
+      <p class="kicker t-label">Creator and operator</p>
       <p class="claim">I build on what is tangible.</p>
       <p class="intro">
-        Trained in private equity, venture capital and M&amp;A. I look for value you can trace to something real: the
-        physical chains behind markets, and objects made to last.
+        Eight disciplines, practised at once. I started with branding and design in 2016, crypto in 2017 and e-commerce
+        in 2018. Finance came after, then music, AI, 3D modelling and watchmaking. All of it points at value you can
+        trace to something real: the physical chains behind markets, and objects made to last.
       </p>
 
-      <ul class="roles" aria-label="Current and past roles">
+      <ul class="roles" aria-label="Ventures">
         {
           roles.map((r) => (
             <li>
-              <a class="org" href={r.href}>
-                {r.org}
+              <a class="org" href={r.href} aria-label={r.org}>
+                <Lockup brand={r.brand} />
               </a>
               <span class="role t-ui">{r.role}</span>
               <span class="what">{r.what}</span>
@@ -94,10 +93,10 @@ const roles = [
       <div class="s s-note">
         <p class="t-label">Studies</p>
         <p class="note-text">
-          Eight disciplines, one drawing each, every one exact. The solid turns under your hand; the escapement keeps
-          time with this page.
+          Eight disciplines, one drawing each, after Leonardo's notebooks. The solid turns under your hand; the
+          escapement keeps time with this page.
         </p>
-        <a class="note-link" href="/about#practice">How I work</a>
+        <a class="note-link" href="/about#practice">Da Vinci Mode</a>
       </div>
     </div>
     <p class="swipe t-note" aria-hidden="true">Eight drawings, one per discipline. Swipe for the rest.</p>
@@ -105,19 +104,12 @@ const roles = [
 
   <section class="wrap band" aria-labelledby="practice-title">
     <header class="band-head">
-      <p class="t-label">Disciplines</p>
-      <h2 id="practice-title" class="t-title band-title">Eight fields. <span class="t-fade">Each started on a known date.</span></h2>
+      <p class="t-label">Da Vinci Mode</p>
+      <h2 id="practice-title" class="t-title band-title">Eight disciplines. <span class="t-fade">Practised at once, each feeding the others.</span></h2>
     </header>
     <div class="panel strata-panel">
       <Strata />
     </div>
-  </section>
-
-  <section class="wrap creds" aria-labelledby="creds-title">
-    <h2 id="creds-title" class="t-label creds-title">Educated at</h2>
-    <ul class="creds-list">
-      {credentials.map((c) => <li>{c}</li>)}
-    </ul>
   </section>
 
   <section class="wrap band" id="ventures" aria-labelledby="ventures-title">
@@ -127,47 +119,20 @@ const roles = [
     </header>
     <div class="ventures">
       <div class="venture">
-        <div class="v-meta">
-          <div>
-            <h3 class="v-name"><a href="/work/the-entity">THE ENTITY</a></h3>
-            <p class="muted">The institutional-grade map of the AI supply chain. Live, model 2.8.</p>
-          </div>
-          <span class="v-role t-label">Founder</span>
-        </div>
-        <EntityPlate size="feature" />
+        <EntityShowcase />
+        <p class="v-foot"><span class="v-role t-label">Founder</span><a href="/work/the-entity">More on THE ENTITY</a></p>
       </div>
       <div class="venture">
-        <div class="v-meta">
-          <div>
-            <h3 class="v-name"><a href="/work/orbes">ORBES</a></h3>
-            <p class="muted">A Paris jewellery house. Few pieces, by draw, each with a code you can verify.</p>
-          </div>
-          <span class="v-role t-label">Founder</span>
-        </div>
-        <OrbesPlate size="feature" />
+        <OrbesShowcase />
+        <p class="v-foot"><span class="v-role t-label">Founder</span><a href="/work/orbes">More on ORBES</a></p>
       </div>
     </div>
-    {
-      lab.length > 0 && (
-        <ul class="lab">
-          {lab.map((w) => (
-            <li>
-              <a href={`/work/${w.id}`} class="lab-link">
-                <span class="lab-name">{w.data.name}</span>
-                <span class="lab-line muted">{w.data.line}</span>
-                <span class="t-label">{w.data.status}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      )
-    }
   </section>
 
   <section class="wrap band" aria-labelledby="record-title">
     <header class="band-head">
       <p class="t-label">Record</p>
-      <h2 id="record-title" class="t-title band-title">Finance first. <span class="t-fade">Private equity, venture capital, M&amp;A.</span></h2>
+      <h2 id="record-title" class="t-title band-title">Then finance. <span class="t-fade">Private equity, venture capital, M&amp;A, from 2021.</span></h2>
     </header>
     <div class="panel record-panel">
       <Record />
@@ -177,7 +142,7 @@ const roles = [
   <section class="wrap band" aria-labelledby="tools-title">
     <header class="band-head">
       <p class="t-label">Instruments</p>
-      <h2 id="tools-title" class="t-title band-title">Tools I use. <span class="t-fade">Open, in your browser.</span></h2>
+      <h2 id="tools-title" class="t-title band-title">Tools I built. <span class="t-fade">Open, in your browser.</span></h2>
     </header>
     <ul class="tools">
       {
@@ -228,22 +193,41 @@ const roles = [
     grid-column: 1 / span 6;
   }
 
-  /* The name is the logotype at display size: expanded capitals, light. */
+  /* The name is the logotype at display size, drawn as outlines so it can decode. */
   .name {
-    font-family: var(--font-ui);
-    font-stretch: 125%;
-    font-weight: 300;
-    text-transform: uppercase;
-    font-size: clamp(2.75rem, 0.6rem + 4.6vw, 5rem);
-    line-height: 0.92;
-    letter-spacing: 0.06em;
-    margin-right: -0.06em;
-    white-space: nowrap;
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 0 0.44em;
+    padding-block: 0.16em;
+    font-size: clamp(2.6rem, 0.5rem + 4.3vw, 4.75rem);
+    line-height: 1;
+    color: var(--line);
   }
 
-  @media (prefers-reduced-motion: no-preference) {
-    :global(.can-draw) .name {
-      animation: name-in 1300ms var(--ease-out) both;
+  .name .w {
+    display: block;
+    flex: none;
+  }
+
+  .name .w :global(.wm) {
+    display: block;
+    height: 0.64em;
+    overflow: visible;
+    fill: currentColor;
+  }
+
+  .name :global(.scr) {
+    fill: var(--gold);
+  }
+
+  :global(.logo-hold) .name .w {
+    opacity: 0;
+    animation: name-release 0s 2.4s forwards;
+  }
+
+  @keyframes name-release {
+    to {
+      opacity: 1;
     }
   }
 
@@ -253,20 +237,14 @@ const roles = [
     }
   }
 
-  @keyframes name-in {
-    from {
-      clip-path: inset(-10% 100% -10% 0);
-      letter-spacing: 0.14em;
-    }
-    to {
-      clip-path: inset(-10% -2% -10% 0);
-      letter-spacing: 0.06em;
-    }
+  .kicker {
+    margin-top: var(--s4);
+    color: var(--gold);
   }
 
   .claim {
     font-family: var(--font-title);
-    margin-top: var(--s4);
+    margin-top: var(--s2);
     font-size: var(--step-3);
     line-height: 1.15;
     letter-spacing: -0.01em;
@@ -292,15 +270,21 @@ const roles = [
     display: grid;
     grid-template-columns: minmax(0, 1.45fr) minmax(0, 0.9fr) minmax(0, 1.45fr);
     gap: var(--s3);
-    align-items: baseline;
-    padding-block: 0.7rem;
+    align-items: center;
+    padding-block: 0.85rem;
     border-bottom: 1px solid var(--rule);
   }
 
+  /* The two ventures, as their own logos. */
   .org {
-    font-size: var(--step-0);
-    font-weight: 500;
+    display: inline-flex;
+    font-size: 0.875rem;
     text-decoration: none;
+    transition: opacity 180ms var(--ease-out);
+  }
+
+  .org:hover {
+    opacity: 0.8;
   }
 
   .org:hover {
@@ -466,11 +450,9 @@ const roles = [
       padding-top: var(--s4);
     }
     .name {
+      flex-direction: column;
+      gap: 0.3em;
       font-size: 18.5vw;
-      white-space: normal;
-    }
-    .name .w {
-      display: block;
     }
     .roles li {
       grid-template-columns: 1fr auto;
@@ -519,28 +501,6 @@ const roles = [
     padding: clamp(18px, 3vw, 32px);
   }
 
-  .creds {
-    margin-top: var(--s7);
-    text-align: center;
-  }
-
-  .creds-title {
-    font-weight: 400;
-  }
-
-  .creds-list {
-    list-style: none;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 14px clamp(24px, 4vw, 56px);
-    margin-top: var(--s3);
-    font-size: var(--step-1);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    color: var(--line-2);
-  }
-
   .band {
     margin-top: var(--s8);
   }
@@ -557,17 +517,20 @@ const roles = [
 
   .ventures {
     display: grid;
-    grid-template-columns: 7fr 5fr;
-    gap: 20px;
-    align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: stretch;
   }
 
   .venture {
-    display: grid;
-    gap: 18px;
-    text-decoration: none;
-    color: inherit;
+    display: flex;
+    flex-direction: column;
   }
+
+  .venture > :global(article) {
+    flex: 1;
+  }
+
 
   .venture > :global(.plate) {
     transition: transform 400ms var(--ease-out);
@@ -577,31 +540,23 @@ const roles = [
     transform: translateY(-4px);
   }
 
-  .v-meta {
+  .v-foot {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
     gap: var(--s3);
+    margin-top: 16px;
     padding: 0 4px;
-    min-height: 4.6em;
+    font-size: var(--step--1);
   }
 
-  .v-name {
-    font-size: var(--step-2);
-    letter-spacing: -0.02em;
+  .v-foot a {
+    color: var(--line);
+    text-decoration-color: var(--border-2);
   }
 
-  .v-name a {
-    text-decoration: none;
-  }
-
-  .v-name a:hover {
-    color: var(--gold);
-  }
-
-  .v-meta p {
-    margin-top: 4px;
-    max-width: 30em;
+  .v-foot a:hover {
+    text-decoration-color: var(--gold);
   }
 
   .v-role {
@@ -614,41 +569,6 @@ const roles = [
   @media (max-width: 900px) {
     .ventures {
       grid-template-columns: 1fr;
-    }
-  }
-
-  .lab {
-    list-style: none;
-    margin-top: 28px;
-    border-top: 1px solid var(--border);
-  }
-
-  .lab-link {
-    display: grid;
-    grid-template-columns: 10rem minmax(0, 1fr) auto;
-    gap: var(--s3);
-    align-items: baseline;
-    padding: 18px 4px;
-    border-bottom: 1px solid var(--border);
-    text-decoration: none;
-  }
-
-  .lab-link:hover .lab-name {
-    color: var(--gold);
-  }
-
-  .lab-name {
-    font-weight: 500;
-    transition: color 180ms;
-  }
-
-  @media (max-width: 700px) {
-    .lab-link {
-      grid-template-columns: 1fr auto;
-    }
-    .lab-line {
-      grid-column: 1 / -1;
-      grid-row: 2;
     }
   }
 
@@ -688,7 +608,8 @@ const roles = [
 
   .tool-value {
     margin-top: var(--s4);
-    font-size: var(--step-4);
+    font-size: var(--step-3);
+    white-space: nowrap;
     letter-spacing: -0.03em;
     color: var(--line);
   }
@@ -707,6 +628,11 @@ const roles = [
     font-size: var(--step--1);
   }
 
+  .tools-more {
+    margin-top: var(--s3);
+    font-size: var(--step--1);
+  }
+
   @media (max-width: 1000px) {
     .tools {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -719,6 +645,24 @@ const roles = [
     }
   }
 </style>
+
+<script>
+  import { NameLoop } from '../lib/logo-motion';
+
+  // The name composes, holds a second, comes apart, again.
+  const words = [...document.querySelectorAll<HTMLElement>('.name .w')];
+  if (words.length) {
+    const name = new NameLoop(words, 0.1);
+    const intro = document.documentElement.dataset.intro === '1';
+    name.loop({ intro });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        name.stop();
+        name.rest();
+      } else name.loop();
+    });
+  }
+</script>
 
 <script>
   // Hovering a discipline in the timeline lights its drawing, and the other way round.

@@ -1,7 +1,10 @@
 ---
 import Base from '../../layouts/Base.astro';
-import EntityPlate from '../../components/plates/EntityPlate.astro';
-import OrbesPlate from '../../components/plates/OrbesPlate.astro';
+import EntityShowcase from '../../components/ventures/EntityShowcase.astro';
+import OrbesShowcase from '../../components/ventures/OrbesShowcase.astro';
+import EntityBrief from '../../components/ventures/EntityBrief.astro';
+import BrandMark from '../../components/brand/BrandMark.astro';
+import { layout, wordmarkSVG } from '../../lib/wordmark';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -15,19 +18,24 @@ export async function getStaticPaths() {
 const { entry, next } = Astro.props;
 const { Content } = await render(entry);
 const d = entry.data;
-const plates: Record<string, any> = { 'the-entity': EntityPlate, orbes: OrbesPlate };
-const studies: Record<string, any> = {};
-const Plate = plates[entry.id];
-const Drawing = studies[entry.id];
+const isEntity = entry.id === 'the-entity';
+const isOrbes = entry.id === 'orbes';
+// The name as Gravesend outlines, so the mark centres on the capitals exactly.
+const nameSVG = wordmarkSVG(layout(d.name, isOrbes ? 0.4 : 0.1, 0.08));
 ---
 
 <Base title={d.name} description={d.line} image={`/og/work/${entry.id}.png`}>
-  <article class="work">
+  <article class:list={['work', { 'is-entity': isEntity, 'is-orbes': isOrbes }]}>
     <header class="wrap head">
-      <p class="crumb t-ui"><a href="/work">Ventures</a> <span aria-hidden="true">/</span> {d.tier === 'lab' ? 'In progress' : 'Venture'}</p>
-      <h1 class="title">{d.name}</h1>
+      <p class="crumb"><a href="/work">Ventures</a> <span aria-hidden="true">/</span> {d.name}</p>
+      <h1 class="title">
+        {isOrbes && <span class="title-mark" aria-hidden="true"><BrandMark id="orbes" /></span>}
+        {isEntity && <span class="title-mark" aria-hidden="true"><BrandMark id="entity" /></span>}
+        <span class="visually-hidden">{d.name}</span>
+        <span class="title-word" aria-hidden="true" set:html={nameSVG} />
+      </h1>
       <p class="t-lede line">{d.line}</p>
-      <dl class="meta t-ui">
+      <dl class="meta">
         <div><dt>Role</dt><dd>{d.role}</dd></div>
         <div><dt>Status</dt><dd>{d.status}</dd></div>
         <div><dt>Since</dt><dd>{d.since}</dd></div>
@@ -46,13 +54,10 @@ const Drawing = studies[entry.id];
       </dl>
     </header>
 
-    {
-      Plate && (
-        <div class="wrap plate">
-          <Plate size="feature" />
-        </div>
-      )
-    }
+    <div class="wrap showcase">
+      {isEntity && <EntityShowcase headingLevel="h2" />}
+      {isOrbes && <OrbesShowcase headingLevel="h2" detail="full" />}
+    </div>
 
     {
       d.facts.length > 0 && (
@@ -60,8 +65,8 @@ const Drawing = studies[entry.id];
           <dl class="facts">
             {d.facts.map((f) => (
               <div class="fact">
-                <dt class="t-ui">{f.label}</dt>
-                <dd class="t-title">{f.value}</dd>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
               </div>
             ))}
           </dl>
@@ -69,21 +74,55 @@ const Drawing = studies[entry.id];
       )
     }
 
+    {
+      isEntity && (
+        <div class="wrap brief-wrap">
+          <EntityBrief />
+        </div>
+      )
+    }
+
+    {
+      isEntity && (
+        <section class="wrap films" aria-labelledby="films-title">
+          <div class="films-head">
+            <h2 id="films-title" class="sec-title">
+              The tour
+            </h2>
+            <p class="muted">Sixty-eight seconds through the product, then two of the instruments on their own.</p>
+          </div>
+          <figure class="tour">
+            <video controls preload="none" playsinline poster="/media/entity/tour-poster.webp">
+              <source src="/media/entity/tour.mp4" type="video/mp4" />
+            </video>
+            <figcaption class="t-label">THE ENTITY, the tour. 1:08, with sound.</figcaption>
+          </figure>
+          <div class="reels">
+            <figure class="reel">
+              <video muted loop playsinline preload="none" poster="/media/entity/who-profits.jpg" data-reel>
+                <source src="/media/entity/who-profits.mp4" type="video/mp4" />
+              </video>
+              <figcaption class="t-label">Who profits when a part runs short</figcaption>
+            </figure>
+            <figure class="reel">
+              <video muted loop playsinline preload="none" poster="/media/entity/domino.jpg" data-reel>
+                <source src="/media/entity/domino.mp4" type="video/mp4" />
+              </video>
+              <figcaption class="t-label">A shock, and how it travels the chain</figcaption>
+            </figure>
+          </div>
+        </section>
+      )
+    }
+
     <div class="wrap body">
       <div class="prose">
         <Content />
       </div>
-      {
-        Drawing && (
-          <aside class="aside" aria-label="Related drawing">
-            <Drawing />
-          </aside>
-        )
-      }
     </div>
 
-    <nav class="wrap next t-ui" aria-label="Next project">
-      <span class="muted">Next</span>
+    <nav class="wrap next" aria-label="Next venture">
+      <span class="t-label">Next</span>
       <a href={`/work/${next.id}`} class="next-link">{next.data.name}</a>
     </nav>
   </article>
@@ -97,25 +136,74 @@ const Drawing = studies[entry.id];
     grid-template-columns: repeat(12, minmax(0, 1fr));
     column-gap: clamp(12px, 2vw, 32px);
   }
+
   .crumb {
     grid-column: 1 / -1;
     font-size: var(--step--1);
     color: var(--line-2);
   }
+
+  .crumb a {
+    color: var(--line-2);
+  }
+
   .title {
     grid-column: 1 / span 8;
     margin-top: var(--s3);
-    font-family: var(--font-title);
+    font-family: var(--font-brand);
     font-weight: 500;
-    letter-spacing: -0.025em;
-    font-size: var(--step-6);
-    line-height: 0.98;
-    letter-spacing: -0.015em;
+    text-transform: uppercase;
+    font-size: clamp(2.4rem, 1rem + 4vw, 4.25rem);
+    line-height: 1;
+    letter-spacing: 0.1em;
   }
+
+  .title {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    min-height: 1.4em;
+  }
+
+  .title-word {
+    display: block;
+    min-width: 0;
+  }
+
+  .title-word :global(.wm) {
+    display: block;
+    height: 0.64em;
+    max-width: 100%;
+    overflow: visible;
+    fill: currentColor;
+  }
+
+  .title-mark {
+    flex: none;
+    display: block;
+    width: 1.05em;
+    color: var(--gold);
+  }
+
+  .title-mark :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .is-orbes .title-mark {
+    width: 1.4em;
+  }
+
+  .brief-wrap {
+    margin-bottom: var(--s7);
+  }
+
   .line {
     grid-column: 1 / span 7;
     margin-top: var(--s3);
   }
+
   .meta {
     grid-column: 9 / span 4;
     grid-row: 2 / span 2;
@@ -124,20 +212,24 @@ const Drawing = studies[entry.id];
     border-top: 1px solid var(--border-2);
     font-size: var(--step--1);
   }
+
   .meta div {
     display: flex;
     justify-content: space-between;
     gap: 1rem;
-    padding-block: 0.55rem;
+    padding-block: 0.6rem;
     border-bottom: 1px solid var(--rule);
   }
+
   .meta dt {
     color: var(--line-2);
   }
+
   .meta dd {
     margin: 0;
     text-align: right;
   }
+
   @media (max-width: 900px) {
     .title,
     .line,
@@ -149,51 +241,96 @@ const Drawing = studies[entry.id];
       margin-top: var(--s4);
     }
   }
-  .plate {
-    margin-bottom: var(--s6);
+
+  .showcase {
+    max-width: 980px;
   }
+
+  .films {
+    margin-top: var(--s7);
+    display: grid;
+    gap: var(--s4);
+  }
+
+  .films-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s1) var(--s4);
+  }
+
+  .sec-title {
+    font-family: var(--font-title);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    font-size: var(--step-4);
+    line-height: 1;
+  }
+
+  .tour,
+  .reel {
+    margin: 0;
+    display: grid;
+    gap: 10px;
+  }
+
+  .tour video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+  }
+
+  .reels {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+    max-width: 620px;
+  }
+
+  .reel video {
+    width: 100%;
+    aspect-ratio: 9 / 16;
+    object-fit: cover;
+    background: #000;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+  }
+
   .facts {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
     gap: var(--s3) var(--s4);
-    margin: 0 0 var(--s6);
+    margin: var(--s6) 0 var(--s7);
     border-top: 1px solid var(--border-2);
     padding-top: var(--s3);
   }
+
   .fact {
     display: flex;
     flex-direction: column-reverse;
     justify-content: flex-end;
     gap: 0.35rem;
   }
+
   .fact dd {
     margin: 0;
-    font-size: var(--step-4);
+    font-family: var(--font-mono);
+    font-size: var(--step-3);
     line-height: 1;
+    letter-spacing: -0.02em;
   }
+
   .fact dt {
     font-size: var(--step--1);
     color: var(--line-2);
   }
+
   .body {
-    display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
-    gap: var(--s6);
-    align-items: start;
+    margin-top: var(--s5);
   }
-  .aside {
-    position: sticky;
-    top: var(--s4);
-    max-width: 340px;
-  }
-  @media (max-width: 900px) {
-    .body {
-      grid-template-columns: 1fr;
-    }
-    .aside {
-      position: static;
-    }
-  }
+
   .next {
     margin-top: var(--s7);
     padding-top: var(--s3);
@@ -201,12 +338,35 @@ const Drawing = studies[entry.id];
     display: flex;
     align-items: baseline;
     gap: var(--s3);
-    font-size: var(--step--1);
   }
+
   .next-link {
-    font-family: var(--font-title);
+    font-family: var(--font-brand);
     font-weight: 500;
-    letter-spacing: -0.025em;
-    font-size: var(--step-3);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: var(--step-2);
+    text-decoration: none;
+  }
+
+  .next-link:hover {
+    color: var(--gold);
   }
 </style>
+
+<script>
+  // The two reels play only while on screen.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll<HTMLVideoElement>('video[data-reel]').forEach((v) => {
+    if (reduce.matches) return;
+    new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        }
+      },
+      { threshold: 0.4 },
+    ).observe(v);
+  });
+</script>

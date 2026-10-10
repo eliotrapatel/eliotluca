@@ -1,42 +1,53 @@
 ---
 name: ORBES
-line: A Paris jewellery house whose pieces carry a code and are released by draw.
+line: "A men's accessories brand: jewellery and leather goods, sold online worldwide. First reveal soon."
+summary: "ORBES is my men's accessories brand, founded in 2026: jewellery and leather goods, sold online, worldwide. Its purpose fits in one line: permanent weight for those who curate their own existence. The first pieces are not shown yet."
+points:
+  - "Men's accessories: jewellery and leather goods, made to be worn for years and kept."
+  - "Two ways to release: by draw, or live, one piece per collector."
+  - "ORBES VERIFY: every piece carries an ORBES CODE, issued and signed by ORBES."
 role: Founder
-status: First release, allocated by draw
+status: First reveal soon
 since: 2026
-url: https://theorbes.com
-urlLabel: theorbes.com
+url: https://verify.theorbes.com
+urlLabel: verify.theorbes.com
 tier: venture
 order: 2
 facts:
-  - value: Orchid
-    label: current release, a ring in 18ct gold and emerald baguettes
-  - value: "10"
-    label: pieces in the release
-  - value: "€11,000"
-    label: price of the Orchid ring
-  - value: 11 Oct 2026
-    label: entries close
+  - value: "2026"
+    label: founded, sold online worldwide
+  - value: "2"
+    label: "lines: jewellery and leather goods"
+  - value: "2"
+    label: "ways to release: by draw, or live"
+  - value: "1"
+    label: piece per collector in a live release
 ---
 
-ORBES is a jewellery house in Paris. Its line says what it is for: "Permanent weight for those who curate their own existence." I founded it in 2026.
+ORBES is my men's accessories brand, founded in 2026. It makes jewellery and leather goods, it is sold online to collectors worldwide, and it puts its purpose in one line: "Permanent weight for those who curate their own existence."
+
+## The brand
+
+ORBES makes accessories for men to wear for years and keep: jewellery first, and leather goods beside it. In its own words: "We celebrate a journey of grind, offering a fresh perspective on self-realization." Everything else follows from that: the pieces, the way they are released, and the way each one can be verified.
+
+It is also where the things I have practised longest meet. Branding and graphic design were my first discipline, in 2016. E-commerce came in 2018, stopped in 2021, and starts again here. 3D modelling, which I took up in 2026, is how the pieces are drawn.
 
 ## The identity
 
-The house identity is deliberately spare: black, a wide uppercase sans, and "Paris, 2026" as the only line it needs beneath the name. Branding was the first discipline I practised, in 2016, and ORBES is where it meets the most recent ones. On this site the house keeps its own colours and type. I frame it here; I do not restyle it.
+Spare on purpose: ivory on near-black, a monogram for the emblem, the name typed wide in capitals. On this site ORBES keeps its own colours and type.
 
-## Drawn before it is made
+## Two ways to release
 
-Each piece is modelled in 3D before it exists. The model is where proportions are decided and where a design either holds or falls apart, before any material is committed to it.
+**By draw.** Collectors enter, ORBES draws, and the collectors selected confirm.
 
-## A code in every piece
+**Live.** At a set hour the door opens. Collectors wait, keep their place in the line, then press and hold the seal to secure a piece, one per collector.
 
-Every ORBES piece carries its own code. Scanning it opens the authentication app at verify.theorbes.com, which confirms the piece is an ORBES. A piece meant to be kept should be easy to prove, years later, by whoever holds it. I would rather build that proof into the house from the start than add it once there is a reason to.
+## ORBES VERIFY
 
-## Allocation by draw
+Every piece carries an ORBES CODE, issued and signed by ORBES. Anyone can scan it with a phone at verify.theorbes.com, and the answer says that the identity was issued and signed by ORBES. From there the owner registers the piece in their name, shares its ownership certificate when it matters, and passes it on to the next owner with a transfer code.
 
-ORBES does not sell its releases to whoever reaches the checkout first. Each release is allocated by draw. Entries open, entries close, and the draw decides. When there are only a handful of pieces, the outcome should be fair, not a matter of who refreshed a page fastest.
+ORBES VERIFY is one part of the brand, built in from the first day. The pieces are the point.
 
-## The current release
+## First reveal
 
-The current release is the Orchid ring, in 18ct gold with emerald baguettes. There are ten pieces, at €11,000. Entries for the draw close on 11 October 2026.
+The first pieces are not shown yet. The first reveal is soon, and it will happen on verify.theorbes.com.

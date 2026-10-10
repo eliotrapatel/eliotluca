@@ -1,0 +1,334 @@
+---
+// THE ENTITY, shown in its own identity: canvas, surface and teal from the
+// product's tokens, Instrument Sans for titles, Geist Mono for figures, the
+// official glyph, and the launch film looping silently.
+// Figures as read on joinentity.com, October 2026. Update them here.
+import '@fontsource-variable/instrument-sans/wght.css';
+
+interface Props {
+  film?: 'loop' | 'none';
+  headingLevel?: 'h2' | 'h3';
+}
+const { film = 'loop', headingLevel = 'h3' } = Astro.props;
+const H = headingLevel;
+
+const FIGURES = [
+  { n: '835', label: 'companies' },
+  { n: '80', label: 'chain nodes' },
+  { n: '2,808', label: 'links' },
+  { n: '624', label: 'facilities' },
+  { n: '48', label: 'chokepoints' },
+  { n: '74', label: 'geographies' },
+];
+
+const POINTS = ["See the move before it's priced in", 'Know exactly which stocks profit from it', 'Get there a quarter ahead of the market'];
+---
+
+<article class="entity" lang="en">
+  <header class="e-top">
+    <a class="e-brand" href="https://joinentity.com" rel="noopener" aria-label="THE ENTITY, joinentity.com">
+      <img src="/media/entity/glyph.svg" alt="" width="24" height="20" />
+      <span class="e-word">The Entity</span>
+    </a>
+    <span class="e-url">joinentity.com</span>
+  </header>
+
+  {
+    film === 'loop' && (
+      <div class="e-film">
+        <video
+          class="e-video"
+          muted
+          loop
+          playsinline
+          autoplay
+          preload="metadata"
+          poster="/media/entity/launch-poster.jpg"
+          aria-label="THE ENTITY launch film: every AI stock mapped to its chain"
+        >
+          <source src="/media/entity/launch-loop.mp4" type="video/mp4" />
+        </video>
+      </div>
+    )
+  }
+
+  <div class="e-body">
+    <H class="e-hero">Spot the next AI winners <span>before the crowd.</span></H>
+    <p class="e-what">
+      The entire AI supply chain, from power to applications, mapped to the stocks and re-scored every night. Research
+      for investors.
+    </p>
+    <ul class="e-points">
+      {
+        POINTS.map((p) => (
+          <li>
+            <svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 6.3 5 8.6 9.5 3.6" /></svg>
+            {p}
+          </li>
+        ))
+      }
+    </ul>
+
+    <dl class="e-figures">
+      {
+        FIGURES.map((f) => (
+          <div>
+            <dt>{f.label}</dt>
+            <dd>{f.n}</dd>
+          </div>
+        ))
+      }
+    </dl>
+
+    <footer class="e-foot">
+      <a class="e-cta" href="https://joinentity.com" rel="noopener">
+        Open THE ENTITY
+        <svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 11 11 3M5 3h6v6"></path></svg>
+      </a>
+      <p class="e-note">Plans from $19/mo. Figures as of October 2026. Educational analysis, not investment advice.</p>
+    </footer>
+  </div>
+</article>
+
+<style>
+  .entity {
+    --e-canvas: #0c0c0a;
+    --e-surface: #161512;
+    --e-border: #292823;
+    --e-border-strong: #393730;
+    --e-text: #f2f1ec;
+    --e-muted: #a39e93;
+    --e-accent: #7abdb4;
+    --e-accent-soft: #18211f;
+    --e-title: 'Instrument Sans Variable', 'Instrument Sans', var(--font-ui);
+
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(120% 60% at 50% 0%, rgb(122 189 180 / 0.07), transparent 60%), var(--e-canvas);
+    border: 1px solid var(--e-border);
+    border-radius: 20px;
+    overflow: hidden;
+    color: var(--e-text);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.04),
+      0 40px 80px -40px rgb(0 0 0 / 0.9);
+  }
+
+  .e-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--e-border);
+  }
+
+  .e-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--e-text);
+    text-decoration: none;
+  }
+
+  .e-brand img {
+    width: 24px;
+    height: auto;
+  }
+
+  .e-word {
+    font-family: var(--font-brand);
+    font-weight: 500;
+    font-size: 0.8125rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .e-url {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--e-muted);
+  }
+
+  .e-film {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000 url('/media/entity/launch-poster.jpg') center / cover no-repeat;
+    border-bottom: 1px solid var(--e-border);
+  }
+
+  .e-video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .e-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding: 26px 24px 24px;
+  }
+
+  .e-hero {
+    font-family: var(--e-title);
+    font-weight: 600;
+    font-size: clamp(1.6rem, 1.1rem + 1.5vw, 2.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--e-text);
+    max-width: 16em;
+  }
+
+  .e-hero span {
+    color: var(--e-accent);
+  }
+
+  .e-what {
+    margin-top: -8px;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--e-muted);
+    max-width: 30em;
+  }
+
+  .e-points {
+    list-style: none;
+    display: grid;
+    gap: 8px;
+    font-size: var(--step--1);
+    color: var(--e-muted);
+  }
+
+  .e-points li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .e-points svg {
+    flex: none;
+    width: 14px;
+    height: 14px;
+    padding: 2px;
+    border-radius: 50%;
+    background: var(--e-accent-soft);
+    stroke: var(--e-accent);
+    stroke-width: 1.6;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .e-figures {
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    border: 1px solid var(--e-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--e-border);
+    gap: 1px;
+  }
+
+  .e-figures div {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 2px;
+    padding: 12px 14px;
+    background: var(--e-surface);
+  }
+
+  .e-figures dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    color: var(--e-text);
+  }
+
+  .e-figures dt {
+    font-size: 0.75rem;
+    color: var(--e-muted);
+  }
+
+  .e-foot {
+    margin-top: auto;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+  }
+
+  .e-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    background: var(--e-accent);
+    color: #0c0c0a;
+    font-size: var(--step--1);
+    font-weight: 600;
+    text-decoration: none;
+    transition: box-shadow 200ms var(--ease-out);
+  }
+
+  .e-cta:hover {
+    box-shadow: 0 0 0 6px rgb(122 189 180 / 0.16);
+  }
+
+  .e-cta:focus-visible {
+    outline-color: var(--e-accent);
+  }
+
+  .e-cta svg {
+    width: 12px;
+    height: 12px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .e-note {
+    flex: 1 1 16rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--e-muted);
+  }
+
+  @media (max-width: 520px) {
+    .e-figures {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .e-url {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  // The loop plays only on screen and never for visitors who asked for less motion.
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+  document.querySelectorAll<HTMLVideoElement>('.entity .e-video').forEach((v) => {
+    if (reduce.matches) {
+      v.removeAttribute('autoplay');
+      v.pause();
+      return;
+    }
+    new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting) v.play().catch(() => {});
+          else v.pause();
+        }
+      },
+      { threshold: 0.2 },
+    ).observe(v);
+  });
+</script>

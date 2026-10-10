@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { site } from '../data/site';
+import { BRANDS, brandForPath } from '../lib/brands';
 
 interface Props {
   title?: string;
@@ -35,6 +36,7 @@ const canonical = new URL(path, site.url).href;
 const ogImage = new URL(image, site.url).href;
 // The 404 page is served at any missing address: keep it out of the index.
 const notFound = path === '/404';
+const brand = brandForPath(path);
 const ogLocale = lang === 'fr' ? 'fr_FR' : 'en_GB';
 
 const sameAs = [
@@ -43,7 +45,7 @@ const sameAs = [
   site.social.github,
   site.social.instagram,
   'https://joinentity.com',
-  'https://theorbes.com',
+  'https://verify.theorbes.com',
 ].filter(Boolean);
 
 const person = {
@@ -79,14 +81,15 @@ const jsonLd =
 ---
 
 <!doctype html>
-<html lang={lang} data-page={Astro.url.pathname}>
+<html lang={lang} data-page={Astro.url.pathname} data-brand={brand}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
-    <meta name="theme-color" content="#050506" />
+    <meta name="theme-color" content={BRANDS[brand].ground} />
+    <link rel="preload" href="/fonts/gravesend-sans-500.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="alternate" type="application/rss+xml" title={`${site.name}, writing`} href="/rss.xml" />
@@ -113,8 +116,18 @@ const jsonLd =
         try {
           drawn = sessionStorage.getItem('sheet-drawn') === '1';
         } catch (e) {}
-        if (!drawn && window.matchMedia && matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+        var moving = window.matchMedia && matchMedia('(prefers-reduced-motion: no-preference)').matches;
+        if (!drawn && moving) {
           d.classList.add('can-draw');
+        }
+        // The lockup and the name compose on the first view of a visit.
+        var hold = false;
+        try {
+          hold = !sessionStorage.getItem('logo-seen');
+        } catch (e) {}
+        if (hold && moving) {
+          d.classList.add('logo-hold');
+          d.dataset.intro = '1';
         }
       })();
     </script>

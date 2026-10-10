@@ -1,0 +1,439 @@
+---
+import Instrument from '../../layouts/Instrument.astro';
+import {
+  ORDER_DEFAULTS,
+  ORDER_FIELDS,
+  compute,
+  describe,
+  drawing,
+  figures,
+  scaleText,
+  VIEW,
+  type OrderKey,
+} from '../../lib/instruments/order';
+
+const d = ORDER_DEFAULTS;
+const result = compute(d);
+const figs = figures(result);
+
+// A control is a typed field, or a scale when its spec carries a step.
+type Control = { key: OrderKey; label: string; unit: string; mode: 'numeric' | 'decimal' };
+const groups: { legend: string; controls: Control[] }[] = [
+  {
+    legend: 'The order',
+    controls: [
+      { key: 'price', label: 'Selling price per unit', unit: '€', mode: 'decimal' },
+      { key: 'discount', label: 'Average discount', unit: '%', mode: 'decimal' },
+      { key: 'units', label: 'Units per order', unit: 'units', mode: 'decimal' },
+    ],
+  },
+  {
+    legend: 'Cost of the goods',
+    controls: [
+      { key: 'cogs', label: 'Product cost per unit', unit: '€', mode: 'decimal' },
+      { key: 'packaging', label: 'Packaging per order', unit: '€', mode: 'decimal' },
+    ],
+  },
+  {
+    legend: 'Getting it there',
+    controls: [
+      { key: 'shipping', label: 'Shipping and fulfilment per order', unit: '€', mode: 'decimal' },
+      { key: 'shipPaid', label: 'Share of shipping paid by the customer', unit: '%', mode: 'decimal' },
+    ],
+  },
+  {
+    legend: 'Fees and returns',
+    controls: [
+      { key: 'feePct', label: 'Payment fee, percentage of the amount paid', unit: '%', mode: 'decimal' },
+      { key: 'feeFixed', label: 'Fixed payment fee per order', unit: '€', mode: 'decimal' },
+      { key: 'returnRate', label: 'Return rate, share of orders sent back', unit: '%', mode: 'decimal' },
+      { key: 'returnCost', label: 'Cost of handling one return', unit: '€', mode: 'decimal' },
+    ],
+  },
+  {
+    legend: 'Acquisition',
+    controls: [{ key: 'cpa', label: 'Cost to acquire one order (CPA)', unit: '€', mode: 'decimal' }],
+  },
+  {
+    legend: 'The month',
+    controls: [{ key: 'fixed', label: 'Fixed costs per month', unit: '€', mode: 'numeric' }],
+  },
+];
+---
+
+<Instrument
+  title="Order Profitability"
+  lede="What one online order leaves after product, shipping, fees, returns and ads."
+  description="Work out what one online order leaves after product cost, shipping, payment fees, returns and ads, with the break-even ROAS, the maximum CPA and the orders needed to cover fixed costs."
+  family="Commerce"
+  slug="order"
+>
+  <div class="instrument-grid" data-order>
+    <form class="controls" novalidate aria-label="Order assumptions">
+      {
+        groups.map((g) => (
+          <fieldset class="group">
+            <legend>{g.legend}</legend>
+            {g.controls.map((c) => {
+              const spec = ORDER_FIELDS[c.key];
+              return spec.step === undefined ? (
+                <label class="field">
+                  <span class="field-label">{c.label}</span>
+                  <span class="field-input">
+                    <input
+                      type="text"
+                      inputmode={c.mode}
+                      autocomplete="off"
+                      spellcheck="false"
+                      name={c.key}
+                      id={`or-${c.key}`}
+                      value={String(d[c.key])}
+                      aria-describedby={`or-${c.key}-err`}
+                    />
+                    <span class="unit">{c.unit}</span>
+                  </span>
+                  <span class="field-error" id={`or-${c.key}-err`} hidden />
+                </label>
+              ) : (
+                <label class="scale">
+                  <span class="field-label">
+                    {c.label}
+                    <output class="scale-value" for={`or-${c.key}`} id={`or-${c.key}-out`}>
+                      {scaleText(d[c.key])}
+                    </output>
+                  </span>
+                  <input
+                    type="range"
+                    name={c.key}
+                    id={`or-${c.key}`}
+                    min={spec.min}
+                    max={spec.max}
+                    step={spec.step}
+                    value={d[c.key]}
+                    aria-valuetext={scaleText(d[c.key])}
+                  />
+                  <span class="scale-ticks" aria-hidden="true">
+                    <span>{scaleText(spec.min)}</span>
+                    <span>{scaleText(spec.max)}</span>
+                  </span>
+                </label>
+              );
+            })}
+          </fieldset>
+        ))
+      }
+
+      <div class="form-foot">
+        <button type="button" class="action" data-copy>Copy link</button>
+        <button type="button" class="action" data-reset>Reset</button>
+        <p class="t-note muted status" data-status aria-live="polite"></p>
+      </div>
+    </form>
+
+    <div class="readout" aria-live="polite">
+      <dl class="figures">
+        {
+          figs.map((f) => (
+            <div class:list={['figure', { 'is-key': f.key }]} data-fig={f.id}>
+              <dt>{f.label}</dt>
+              <dd>{f.value}</dd>
+              <small>{f.small}</small>
+            </div>
+          ))
+        }
+      </dl>
+      <figure class="study readout-drawing" aria-live="off">
+        <svg
+          viewBox={`0 0 ${VIEW.w} ${VIEW.h}`}
+          preserveAspectRatio="xMidYMin meet"
+          role="img"
+          aria-labelledby="or-svg-title or-svg-desc"
+          data-svg
+        >
+          <title id="or-svg-title">Waterfall of one order, from what the customer pays to what is left</title>
+          <desc id="or-svg-desc">{describe(result)}</desc>
+          <g data-plot set:html={drawing(result)} />
+        </svg>
+        <figcaption class="t-note">
+          One average order, read from the top: what the customer pays, each cost taken off in turn, then what is left.
+        </figcaption>
+      </figure>
+      <p class="note">
+        Every default on this page is illustrative. Put in your own prices, costs and rates, all net of tax.
+      </p>
+    </div>
+  </div>
+
+  <Fragment slot="method">
+    <p>
+      The customer pays the selling price × units × (1 − discount), plus their share of the shipping cost. The payment
+      fee is that amount × the fee percentage, plus the fixed fee. Enter every price and cost net of tax.
+    </p>
+    <p>
+      A share of orders comes back: the return rate. A returned order is refunded in full, the shipping charge included.
+      The product goes back into stock, so its cost is recovered. The packaging, the outbound shipping and the payment
+      fee are spent and stay spent, and the cost of handling the return is added. Every figure is therefore an average
+      over kept and returned orders: net revenue is the amount paid × (1 − return rate), product cost is cost per unit ×
+      units × (1 − return rate), and return handling is the return rate × the cost of one return.
+    </p>
+    <p>
+      Contribution before ads is net revenue less product, packaging, shipping, payment fees and return handling. It is
+      also the maximum CPA: the most that acquiring one order can cost before the order loses money. What is left is
+      contribution less the CPA entered.
+    </p>
+    <p>
+      ROAS, return on ad spend, is revenue divided by what was spent on ads. Break-even ROAS is net revenue ÷
+      contribution before ads: the revenue each euro of advertising must bring back for the order to leave exactly
+      nothing. At a break-even of 2.00×, a campaign returning €2 for every €1 spent earns nothing, one above it earns,
+      and one below it loses on every order. The ROAS at the CPA entered is net revenue ÷ CPA, to set against that
+      threshold.
+    </p>
+    <p>
+      Orders needed in a month are the fixed costs ÷ what one order leaves after ads, rounded up. When an order leaves
+      nothing, no volume covers the fixed costs and the instrument says never.
+    </p>
+    <p>
+      It ignores VAT and sales tax, repeat purchases and lifetime value, the timing of stock and cash, chargebacks and
+      currency. It also assumes every returned product can be sold again at full price, and that a customer acquired
+      once is worth one order. Amounts are rounded to the cent, so a column can differ from its total by a cent.
+    </p>
+  </Fragment>
+</Instrument>
+
+<style>
+  .readout-drawing {
+    margin: 0;
+  }
+  /* The drawing keeps its height while the client redraws it at the rendered width. */
+  .readout-drawing svg {
+    min-height: 326px;
+  }
+  .readout-drawing :global(text.amt) {
+    font-family: var(--font-mono);
+    font-variant-numeric: lining-nums tabular-nums;
+    fill: var(--line);
+  }
+  .readout-drawing figcaption {
+    max-width: 34em;
+  }
+  /* Figures are set in the mono face, typed and computed alike. */
+  .field-input input {
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+  }
+  .field-input:focus-within {
+    border-bottom-color: var(--gold);
+  }
+  .field-error:not([hidden]) {
+    display: block;
+    padding-left: 0.6em;
+    border-left: 1px solid var(--line);
+    line-height: 1.4;
+  }
+  .scale input[type='range'] {
+    height: 44px;
+  }
+  .scale-value {
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+  .figure dd {
+    font-family: var(--font-mono);
+    letter-spacing: -0.02em;
+  }
+  .figure.is-key dd {
+    font-family: var(--font-mono);
+    font-size: var(--step-5);
+    letter-spacing: -0.04em;
+  }
+  .figure small {
+    line-height: 1.35;
+  }
+  .action {
+    min-height: 44px;
+    color: var(--line);
+  }
+  .form-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s1) var(--s2);
+  }
+  .status {
+    flex: 1 1 14em;
+    font-size: var(--step-0);
+  }
+  .readout.is-stale .figures,
+  .readout.is-stale .readout-drawing {
+    opacity: 0.45;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .readout .figures,
+    .readout .readout-drawing {
+      transition: opacity 200ms var(--ease-out);
+    }
+  }
+</style>
+
+<script>
+  import {
+    ORDER_DEFAULTS,
+    ORDER_FIELDS,
+    ORDER_KEYS,
+    VIEW,
+    compute,
+    describe,
+    drawing,
+    figures,
+    scaleText,
+    validateField,
+    type OrderInputs,
+    type OrderKey,
+    type OrderResult,
+  } from '../../lib/instruments/order';
+
+  const root = document.querySelector<HTMLElement>('[data-order]');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    const readout = root.querySelector<HTMLElement>('.readout')!;
+    const svg = root.querySelector<SVGSVGElement>('[data-svg]')!;
+    const plot = root.querySelector<SVGGElement>('[data-plot]')!;
+    const desc = root.querySelector<SVGDescElement>('#or-svg-desc')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const figure = svg.closest('figure')!;
+
+    const input = (k: OrderKey) => root.querySelector<HTMLInputElement>(`#or-${k}`)!;
+    const scaleKeys = ORDER_KEYS.filter((k) => ORDER_FIELDS[k].step !== undefined);
+
+    const setError = (k: OrderKey, msg: string | null) => {
+      const el = input(k);
+      const err = root.querySelector<HTMLElement>(`#or-${k}-err`);
+      const wrap = el.closest('.field-input');
+      if (msg) {
+        el.setAttribute('aria-invalid', 'true');
+        wrap?.setAttribute('aria-invalid', 'true');
+        if (err) {
+          err.textContent = msg;
+          err.hidden = false;
+        }
+      } else {
+        el.removeAttribute('aria-invalid');
+        wrap?.removeAttribute('aria-invalid');
+        if (err) {
+          err.textContent = '';
+          err.hidden = true;
+        }
+      }
+    };
+
+    const writeUrl = (vals: OrderInputs) => {
+      const params = new URLSearchParams();
+      for (const k of ORDER_KEYS) {
+        if (vals[k] !== ORDER_DEFAULTS[k]) params.set(ORDER_FIELDS[k].q, String(vals[k]));
+      }
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
+    };
+
+    // The waterfall is redrawn at the rendered width, so its lettering stays at true size.
+    let last: OrderResult | null = null;
+    const drawingWidth = () => {
+      const w = Math.round(figure.getBoundingClientRect().width);
+      return Math.max(280, Math.min(760, w || VIEW.w));
+    };
+    const draw = () => {
+      if (!last) return;
+      const w = drawingWidth();
+      svg.setAttribute('viewBox', `0 0 ${w} ${VIEW.h}`);
+      plot.innerHTML = drawing(last, w);
+    };
+
+    let everValid = false;
+    const update = (persist = true) => {
+      const vals = {} as OrderInputs;
+      let bad = 0;
+      for (const k of ORDER_KEYS) {
+        const res = validateField(k, input(k).value);
+        if ('error' in res) {
+          setError(k, res.error);
+          bad++;
+        } else {
+          setError(k, null);
+          vals[k] = res.value;
+        }
+      }
+      for (const k of scaleKeys) {
+        const text = scaleText(Number(input(k).value));
+        root.querySelector<HTMLOutputElement>(`#or-${k}-out`)!.value = text;
+        input(k).setAttribute('aria-valuetext', text);
+      }
+
+      if (bad) {
+        readout.classList.add('is-stale');
+        // A shared link with a bad value never had a valid set of its own: say the readout is the defaults.
+        const shown = everValid ? 'the last valid set' : 'the illustrative defaults';
+        status.textContent = bad === 1 ? `One field needs a fix. The readout shows ${shown}.` : `${bad} fields need a fix. The readout shows ${shown}.`;
+        return;
+      }
+      everValid = true;
+      readout.classList.remove('is-stale');
+      status.textContent = '';
+
+      const r = compute(vals);
+      for (const f of figures(r)) {
+        const el = readout.querySelector<HTMLElement>(`[data-fig="${f.id}"]`);
+        if (!el) continue;
+        el.querySelector('dd')!.textContent = f.value;
+        el.querySelector('small')!.textContent = f.small;
+      }
+      last = r;
+      draw();
+      desc.textContent = describe(r);
+      if (persist) writeUrl(vals);
+    };
+
+    // Read a shared configuration from the query string.
+    const params = new URLSearchParams(location.search);
+    for (const k of ORDER_KEYS) {
+      const v = params.get(ORDER_FIELDS[k].q);
+      if (v !== null) input(k).value = v;
+    }
+
+    form.addEventListener('input', () => update());
+    form.addEventListener('submit', (e) => e.preventDefault());
+
+    root.querySelector('[data-reset]')!.addEventListener('click', () => {
+      for (const k of ORDER_KEYS) input(k).value = String(ORDER_DEFAULTS[k]);
+      update(false);
+      history.replaceState(null, '', location.pathname);
+      status.textContent = 'Back to the illustrative defaults.';
+    });
+
+    root.querySelector('[data-copy]')!.addEventListener('click', async () => {
+      if (readout.classList.contains('is-stale')) {
+        status.textContent = 'Fix the marked fields first, so the link carries a valid set.';
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(location.href);
+        status.textContent = 'Link copied. It opens this page with these settings.';
+      } catch {
+        status.textContent = 'Copying is blocked here. The address bar already holds these settings.';
+      }
+    });
+
+    update(false);
+
+    if ('ResizeObserver' in window) {
+      let lastW = drawingWidth();
+      new ResizeObserver(() => {
+        const w = drawingWidth();
+        if (w !== lastW) {
+          lastW = w;
+          draw();
+        }
+      }).observe(figure);
+    }
+  }
+</script>

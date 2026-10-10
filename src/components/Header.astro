@@ -1,8 +1,13 @@
 ---
-import { site } from '../data/site';
-import Logo from './brand/Logo.astro';
+// The bar, group style: the lockup of the current house, a switch between
+// Eliot Luca, THE ENTITY and ORBES, the site nav and the house's own action.
+import Lockup from './brand/Lockup.astro';
+import BrandMark from './brand/BrandMark.astro';
+import { BRANDS, BRAND_ORDER, brandForPath } from '../lib/brands';
 
 const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+const brand = brandForPath(path);
+const b = BRANDS[brand];
 
 const items = [
   { href: '/work', label: 'Ventures' },
@@ -14,11 +19,30 @@ const items = [
 const isCurrent = (href: string) => path === href || path.startsWith(href + '/');
 ---
 
-<header class="top" lang="en">
+<header class="top" lang="en" data-brand={brand}>
   <div class="wrap bar">
-    <a class="home" href="/" aria-label="Eliot Luca, home" aria-current={path === '/' ? 'page' : undefined}>
-      <Logo size="sm" />
+    <a class="home" href={b.href} aria-current={path === b.href ? 'page' : undefined}>
+      <Lockup brand={brand} all />
     </a>
+
+    <nav class="houses" aria-label="Houses" style={`--i:${BRAND_ORDER.indexOf(brand)}`}>
+      <span class="h-ind" aria-hidden="true"></span>
+      {
+        BRAND_ORDER.map((id) => (
+          <a
+            class:list={['house', `house--${id}`]}
+            href={BRANDS[id].href}
+            data-house={id}
+            data-label={BRANDS[id].name}
+            aria-label={BRANDS[id].name}
+            aria-current={id === brand ? 'true' : undefined}
+          >
+            <BrandMark id={id} detail="bold" />
+          </a>
+        ))
+      }
+    </nav>
+
     <nav class="nav" aria-label="Main">
       <ul>
         {
@@ -32,38 +56,149 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
         }
       </ul>
     </nav>
-    <a class="btn btn-primary cta" href={`mailto:${site.email}`}>Get in touch</a>
+    <a class="btn btn-primary cta" href={b.cta.href} rel={b.cta.external ? 'noopener' : undefined} data-cta>
+      <span>{b.cta.label}</span>
+    </a>
   </div>
 </header>
 
 <style>
   .top {
+    --hd-ground: rgb(5 5 6 / 0.72);
+    --hd-accent: var(--gold);
     position: sticky;
     top: 0;
     z-index: 40;
     border-bottom: 1px solid var(--border);
-    background: rgb(5 5 6 / 0.72);
+    background: var(--hd-ground);
     -webkit-backdrop-filter: saturate(140%) blur(16px);
     backdrop-filter: saturate(140%) blur(16px);
+    transition: background-color 600ms var(--ease-out);
+    view-transition-name: site-header;
+  }
+
+  .top[data-brand='entity'] {
+    --hd-ground: rgb(12 12 10 / 0.78);
+    --hd-accent: #7abdb4;
+  }
+
+  .top[data-brand='orbes'] {
+    --hd-ground: rgb(10 10 10 / 0.8);
+    --hd-accent: #f6f2ea;
   }
 
   .bar {
     display: flex;
     align-items: center;
-    gap: var(--s4);
+    gap: var(--s3);
     min-height: 64px;
   }
 
   .home {
     display: inline-flex;
     padding-block: 10px;
+    font-size: 0.8125rem;
     text-decoration: none;
     color: var(--line);
-    transition: opacity 180ms var(--ease-out);
   }
 
-  .home:hover {
-    opacity: 0.82;
+  /* The switch: three marks in a hairline pill, a lit seat under the current one. */
+  .houses {
+    --seat: 34px;
+    position: relative;
+    display: flex;
+    padding: 3px;
+    border: 1px solid var(--border-2);
+    border-radius: 999px;
+  }
+
+  .h-ind {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: var(--seat);
+    height: calc(100% - 6px);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+    transform: translateX(calc(var(--i) * var(--seat)));
+    transition: transform 700ms var(--ease-out);
+  }
+
+  .house {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: var(--seat);
+    height: 28px;
+    border-radius: 999px;
+    color: var(--line-2);
+    opacity: 0.55;
+    transition:
+      opacity 300ms var(--ease-out),
+      color 300ms var(--ease-out);
+  }
+
+  .house :global(svg) {
+    display: block;
+    width: 15px;
+    height: 15px;
+  }
+
+  .house--entity :global(svg) {
+    width: 14px;
+    height: auto;
+  }
+
+  .house:hover,
+  .house:focus-visible,
+  .house[aria-current] {
+    opacity: 1;
+  }
+
+  .house--eliot[aria-current] {
+    color: #cdb68a;
+  }
+  .house--entity[aria-current] {
+    color: #7abdb4;
+  }
+  .house--orbes[aria-current] {
+    color: #f6f2ea;
+  }
+
+  .house--eliot :global(.mark) {
+    color: inherit;
+  }
+
+  /* The house name, on hover. */
+  .house::after {
+    content: attr(data-label);
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 50%;
+    padding: 6px 10px 5px;
+    border: 1px solid var(--border-2);
+    border-radius: 8px;
+    background: rgb(11 11 13 / 0.96);
+    color: var(--line);
+    font-family: var(--font-brand);
+    font-weight: 500;
+    font-size: 0.625rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(-50%, -4px);
+    pointer-events: none;
+    transition:
+      opacity 200ms var(--ease-out),
+      transform 200ms var(--ease-out);
+  }
+
+  .house:hover::after,
+  .house:focus-visible::after {
+    opacity: 1;
+    transform: translate(-50%, 0);
   }
 
   .nav {
@@ -101,12 +236,35 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
     right: 0;
     bottom: 0;
     height: 1px;
-    background: var(--gold);
+    background: var(--hd-accent);
   }
 
   .cta {
     min-height: 38px;
     padding: 0.6em 1.05em;
+    white-space: nowrap;
+  }
+
+  .top[data-brand='entity'] .cta {
+    background: #7abdb4;
+    color: #0c0c0a;
+  }
+
+  .top[data-brand='orbes'] .cta {
+    border-radius: 0;
+    background: #f6f2ea;
+    color: #0a0a0a;
+    font-family: var(--font-brand);
+    font-weight: 500;
+    font-size: 0.6875rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 960px) {
+    .cta {
+      display: none;
+    }
   }
 
   @media (max-width: 760px) {
@@ -114,7 +272,10 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
       flex-wrap: wrap;
       row-gap: 0;
       min-height: 0;
-      padding-top: 10px;
+      padding-top: 8px;
+    }
+    .houses {
+      margin-left: auto;
     }
     .nav {
       order: 3;
@@ -124,8 +285,95 @@ const isCurrent = (href: string) => path === href || path.startsWith(href + '/')
     .nav ul {
       justify-content: space-between;
     }
-    .cta {
-      margin-left: auto;
+    .house::after {
+      display: none;
     }
   }
 </style>
+
+<script>
+  import { LogoStage, prefersStill } from '../lib/logo-motion';
+  import { BRANDS, BRAND_ORDER, type BrandId } from '../lib/brands';
+
+  const top = document.querySelector<HTMLElement>('header.top');
+  const lockup = top?.querySelector<HTMLElement>('[data-lockup]');
+
+  if (top && lockup) {
+    const stage = new LogoStage(lockup);
+    const html = document.documentElement;
+    const store = (k: string, v: string | null) => {
+      try {
+        if (v === null) sessionStorage.removeItem(k);
+        else sessionStorage.setItem(k, v);
+      } catch {
+        /* storage unavailable */
+      }
+    };
+
+    // The lockup composes, holds a second, comes apart, again. On the first
+    // view of a visit it starts by composing; later it starts at rest.
+    const intro = html.dataset.intro === '1';
+    html.classList.remove('logo-hold');
+    stage.loop({ intro });
+    store('logo-seen', '1');
+
+    // A hidden tab does not need to keep decoding.
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stage.stop();
+        stage.rest();
+      } else if (!leaving) stage.loop();
+    });
+
+    let leaving = false;
+    const houses = top.querySelector<HTMLElement>('.houses');
+    const cta = top.querySelector<HTMLAnchorElement>('[data-cta]');
+
+    houses?.addEventListener('click', async (e) => {
+      const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-house]');
+      if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+      const id = a.dataset.house as BrandId;
+      if (id === stage.brand) return;
+      e.preventDefault();
+      if (leaving) return;
+      leaving = true;
+
+      houses.style.setProperty('--i', String(BRAND_ORDER.indexOf(id)));
+      houses.querySelectorAll('a[data-house]').forEach((h) => h.toggleAttribute('aria-current', h === a));
+      top.dataset.brand = id;
+
+      if (cta && !prefersStill()) {
+        const label = cta.querySelector('span');
+        cta.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }).finished.then(() => {
+          if (label) label.textContent = BRANDS[id].cta.label;
+          cta.href = BRANDS[id].cta.href;
+          cta.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 400, fill: 'forwards' });
+        });
+      }
+
+      // One name decodes into the other, then the house opens.
+      if (!prefersStill()) await stage.switchTo(id);
+      location.assign(a.href);
+    });
+
+    // Back to a page from the cache: undo a switch that was under way.
+    const home = stage.brand;
+    const homeCta = cta ? { label: cta.textContent?.trim() ?? '', href: cta.href } : null;
+    window.addEventListener('pageshow', (e) => {
+      if (!e.persisted) return;
+      leaving = false;
+      stage.stop();
+      houses?.style.setProperty('--i', String(BRAND_ORDER.indexOf(home)));
+      houses?.querySelectorAll<HTMLElement>('a[data-house]').forEach((h) => h.toggleAttribute('aria-current', h.dataset.house === home));
+      top.dataset.brand = home;
+      if (cta && homeCta) {
+        cta.getAnimations().forEach((a) => a.cancel());
+        cta.href = homeCta.href;
+        const label = cta.querySelector('span');
+        if (label) label.textContent = homeCta.label;
+      }
+      stage.setBrand(home);
+      stage.loop();
+    });
+  }
+</script>

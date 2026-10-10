@@ -1,0 +1,546 @@
+---
+import Instrument from '../../layouts/Instrument.astro';
+import {
+  DIRECTIONS,
+  LOSS_MARK,
+  LOSS_VIEW,
+  POOL_DEFAULTS,
+  POOL_FIELDS,
+  VIEW,
+  compute,
+  describe,
+  describeLoss,
+  drawing,
+  fieldText,
+  figures,
+  lossDrawing,
+  moveSpoken,
+  moveText,
+  pct,
+  type Direction,
+  type PoolKey,
+} from '../../lib/instruments/pool';
+
+const d = POOL_DEFAULTS;
+const result = compute(d);
+const figs = figures(result);
+const tradeFigs = figs.filter((f) => f.group === 'trade');
+const lpFigs = figs.filter((f) => f.group === 'lp');
+
+type Field = { key: PoolKey; label: string; unit: string };
+const poolFields: Field[] = [
+  { key: 'reserveA', label: 'Reserve of token A', unit: 'token A' },
+  { key: 'reserveB', label: 'Reserve of token B', unit: 'US$' },
+  { key: 'fee', label: 'Pool fee', unit: '% of the amount in' },
+];
+const sizeField: Field = { key: 'size', label: 'Trade size', unit: DIRECTIONS[d.direction].unit };
+const directionIds = Object.keys(DIRECTIONS) as Direction[];
+const M = POOL_FIELDS.move;
+// The marked loss and the two price moves that reach it, lettered once for the caption and the method.
+const mark = result.lp.mark;
+const markLoss = pct(Math.abs(LOSS_MARK), 0);
+const markMoves = `the price falls ${pct(Math.abs(mark.down), 1)} or rises ${pct(mark.up, 1)}`;
+---
+
+<Instrument
+  title="Pool"
+  lede="What a trade costs in a constant-product pool, and what providing liquidity gives up."
+  description="Work out the price impact, execution price and fee of a trade in a constant-product liquidity pool, and the impermanent loss of providing liquidity."
+  family="Crypto"
+  slug="pool"
+>
+  <div class="pool" data-pool>
+    <div class="instrument-grid">
+      <form class="controls" id="po-form" novalidate aria-label="Pool and trade">
+        <fieldset class="group">
+          <legend>Pool</legend>
+          {
+            poolFields.map((f) => (
+              <label class="field">
+                <span class="field-label">{f.label}</span>
+                <span class="field-input">
+                  <input
+                    type="text"
+                    inputmode="decimal"
+                    autocomplete="off"
+                    spellcheck="false"
+                    name={f.key}
+                    id={`po-${f.key}`}
+                    value={fieldText(d[f.key])}
+                    aria-describedby={`po-${f.key}-err`}
+                  />
+                  <span class="unit">{f.unit}</span>
+                </span>
+                <span class="field-error" id={`po-${f.key}-err`} hidden />
+              </label>
+            ))
+          }
+        </fieldset>
+
+        <fieldset class="group">
+          <legend>Trade</legend>
+          <div class="direction">
+            <span class="field-label" id="po-direction-label">Direction</span>
+            <div class="choice" role="radiogroup" aria-labelledby="po-direction-label">
+              {
+                directionIds.map((id) => (
+                  <label>
+                    <input type="radio" name="direction" value={id} checked={d.direction === id} />
+                    {DIRECTIONS[id].label}
+                  </label>
+                ))
+              }
+            </div>
+          </div>
+          <label class="field">
+            <span class="field-label">{sizeField.label}</span>
+            <span class="field-input">
+              <input
+                type="text"
+                inputmode="decimal"
+                autocomplete="off"
+                spellcheck="false"
+                name={sizeField.key}
+                id={`po-${sizeField.key}`}
+                value={fieldText(d[sizeField.key])}
+                aria-describedby={`po-${sizeField.key}-err`}
+              />
+              <span class="unit" data-size-unit>{sizeField.unit}</span>
+            </span>
+            <span class="field-error" id={`po-${sizeField.key}-err`} hidden />
+          </label>
+        </fieldset>
+      </form>
+
+      <div class="readout" aria-live="polite">
+        <dl class="figures">
+          {
+            tradeFigs.map((f) => (
+              <div class:list={['figure', { 'is-key': f.key }]} data-fig={f.id}>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+                <small>{f.small}</small>
+              </div>
+            ))
+          }
+        </dl>
+        <figure class="study readout-drawing" aria-live="off">
+          <svg viewBox={`0 0 ${VIEW.w} ${VIEW.h}`} role="img" aria-labelledby="po-svg-title po-svg-desc">
+            <title id="po-svg-title">The pool's curve, with the trade marked along it</title>
+            <desc id="po-svg-desc">{describe(result)}</desc>
+            <g data-plot set:html={drawing(result)} />
+          </svg>
+          <figcaption class="t-note">
+            The pool moves along its curve from the hollow point, before the trade, to the gold point, after it. A trade
+            too small to read at that scale is drawn again in an enlarged detail.
+          </figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="instrument-grid">
+      <div class="controls">
+        <fieldset class="group">
+          <legend>Liquidity provider</legend>
+          <label class="scale">
+            <span class="field-label">
+              Price of token A moves by
+              <output class="scale-value" for="po-move" id="po-move-out">{moveText(d.move)}</output>
+            </span>
+            <input
+              type="range"
+              name="move"
+              id="po-move"
+              form="po-form"
+              min={M.min}
+              max={M.max}
+              step="1"
+              value={d.move}
+              aria-valuetext={moveSpoken(d.move)}
+            />
+            <span class="scale-ticks" aria-hidden="true">
+              <span>{moveText(M.min)}</span>
+              <span>{moveText(M.max)}</span>
+            </span>
+          </label>
+          <p class="echo">
+            Impermanent loss at this move <span class="echo-value" data-echo>{pct(result.lp.loss)}</span>
+          </p>
+        </fieldset>
+
+        <div class="form-foot">
+          <button type="button" class="action" data-copy>Copy link</button>
+          <button type="button" class="action" data-reset>Reset</button>
+          <p class="t-note muted status" data-status aria-live="polite"></p>
+        </div>
+      </div>
+
+      <div class="readout" aria-live="polite">
+        <dl class="figures">
+          {
+            lpFigs.map((f) => (
+              <div class:list={['figure', { 'is-key': f.key }]} data-fig={f.id}>
+                <dt>{f.label}</dt>
+                <dd>{f.value}</dd>
+                <small>{f.small}</small>
+              </div>
+            ))
+          }
+        </dl>
+        <figure class="study readout-drawing" aria-live="off">
+          <svg viewBox={`0 0 ${LOSS_VIEW.w} ${LOSS_VIEW.h}`} role="img" aria-labelledby="po-loss-title po-loss-desc">
+            <title id="po-loss-title">Impermanent loss against the price change of token A</title>
+            <desc id="po-loss-desc">{describeLoss(result)}</desc>
+            <g data-loss-plot set:html={lossDrawing(result)} />
+          </svg>
+          <figcaption class="t-note">
+            The gold stretch runs from no change in price to the move set on the scale. The dashed chord marks a loss
+            of {markLoss}, reached when {markMoves}.
+          </figcaption>
+        </figure>
+        <p class="note">
+          Every default on this page is illustrative and describes no real pool. Put in the reserves and the fee of the
+          pool you are looking at.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <Fragment slot="method">
+    <p>
+      The pool holds two reserves, x of token A and y of token B, and accepts any trade that leaves the product x × y no
+      smaller than before. That product is the invariant, k. The spot price of token A is the ratio of the reserves, y ÷
+      x: the slope of the curve at the point where the pool sits.
+    </p>
+    <p>
+      A trader paying in an amount dx first leaves the fee behind, so only dxEff = dx × (1 − fee) is swapped. The pool
+      pays out dy = y × dxEff ÷ (x + dxEff), the amount that keeps the product unchanged. The fee stays in the reserves,
+      so k rises a little with every trade: that is how liquidity providers are paid. The execution price is what was
+      paid divided by what was received. Price impact is how far the amount received falls short of the spot price on
+      the amount swapped, −dxEff ÷ (x + dxEff). Buying token A with token B is the same calculation with the two
+      reserves exchanged.
+    </p>
+    <p>
+      Impact depends only on the size of the trade against the reserve it enters. A trade equal to 1% of that reserve
+      loses about 1% to the curve, a trade equal to the whole reserve loses half, and no trade can empty the pool. For
+      the same trade, a deeper pool is a cheaper one.
+    </p>
+    <p>
+      A liquidity provider owns a share of both reserves. When the market price of token A moves by a ratio r,
+      arbitrage trades the pool along its curve until the two prices agree, and the position ends worth 2 × √r for every
+      1 + r the same tokens would be worth if simply held. Impermanent loss is the gap: 2 × √r ÷ (1 + r) − 1. It is zero
+      if the price returns to where it started, it is the same for a price that halves as for one that doubles, and it
+      reaches −{markLoss} when {markMoves}. The instrument applies it to a deposit of the whole pool, valued before
+      the trade.
+    </p>
+    <p>
+      Left out: concentrated liquidity, where a provider chooses a price range and the curve changes shape; gas and
+      other network costs; MEV, the value taken by whoever orders the transactions, including trades placed around
+      yours; the fee income a provider earns over time, which is what impermanent loss has to be weighed against; and
+      pools holding more than two assets or following another invariant.
+    </p>
+  </Fragment>
+</Instrument>
+
+<style>
+  .pool {
+    display: grid;
+    gap: var(--s5);
+  }
+  .pool .instrument-grid + .instrument-grid {
+    padding-top: var(--s5);
+    border-top: 1px solid var(--rule);
+  }
+  .readout-drawing {
+    margin: 0;
+  }
+  .direction {
+    display: grid;
+    gap: 0.5rem;
+    justify-items: start;
+  }
+  .choice label {
+    min-height: 44px;
+    min-width: 7.5em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .scale input[type='range'] {
+    height: 44px;
+  }
+  .action {
+    min-height: 44px;
+  }
+  .field-input input {
+    min-height: 44px;
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+  }
+  .field-input:focus-within {
+    border-bottom-color: var(--gold);
+  }
+  .field-error:not([hidden]) {
+    display: block;
+    line-height: 1.4;
+  }
+  .scale-value,
+  .echo-value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+  .echo {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1em;
+    padding-top: var(--s1);
+    border-top: 1px solid var(--rule);
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+  .echo-value {
+    font-size: var(--step-0);
+    color: var(--gold);
+  }
+  .form-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s2);
+  }
+  .status {
+    flex: 1 1 14em;
+    font-size: var(--step-0);
+  }
+  .readout.is-stale .figures,
+  .readout.is-stale .readout-drawing {
+    opacity: 0.45;
+  }
+  .figure dd {
+    font-family: var(--font-mono);
+    font-size: var(--step-1);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .figure.is-key dd {
+    font-family: var(--font-mono);
+    font-size: var(--step-4);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+  .figure small {
+    line-height: 1.35;
+  }
+  .readout-drawing figcaption {
+    max-width: 34em;
+  }
+
+  /* Lettering and marks of the two drawings, which arrive as markup from the module. */
+  .readout-drawing :global(.lbl) {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    fill: var(--line-2);
+  }
+  .readout-drawing :global(.lbl.is-strong) {
+    fill: var(--line);
+  }
+  .readout-drawing :global(.gold-line) {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .readout-drawing :global(.gold-dot) {
+    fill: var(--gold);
+    stroke: none;
+  }
+  .readout-drawing :global(.hollow) {
+    fill: var(--black);
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .readout-drawing :global(.detail) {
+    fill: var(--panel);
+    stroke: var(--border-2);
+    stroke-width: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .readout .figures,
+    .readout .readout-drawing {
+      transition: opacity 180ms var(--ease-out);
+    }
+  }
+</style>
+
+<script>
+  import {
+    DIRECTIONS,
+    DIRECTION_QUERY,
+    POOL_DEFAULTS,
+    POOL_FIELDS,
+    POOL_KEYS,
+    compute,
+    convertSize,
+    describe,
+    describeLoss,
+    drawing,
+    fieldText,
+    figures,
+    lossDrawing,
+    moveSpoken,
+    moveText,
+    parseDirection,
+    pct,
+    validateField,
+    type Direction,
+    type PoolInputs,
+    type PoolKey,
+  } from '../../lib/instruments/pool';
+
+  const root = document.querySelector<HTMLElement>('[data-pool]');
+  if (root) {
+    const form = root.querySelector<HTMLFormElement>('form')!;
+    const readouts = [...root.querySelectorAll<HTMLElement>('.readout')];
+    const plot = root.querySelector<SVGGElement>('[data-plot]')!;
+    const desc = root.querySelector<SVGDescElement>('#po-svg-desc')!;
+    const lossPlot = root.querySelector<SVGGElement>('[data-loss-plot]')!;
+    const lossDesc = root.querySelector<SVGDescElement>('#po-loss-desc')!;
+    const status = root.querySelector<HTMLElement>('[data-status]')!;
+    const moveOut = root.querySelector<HTMLOutputElement>('#po-move-out')!;
+    const echo = root.querySelector<HTMLElement>('[data-echo]')!;
+    const sizeUnit = root.querySelector<HTMLElement>('[data-size-unit]')!;
+    const radios = [...root.querySelectorAll<HTMLInputElement>('input[name="direction"]')];
+
+    const input = (k: PoolKey) => root.querySelector<HTMLInputElement>(`#po-${k}`)!;
+    const direction = (): Direction => parseDirection(radios.find((r) => r.checked)?.value ?? null);
+    const setDirection = (dir: Direction) => radios.forEach((r) => (r.checked = r.value === dir));
+
+    const setError = (k: PoolKey, msg: string | null) => {
+      const el = input(k);
+      const err = root.querySelector<HTMLElement>(`#po-${k}-err`);
+      const wrap = el.closest('.field-input');
+      if (msg) {
+        el.setAttribute('aria-invalid', 'true');
+        wrap?.setAttribute('aria-invalid', 'true');
+        if (err) {
+          err.textContent = msg;
+          err.hidden = false;
+        }
+      } else {
+        el.removeAttribute('aria-invalid');
+        wrap?.removeAttribute('aria-invalid');
+        if (err) {
+          err.textContent = '';
+          err.hidden = true;
+        }
+      }
+    };
+
+    const writeUrl = (vals: PoolInputs) => {
+      const params = new URLSearchParams();
+      const buy = vals.direction !== POOL_DEFAULTS.direction;
+      for (const k of POOL_KEYS) {
+        // The trade size changes unit with the direction, so a link to a purchase always carries it.
+        if (vals[k] !== POOL_DEFAULTS[k] || (k === 'size' && buy)) params.set(POOL_FIELDS[k].q, String(vals[k]));
+      }
+      if (buy) params.set(DIRECTION_QUERY, vals.direction);
+      const qs = params.toString();
+      history.replaceState(null, '', qs ? `${location.pathname}?${qs}` : location.pathname);
+    };
+
+    let everValid = false;
+    const update = (persist = true) => {
+      const vals = { direction: direction() } as PoolInputs;
+      let bad = 0;
+      for (const k of POOL_KEYS) {
+        const res = validateField(k, input(k).value);
+        if ('error' in res) {
+          setError(k, res.error);
+          bad++;
+        } else {
+          setError(k, null);
+          vals[k] = res.value;
+        }
+      }
+      const move = Number(input('move').value);
+      moveOut.value = moveText(move);
+      input('move').setAttribute('aria-valuetext', moveSpoken(move));
+      sizeUnit.textContent = DIRECTIONS[vals.direction].unit;
+
+      if (bad) {
+        readouts.forEach((el) => el.classList.add('is-stale'));
+        // A shared link with a bad value never had a valid set of its own: say the readout is the defaults.
+        const shown = everValid ? 'the last valid set' : 'the illustrative defaults';
+        status.textContent = bad === 1 ? `One field needs a fix. The readout shows ${shown}.` : `${bad} fields need a fix. The readout shows ${shown}.`;
+        return;
+      }
+      everValid = true;
+      readouts.forEach((el) => el.classList.remove('is-stale'));
+      status.textContent = '';
+
+      const r = compute(vals);
+      for (const f of figures(r)) {
+        const el = root.querySelector<HTMLElement>(`[data-fig="${f.id}"]`);
+        if (!el) continue;
+        el.querySelector('dd')!.textContent = f.value;
+        el.querySelector('small')!.textContent = f.small;
+      }
+      echo.textContent = pct(r.lp.loss);
+      plot.innerHTML = drawing(r);
+      desc.textContent = describe(r);
+      lossPlot.innerHTML = lossDrawing(r);
+      lossDesc.textContent = describeLoss(r);
+      if (persist) writeUrl(vals);
+    };
+
+    // Read a shared configuration from the query string.
+    const params = new URLSearchParams(location.search);
+    for (const k of POOL_KEYS) {
+      const v = params.get(POOL_FIELDS[k].q);
+      if (v !== null) input(k).value = v;
+    }
+    setDirection(parseDirection(params.get(DIRECTION_QUERY)));
+
+    // The scale sits outside the form element, so the listener is on the whole instrument.
+    root.addEventListener('input', (e) => {
+      const t = e.target as HTMLInputElement;
+      let converted = false;
+      if (t.name === 'direction') {
+        // Keep the same trade when the direction turns: restate its size in the other token at the spot price.
+        const a = validateField('reserveA', input('reserveA').value);
+        const b = validateField('reserveB', input('reserveB').value);
+        const s = validateField('size', input('size').value);
+        if ('value' in a && 'value' in b && 'value' in s) {
+          input('size').value = fieldText(convertSize(s.value, direction(), b.value / a.value));
+          converted = true;
+        }
+      }
+      update();
+      if (converted && status.textContent === '') status.textContent = 'Trade size restated in the other token at the spot price.';
+    });
+    form.addEventListener('submit', (e) => e.preventDefault());
+
+    root.querySelector('[data-copy]')!.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(location.href);
+        status.textContent = 'Link copied. It opens this page with the same settings.';
+      } catch {
+        status.textContent = 'Copying is blocked here. Copy the address from the browser bar: it holds the same settings.';
+      }
+    });
+
+    root.querySelector('[data-reset]')!.addEventListener('click', () => {
+      for (const k of POOL_KEYS) input(k).value = fieldText(POOL_DEFAULTS[k]);
+      setDirection(POOL_DEFAULTS.direction);
+      update(false);
+      history.replaceState(null, '', location.pathname);
+      status.textContent = 'Back to the illustrative defaults.';
+    });
+
+    update(false);
+  }
+</script>

@@ -1,0 +1,365 @@
+---
+// THE ENTITY, described precisely: the chain it models, the instruments built
+// on it, the plans, and the two open pieces. Everything here is as published
+// on joinentity.com in October 2026; update the figures in this file.
+// House rules: no fund names or holdings, no performance figures, no
+// endpoints or key formats, no model or provider names.
+
+const LAYERS = [
+  { n: '01', name: 'Energy', nodes: 14, what: 'Grid capacity, power delivery and cooling: what turns electricity into room for compute.' },
+  { n: '02', name: 'Chips', nodes: 24, what: 'Compute silicon, and the memory, packaging and interconnect around it.' },
+  { n: '03', name: 'Infrastructure', nodes: 24, what: 'AI factories, networking, photonics and critical materials: what joins chips into clusters.' },
+  { n: '04', name: 'Models', nodes: 12, what: 'Training, inference and agents, and the economics of serving them.' },
+  { n: '05', name: 'Applications', nodes: 6, what: 'The products built on models, where every constraint below ends up as cost, latency or capability.' },
+];
+const NODES = LAYERS.reduce((s, l) => s + l.nodes, 0);
+
+const INSTRUMENTS = [
+  { name: 'The Verdict', what: 'Every listed AI name scored 0 to 100, with a call from Strong Buy to Avoid.', proof: '645 names, re-scored every night' },
+  { name: 'The Edge', what: 'Where the model’s read disagrees with the price: the mispricings, ranked.', proof: 'Price history to 2021' },
+  { name: 'Smart Money', what: 'What elite funds and insiders are buying, dated from their public filings.', proof: '103 funds tracked, 92 scored' },
+  { name: 'Constraint forecast', what: 'Where the next shortage lands, a quarter or two ahead, with the exposed names attached.', proof: '80 nodes, 48 chokepoints' },
+  { name: 'Living map, Ultra Globe', what: 'The whole chain as one interactive graph, and every real facility on a globe.', proof: '624 facilities, 74 geographies' },
+  { name: 'Copilot', what: 'Ask in plain language. It composes a live dashboard from the graph and cites its sources.', proof: '871 sourced company narratives' },
+  { name: 'Cockpit, Thesis Workbench', what: 'Your own AI positions held against the chain, and your thesis attacked until the day it breaks.', proof: 'Watched overnight' },
+  { name: 'Receipts', what: 'Every call recorded the day it is made, then graded in public, misses included.', proof: 'Dated day-of, never edited' },
+];
+
+const PLANS = [
+  { name: 'Lite', price: '$19', per: 'a month', who: 'To learn the chain', what: 'A four-level course, briefings, the 20 core AI names, movers and live news.' },
+  { name: 'Pro', price: '$49', per: 'a month', who: 'To find the moves', what: 'Every name, the Verdict, the Edge, Receipts, Smart Money, Copilot and the Cockpit. Three-day trial.' },
+  { name: 'Terminal', price: '$10,000', per: 'a year', who: 'Accredited investors and asset managers', what: 'Live nowcast, real-time alerts, the model through an API and bulk export.' },
+];
+---
+
+<div class="brief" lang="en">
+  <section class="b-sec" aria-labelledby="b-chain">
+    <header class="b-head">
+      <p class="t-label">The model</p>
+      <h2 id="b-chain" class="b-title">Five layers, one graph.</h2>
+      <p class="b-lede">
+        Everything AI runs on, from the power a data centre draws to the applications on top, drawn as {NODES} connected
+        nodes. Each of the 835 companies sits on the nodes it supplies or depends on.
+      </p>
+    </header>
+    <ol class="layers">
+      {
+        LAYERS.map((l) => (
+          <li>
+            <span class="l-n">{l.n}</span>
+            <span class="l-name">{l.name}</span>
+            <span class="l-what">{l.what}</span>
+            <span class="l-count">
+              <span class="l-bar" style={`--w:${l.nodes / 24}`} aria-hidden="true" />
+              <span class="l-num">{l.nodes}</span> nodes
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="b-sec" aria-labelledby="b-inst">
+    <header class="b-head">
+      <p class="t-label">The instruments</p>
+      <h2 id="b-inst" class="b-title">What an investor uses inside.</h2>
+      <p class="b-lede">Each one reads the same graph and answers one question.</p>
+    </header>
+    <ul class="inst">
+      {
+        INSTRUMENTS.map((i) => (
+          <li>
+            <h3>{i.name}</h3>
+            <p>{i.what}</p>
+            <span class="i-proof">{i.proof}</span>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="b-note">
+      Also inside: a scenario sandbox, a dependency screener, a pre-IPO pipeline, movers, live news, a glossary and the
+      full methodology.
+    </p>
+  </section>
+
+  <section class="b-sec" aria-labelledby="b-plans">
+    <header class="b-head">
+      <p class="t-label">Access</p>
+      <h2 id="b-plans" class="b-title">Three plans, all paid.</h2>
+      <p class="b-lede">Built to an institutional standard and written in plain English.</p>
+    </header>
+    <ul class="plans">
+      {
+        PLANS.map((p) => (
+          <li>
+            <h3>{p.name}</h3>
+            <p class="p-price">
+              <span>{p.price}</span> {p.per}
+            </p>
+            <p class="p-who">{p.who}</p>
+            <p class="p-what">{p.what}</p>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="b-note">List prices as of October 2026. Research, not investment advice.</p>
+  </section>
+
+  <section class="b-sec" aria-labelledby="b-open">
+    <header class="b-head">
+      <p class="t-label">Around it</p>
+      <h2 id="b-open" class="b-title">Two pieces in the open.</h2>
+    </header>
+    <ul class="open">
+      <li>
+        <h3>The AI Value-Chain Index</h3>
+        <p>
+          A public benchmark of the 25 listed companies that anchor the chain, weighted by where they sit in it and not
+          only by size, capped at 12% a name. Rules-based, and not an investable product.
+        </p>
+        <a href="https://joinentity.com/the-index" rel="noopener">See the index</a>
+      </li>
+      <li>
+        <h3>THE ENTITY Data</h3>
+        <p>
+          The same data, read-only, for people who would rather build on it: the supply-chain graph, the computed engine,
+          the smart-money panel and market feeds, for code, spreadsheets and AI agents.
+        </p>
+        <a href="https://joinentity.com/developers" rel="noopener">Read the developer docs</a>
+      </li>
+    </ul>
+  </section>
+</div>
+
+<style>
+  .brief {
+    display: grid;
+    gap: var(--s7);
+  }
+
+  .b-sec {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: clamp(12px, 2vw, 32px);
+    row-gap: var(--s4);
+  }
+
+  .b-head {
+    grid-column: 1 / span 4;
+    align-self: start;
+  }
+
+  .b-title {
+    margin-top: var(--s2);
+    font-family: var(--font-title);
+    font-weight: 500;
+    font-size: var(--step-4);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+  }
+
+  .b-lede {
+    margin-top: var(--s2);
+    color: var(--line-2);
+    max-width: 24em;
+  }
+
+  .b-note {
+    grid-column: 6 / span 7;
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+
+  .layers,
+  .inst,
+  .plans,
+  .open {
+    grid-column: 6 / span 7;
+    list-style: none;
+  }
+
+  /* The five layers, each with its share of the 80 nodes. */
+  .layers {
+    border-top: 1px solid var(--border-2);
+  }
+
+  .layers li {
+    display: grid;
+    grid-template-columns: 2.25rem 8.5rem minmax(0, 1fr) 7.5rem;
+    column-gap: var(--s2);
+    align-items: baseline;
+    padding-block: var(--s2);
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .l-n {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--line-3);
+  }
+
+  .l-name {
+    font-size: var(--step-1);
+  }
+
+  .l-what {
+    font-size: var(--step--1);
+    line-height: 1.5;
+    color: var(--line-2);
+  }
+
+  .l-count {
+    display: grid;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--line-2);
+    text-align: right;
+  }
+
+  .l-bar {
+    justify-self: end;
+    width: calc(var(--w) * 100%);
+    height: 2px;
+    background: var(--gold);
+  }
+
+  .l-num {
+    font-family: var(--font-mono);
+    font-size: var(--step-0);
+    color: var(--line);
+  }
+
+  /* The instruments. */
+  .inst {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--border);
+    overflow: hidden;
+  }
+
+  .inst li {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 20px 22px;
+    background: var(--panel);
+  }
+
+  .inst h3,
+  .plans h3,
+  .open h3 {
+    font-family: var(--font-title);
+    font-weight: 500;
+    font-size: var(--step-1);
+    letter-spacing: -0.01em;
+  }
+
+  .inst p,
+  .open p,
+  .p-what {
+    font-size: var(--step--1);
+    line-height: 1.5;
+    color: var(--line-2);
+  }
+
+  .i-proof {
+    margin-top: auto;
+    padding-top: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    color: var(--gold);
+  }
+
+  /* The plans. */
+  .plans {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .plans li {
+    display: grid;
+    align-content: start;
+    gap: 8px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--panel);
+  }
+
+  .p-price {
+    font-size: var(--step--1);
+    color: var(--line-2);
+  }
+
+  .p-price span {
+    font-family: var(--font-mono);
+    font-size: var(--step-2);
+    letter-spacing: -0.02em;
+    color: var(--line);
+  }
+
+  .p-who {
+    font-size: var(--step--1);
+    color: var(--gold);
+  }
+
+  /* The open pieces. */
+  .open {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .open li {
+    display: grid;
+    align-content: start;
+    gap: 10px;
+    padding: 20px 22px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .open a {
+    justify-self: start;
+    font-size: var(--step--1);
+  }
+
+  @media (max-width: 960px) {
+    .b-head,
+    .b-note,
+    .layers,
+    .inst,
+    .plans,
+    .open {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .layers li {
+      grid-template-columns: 2rem minmax(0, 1fr) auto;
+      row-gap: 6px;
+    }
+    .l-what {
+      grid-column: 2 / -1;
+      grid-row: 2;
+    }
+    .l-count {
+      grid-column: 3;
+      grid-row: 1;
+    }
+    .l-bar {
+      display: none;
+    }
+    .inst,
+    .plans,
+    .open {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+// The mark of each house: the step-cut stone, THE ENTITY glyph, the ORBES monogram.
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import Mark from './Mark.astro';
+import type { BrandId } from '../../lib/brands';
+
+interface Props {
+  id: BrandId;
+  detail?: 'fine' | 'bold' | 'display';
+}
+const { id, detail = 'fine' } = Astro.props;
+
+const read = (...p: string[]) => readFileSync(join(process.cwd(), 'public', 'media', ...p), 'utf8');
+
+// THE ENTITY glyph, recoloured to follow its container.
+const glyph =
+  id === 'entity'
+    ? read('entity', 'glyph.svg').replace(/ width="\d+" height="\d+"/, ' focusable="false"').replaceAll('#7abdb4', 'currentColor')
+    : '';
+const mono = id === 'orbes' ? [...read('orbes', 'monogram.svg').matchAll(/<path[^>]*\sd="([^"]+)"/g)].map((m) => m[1]) : [];
+---
+
+{id === 'eliot' && <Mark detail={detail} />}
+{id === 'entity' && <Fragment set:html={glyph} />}
+{
+  id === 'orbes' && (
+    <svg viewBox="0 0 500 500" focusable="false">
+      <g fill="currentColor">
+        {mono.map((d) => (
+          <path d={d} />
+        ))}
+      </g>
+    </svg>
+  )
+}

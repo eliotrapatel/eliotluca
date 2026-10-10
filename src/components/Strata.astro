@@ -1,6 +1,6 @@
 ---
 // Disciplines by year of entry: one rule from 2016 to now, one line per
-// discipline from the year it began. Each row is tied to its drawing on the
+// discipline from the year it began (broken where a discipline was set aside). Each row is tied to its drawing on the
 // sheet through data-study, so hovering one lights the other.
 import { disciplines as allDisciplines } from '../data/site';
 import { essayHref } from '../lib/writing';
@@ -24,7 +24,7 @@ const totalYears = Math.floor(nowYear - START);
 
 <figure class="strata" style={`--now: ${nowFrac}`} data-start={START} data-span={span}>
   <figcaption class="cap">
-    <span class="t-dim legend">Each line runs from the year a discipline began to <span class="now-month">{nowLabel}</span>.</span>
+    <span class="t-dim legend">Each line runs from the year a discipline began to <span class="now-month">{nowLabel}</span>. A gap is a pause.</span>
   </figcaption>
 
   <div class="chart">
@@ -43,11 +43,18 @@ const totalYears = Math.floor(nowYear - START);
         disciplines.map((d) => (
           <li class="row" data-study={linkStudies ? d.study : undefined} style={`--a: ${(d.since - START) / span}`}>
             <a class="name" href={d.href}>
-              <span class="label">{d.name}</span>
-              <span class="since t-dim">since {d.since}</span>
+              <span class="label">{d.name.replace('E-', 'E\u2011')}</span>
+              <span class="since t-dim">{d.pause ? `${d.since} to ${d.pause[0]}, ${d.pause[1]}` : `since ${d.since}`}</span>
             </a>
             <span class="track" aria-hidden="true">
-              <span class="line" />
+              {d.pause ? (
+                <>
+                  <span class="line is-closed" style={`--b: ${(d.pause[0] - START) / span}`} />
+                  <span class="line" style={`--a: ${(d.pause[1] - START) / span}`} />
+                </>
+              ) : (
+                <span class="line" />
+              )}
             </span>
           </li>
         ))
@@ -165,6 +172,20 @@ const totalYears = Math.floor(nowYear - START);
     border-radius: 50%;
     background: var(--ground);
     border: 1.25px solid var(--line);
+  }
+
+  /* A stretch that ended: the line stops at the year it was set aside. */
+  .line.is-closed {
+    right: calc((1 - var(--b)) * 100%);
+  }
+
+  .line.is-closed::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -4px;
+    height: 9px;
+    border-left: 1.25px solid var(--line);
   }
 
   .now-rule {

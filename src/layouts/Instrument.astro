@@ -5,12 +5,13 @@
 import Base from './Base.astro';
 import PageHead from '../components/PageHead.astro';
 import '../styles/instruments.css';
+import type { InstrumentFamily } from '../data/instruments';
 
 interface Props {
   title: string;
   lede: string;
   description: string;
-  family: 'Capital' | 'Code' | 'Craft';
+  family: InstrumentFamily;
   slug: string;
 }
 const { title, lede, description, family, slug } = Astro.props;
