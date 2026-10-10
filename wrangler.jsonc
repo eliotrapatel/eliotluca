@@ -18,12 +18,11 @@
   },
 
   // Request logs in the Cloudflare dashboard.
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
 
-  // The domain. Uncomment once eliotluca.com is added to this Cloudflare
-  // account (its nameservers must point to Cloudflare first, or the deploy fails).
-  // ,"routes": [
-  //   { "pattern": "eliotluca.com", "custom_domain": true },
-  //   { "pattern": "www.eliotluca.com", "custom_domain": true }
-  // ]
+  // The domain, with and without www. Cloudflare creates the DNS records itself.
+  "routes": [
+    { "pattern": "eliotluca.com", "custom_domain": true },
+    { "pattern": "www.eliotluca.com", "custom_domain": true }
+  ]
 }
