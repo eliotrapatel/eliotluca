@@ -4,7 +4,7 @@ description: "Why I am building a men's accessories brand at a time when almost 
 date: 2026-09-21
 lang: en
 kind: manifesto
-draft: true
+draft: false
 ---
 
 Almost everything I own was designed to be replaced. My phone was priced with its successor already planned. Most clothes are cut for a single season. Even the software I build has to change every week to stay useful. I do not resent any of that, but it left me wanting to make one kind of object that does the opposite.

@@ -4,7 +4,7 @@ description: "How much AI the world can run is set by power, memory, packaging a
 date: 2026-09-29
 lang: en
 kind: essay
-draft: true
+draft: false
 ---
 
 When a new AI model is announced, the conversation is about what it can do. I have become more interested in a duller question: how many of these models can be run at the same time, and what stops that number from being larger.

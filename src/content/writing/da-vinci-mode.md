@@ -4,7 +4,7 @@ description: "I practise eight disciplines at once, as a creator and an operator
 date: 2026-10-06
 lang: en
 kind: manifesto
-draft: true
+draft: false
 ---
 
 I practise eight disciplines at once, and I do it on purpose. Branding and design since 2016. Crypto since 2017. E-commerce from 2018 to 2021, and again from 2026. Finance since 2021. Music since 2023. AI since 2025. 3D modelling and watchmaking since 2026. I call it Da Vinci Mode.

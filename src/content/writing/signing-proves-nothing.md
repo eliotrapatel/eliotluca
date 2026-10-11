@@ -4,7 +4,7 @@ description: "I have seen an acquisition before the deal and after it. The value
 date: 2026-09-07
 lang: en
 kind: essay
-draft: true
+draft: false
 ---
 
 I have seen an acquisition from two places. The first was before a deal, helping to prepare the information memorandum and the answers to buyers' questions for an €80M sale. The second was after one, working on the integration of an acquired company inside a larger group. They are the same story at two moments, and what struck me is how little the people at the first moment think about the second.

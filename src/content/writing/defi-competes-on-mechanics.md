@@ -4,7 +4,7 @@ description: "Finance is several jobs sold together. Decentralised finance alrea
 date: 2026-08-31
 lang: en
 kind: essay
-draft: true
+draft: false
 ---
 
 I have been in crypto since 2017, and I later wrote my thesis on a question I had been asked many times: can decentralised finance compete with traditional finance? For it I interviewed five executives of DeFi protocols, more than five hours of conversation in total. The conclusions below are mine, and none of them is quoted.

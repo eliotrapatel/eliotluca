@@ -4,7 +4,7 @@ description: "Avant de construire quoi que ce soit, je pose deux chiffres : ce q
 date: 2026-09-14
 lang: fr
 kind: essay
-draft: true
+draft: false
 ---
 
 Avant de construire quoi que ce soit, je pose deux chiffres : ce que me coûte un utilisateur par mois, et ce que me coûte une requête. La plupart des produits se font dans l'ordre inverse. On dresse la liste des fonctionnalités, on choisit les outils, puis on découvre la facture. Je préfère partir de la facture, parce qu'elle oblige à comprendre ce que l'on construit.
